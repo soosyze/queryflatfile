@@ -1,1 +1,0 @@
-{"user":{"path":"data","table":"user","setting":{"id":"increments","name":"string 255","firstname":"string 255"}},"user_role":{"path":"data","table":"user_role","setting":{"id_user":"integer","id_role":"integer"}},"role":{"path":"data","table":"role","setting":{"id":"increments","labelle":"string 255"}}}

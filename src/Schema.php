@@ -1,240 +1,407 @@
 <?php
 
-namespace Queryjson;
+/**
+ * Class Schema | src/Schema.php
+ * 
+ * @package Queryflatfile
+ * @author  Mathieu NOËL <mathieu@soosyze.com>
+ * 
+ */
 
-use Queryjson\TableBuilder;
+namespace Queryflatfile;
 
-if( !defined( 'DS' ) )
-{
-    define( 'DS', DIRECTORY_SEPARATOR );
-}
+use Queryflatfile\TableBuilder,
+    Queryflatfile\DriverInterface;
 
+/**
+ * Pattern fluent pour la gestion d'un schéma de données.
+ */
 class Schema
 {
-
     /**
-     * Le format de la base de données (json)
-     * @var string
+     * Le format de la base de données
+     * @var DriverInterface
      */
     protected $driver;
 
     /**
-     * Le repertoire de stockage
+     * Le répertoire de stockage
      * @var string
      */
-    protected $host;
+    protected $path;
 
     /**
-     * Le nom du schema
+     * Le nom du schéma
      * @var string
      */
     protected $name;
 
     /**
-     * Le chemin complet du schema
+     * Le chemin, nom et extension du schéma
      * @var string
      */
-    protected $path;
+    protected $file;
 
-    function __construct( $config = null )
+    /**
+     * Construis l'objet avec une configuration.
+     * 
+     * @param string $host le répertoire de stockage des données
+     * @param string $name le nom du fichier contenant le schéma de base
+     * @param DriverInterface $driver l'interface de manipulation de données
+     */
+    public function __construct( $host = null, $name = 'schema',
+        DriverInterface $driver = null )
     {
-        if( !is_null( $config ) )
+        if( !is_null($host) )
         {
-            $json = $this->getJson( $config );
-            $this->setConfig( $json[ 'database_driver' ], $json[ 'database_host' ], $json[ 'database_name' ] );
+            $this->setConfig($host, $name, $driver);
         }
     }
 
     /**
-     * Ajout la configuration minimum pour le fonctionnement du schema.
+     * Enregistre la configuration.
      * 
-     * @param string $host le chemin ou sera sauvegardé les données
-     * @param string $name le nom du fichier du schema
-     * @param string $driver le nom du format de fichier dans lequel les données seront manipulées
+     * @param string $host le répertoire de stockage des données
+     * @param string $name le nom du fichier contenant le schéma de base
+     * @param DriverInterface $driver l'interface de manipulation de données
      */
-    public function setConfig( $host, $name = 'schema', $driver = 'json' )
+    public function setConfig( $host, $name = 'schema',
+        DriverInterface $driver = null )
     {
         $this->driver = $driver;
-        $this->host   = $host;
-        $this->name   = $name;
-        $this->path   = $host . DS . $name . '.' . $driver;
+        if( is_null($driver) )
+        {
+            $this->driver = new DriverJson();
+        }
+
+        $this->path = $host;
+        $this->name = $name;
+        $this->file = $host . DIRECTORY_SEPARATOR . $name . '.' . $this->driver->getExtension();
+
+        return $this;
     }
 
     /**
-     * Créer le schema avec les données de configuration.
+     * Modifie les valeurs incrémentales d'une table.
      * 
-     * @return boolean si le fichier est bien créé
+     * @param string $table nom de la table
+     * @param array $increments les valeurs incrémentales 
+     * [ field_1=>value:int, ... ]
+     * 
+     * @return boolean si le schéma d'incrémentaion est bien enregistré
      */
-    protected function createSchema()
+    public function setIncrements( $table, array $increments )
     {
-        return $this->createJson( $this->host, $this->name );
+        $schema                           = $this->getSchema();
+        $schema[ $table ][ 'increments' ] = $increments;
+
+        return $this->save($this->path, $this->name, $schema);
     }
 
     /**
-     * Génnère le schema si il n'existe pas en fonction des données de configuration.
+     * Génère le schéma s'il n'existe pas en fonction du fichier de configuration.
      * 
      * @return array le schema de la base de données
      */
     public function getSchema()
     {
-        $schema = $this->path;
+        $schema = $this->file;
 
-        if( !file_exists( $schema ) )
+        if( !file_exists($schema) )
         {
-            $this->createSchema();
+            $this->create($this->path, $this->name);
         }
 
-        return $this->getJson( $schema );
+        return $this->read($this->path, $this->name);
     }
 
     /**
-     * Cherche le schema de la table passé en paramêtre.
+     * Cherche le schéma de la table passée en paramètre.
      * 
      * @param string $table nom de la table
      * 
      * @return array le schema de la table
-     * @throws \Exception table not found
+     * 
+     * @throws Exception\Query\TableNotFoundException
      */
     public function getSchemaTable( $table )
     {
         $schema = $this->getSchema();
 
-        if( !isset( $schema[ $table ] ) )
+        if( !isset($schema[ $table ]) )
         {
-            throw new \Exception( "La table " . $table . " est absente !" );
+            throw new Exception\Query\TableNotFoundException("The " . $table . " table is missing in the schema.");
         }
 
         return $schema[ $table ];
     }
 
     /**
-     * Supprime le schema
+     * Supprime le schéma courant des données.
+     * 
+     * @return $this
      */
     public function dropSchema()
     {
-        unlink( $this->path );
-    }
+        $schema = $this->getSchema();
 
-    /**
-     * Créer une référence de le schema et le fichier de la table.
-     * 
-     * @param string $table le nom de la table
-     */
-    public function createTable( $table, $callback = null )
-    {
-        $schema       = $this->getSchema();
-        $tableBuilder = null;
-        if( !is_null( $callback ) )
+        /* Supprime les fichiers des tables */
+        foreach( $schema as $table )
         {
-            $tableBuilder = $callback( new TableBuilder() )->build();
+            $this->delete($table[ 'path' ], $table[ 'table' ]);
         }
-        $schema[ $table ] = [
-            'path'    => $this->host,
-            'table'   => $table,
-            'setting' => $tableBuilder
-        ];
-        $this->saveJson( $this->host, $this->name, $schema );
-        $this->createJson( $this->host, $table );
+
+        /* Supprime le fichier de schéma */
+        unlink($this->file);
+
+        /**
+         * Dans le cas ou le répertoire utilisé contient d'autre fichier
+         * (Si le répertoire contient que les 2 élements '.' et '..')
+         * alors nous le supprimons.
+         */
+        if( count(scandir($this->path)) == 2 )
+        {
+            rmdir($this->path);
+        }
+
+        return $this;
     }
 
     /**
-     * Vide la table.
+     * Créer une référence dans le schéma et le fichier de la table.
      * 
      * @param string $table le nom de la table
+     * @param callable $callback fonction(TableBuilder $table) pour créer les champs
+     */
+    public function createTable( $table, callable $callback = null )
+    {
+        $schema = $this->getSchema();
+
+        if( isset($schema[ $table ]) )
+        {
+            throw new \Exception("Table " . htmlspecialchars($table) . " exist.");
+        }
+
+        $tableBuilder = null;
+        $increments   = [];
+
+        if( !is_null($callback) )
+        {
+            $builder      = new TableBuilder();
+            call_user_func_array($callback, [ &$builder ]);
+            $tableBuilder = $builder->build();
+            $increments   = $builder->getIncrement();
+        }
+
+        $schema[ $table ] = [
+            'table'      => $table,
+            'path'       => $this->path,
+            'fields'     => $tableBuilder,
+            'increments' => $increments
+        ];
+
+        $this->save($this->path, $this->name, $schema);
+        $this->create($this->path, $table);
+
+        return $this;
+    }
+
+    /**
+     * Créer une référence dans le schéma et un fichier de données si ceux si n'existe pas.
+     * 
+     * @param string $table le nom de la table
+     * @param callable $callback fonction(TableBuilder $table) pour créer les champs
+     * 
+     * @return $this
+     */
+    public function createTableIfNotExists( $table, callable $callback = null )
+    {
+        $sch = $this->getSchema();
+
+        /* Créer la table si elle n'existe pas dans le schéma */
+        if( !isset($sch[ $table ]) )
+        {
+            $this->createTable($table, $callback);
+            return $this;
+        }
+        if( !$this->driver->has($sch[ $table ][ 'path' ], $sch[ $table ][ 'table' ]) )
+        {
+            /* Si elle existe dans le schéma et que le fichier est absent alors on le créer */
+            $this->create($this->path, $table);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Modifie les champs du schéma de données.
+     * 
+     * @param string $table
+     * @param callable $callback
+     * 
+     * @return $this
+     */
+    public function alterTable( $table, callable $callback = null )
+    {
+        $sch = $this->getSchema();
+        return $this;
+    }
+
+    /**
+     * Détermine une table existe.
+     * 
+     * @param string $table nom de la table
+     * 
+     * @return boolean si le schéma de référence et le fichier de données existent
+     */
+    public function hasTable( $table )
+    {
+        $sch = $this->getSchema();
+
+        return isset($sch[ $table ]) && $this->driver->has($sch[ $table ][ 'path' ], $sch[ $table ][ 'table' ]);
+    }
+
+    /**
+     * Détermine si une colonne existe.
+     * 
+     * @param string $table nom de la table
+     * @param string $column nom de la colonne
+     * 
+     * @return boolean si le shéma de référence et le fichier de données existent
+     */
+    public function hasColumn( $table, $column )
+    {
+        $sch = $this->getSchema();
+
+        return isset($sch[ $table ][ $column ]) && $this->driver->has($sch[ $table ][ 'path' ], $sch[ $table ][ 'table' ]);
+    }
+
+    /**
+     * Vide la table et initialise les champs incrémentaux.
+     * 
+     * @param String $table le nom de la table
+     * 
+     * @return boolean
      */
     public function truncateTable( $table )
     {
         $schema = $this->getSchema();
-        $this->saveJson( $schema[ $table ][ 'path' ], $schema[ $table ][ 'table' ], [] );
+
+        if( !isset($schema[ $table ]) )
+        {
+            throw new \Exception("Table " . htmlspecialchars($table) . " is not exist.");
+        }
+
+        $this->save($schema[ $table ][ 'path' ], $schema[ $table ][ 'table' ], [
+        ]);
+
+        foreach( $schema[ $table ][ 'increments' ] as $key => $value )
+        {
+            $schema[ $table ][ 'increments' ][ $key ] = 0;
+        }
+
+        return $this->save($this->path, $this->name, $schema);
     }
 
     /**
-     * Supprime du schema la référence de la table et le fichier de la table.
+     * Supprime du schéma la référence de la table et son fichier de données.
      * 
      * @param string $table le nom de la table
+     * 
+     * @return boolean si la suppression du schema et des données se son bien passé
      */
     public function dropTable( $table )
     {
         $schema = $this->getSchema();
-        $this->deleteJson( $schema[ $table ][ 'path' ], $schema[ $table ][ 'table' ] );
-        unset( $schema[ $table ] );
-        $this->saveJson( $this->host, $this->name, $schema );
+
+        if( !isset($schema[ $table ]) )
+        {
+            throw new \Exception("Table " . htmlspecialchars($table) . " is not exist.");
+        }
+
+        $deleteSchema = $this->delete($schema[ $table ][ 'path' ], $schema[ $table ][ 'table' ]);
+        unset($schema[ $table ]);
+        $deleteData   = $this->save($this->path, $this->name, $schema);
+
+        return $deleteSchema && $deleteData;
     }
 
     /**
-     * Retourne les données d'un fichier au format json.
+     * Supprime une table si elle existe.
      * 
-     * @param string $file le nom du fichier
+     * @param string $table nom de la table
      * 
-     * @return array les données du fichier
-     * @throws \Exception
+     * @return boolean si la table n'existe plus
      */
-    public function getJson( $file )
+    public function dropTableIfExists( $table )
     {
-        if( !file_exists( $file ) )
+        if( $this->hasTable($table) )
         {
-            throw new \Exception( 'Error : The ' . $file . ' file is missing' );
+            return $this->dropTable($table);
         }
-        if( !extension_loaded( 'json' ) )
-        {
-            throw new \Exception( 'Error : The json extension is not loaded' );
-        }
-        if( strrchr( $file, '.' ) != '.json' )
-        {
-            throw new \Exception( 'Error : The ' . $file . ' is not in json format' );
-        }
-
-        $json   = file_get_contents( $file );
-        $return = json_decode( $json, true );
-        return $return;
     }
 
     /**
-     * Créer un fichier au format json si celui ci n'existe pas.
+     * Utilisation du driver pour connaître l'extension de fichier utilisé.
      * 
-     * @param string $path le chemain du fichier
-     * @param string $file le nom du fichier
-     * @param array $data les données
-     * 
-     * @return boolean si le fichier est bien créé.
-     * @throws \Exception erreur d'ouverture du fichier
+     * @return string l'extension de fichier sans le '.'
      */
-    public function createJson( $path, $file, array $data = [] )
+    public function getExtension()
     {
-        if( !file_exists( $path ) )
-        {
-            mkdir( $path, 0775 );
-        }
-        $fichier = fopen( $path . DS . $file . '.json', 'w+' );
-        if( !$fichier )
-        {
-            throw new Exception( 'File open failed.' );
-        }
-        fwrite( $fichier, json_encode( $data ) );
-        return fclose( $fichier );
+        return $this->driver->getExtension();
     }
 
     /**
-     * Enregistre des données dans un fichier au format json.
+     * Utilisation du driver pour lire un fichier.
      * 
-     * @param string $path chemin du fichier
-     * @param string $file nom du fichier
-     * @param array $data tableau de données
+     * @param string $path
+     * @param string $file
+     * 
+     * @return array le contenu du fichier
      */
-    public function saveJson( $path, $file, array $data )
+    public function read( $path, $file )
     {
-        return file_put_contents( $path . DS . $file . '.json', json_encode( $data ) );
+        return $this->driver->read($path, $file);
     }
 
     /**
-     * Supprime un fichier au format json.
+     * Utilisation du driver pour enregistrer des données dans un fichier.
      * 
-     * @param string $path chemin du fichier
-     * @param string $file nom du fichier
+     * @param string $path
+     * @param string $file
+     * @param array $data
+     * 
+     * @return boolean
      */
-    public function deleteJson( $path, $file )
+    public function save( $path, $file, array $data )
     {
-        return unlink( $path . DS . $file . '.json' );
+        return $this->driver->save($path, $file, $data);
     }
 
+    /**
+     * Utilisation du driver pour créer un fichier.
+     * 
+     * @param string $path
+     * @param string $file
+     * @param array $data
+     * 
+     * @return boolean
+     */
+    protected function create( $path, $file, array $data = [] )
+    {
+        return $this->driver->create($path, $file, $data);
+    }
+
+    /**
+     * Utilisation du driver pour supprimer un fichier.
+     * 
+     * @param string $path
+     * @param string $file
+     * 
+     * @return boolean
+     */
+    protected function delete( $path, $file )
+    {
+        return $this->driver->delete($path, $file);
+    }
 }

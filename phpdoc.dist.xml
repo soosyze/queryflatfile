@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <title>Query flat file</title>
+    <parser>
+        <target>build/phpDocumentor/cache</target>
+        <extensions>
+            <extension>php</extension>
+        </extensions>
+    </parser>
+    <transformer>
+        <target>build/phpDocumentor</target>
+    </transformer>
+    <files>
+        <directory>src/*</directory>
+        <ignore>vendor/*</ignore>
+        <ignore>tests/*</ignore>
+        <ignore>index.php</ignore>
+    </files>
+</phpdoc>

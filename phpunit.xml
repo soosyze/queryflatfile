@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="false">
+    <testsuites>
+        <testsuite name="queryjson">
+            <file>tests/src/DriverJsonTest.php</file>
+            <file>tests/src/TableBuilderTest.php</file>
+            <file>tests/src/WhereTest.php</file>
+            <file>tests/src/RequestTest.php</file>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <file>tests/src/DriverJsonTest.php</file>
+            <file>tests/src/TableBuilderTest.php</file>
+            <file>tests/src/WhereTest.php</file>
+            <file>tests/src/RequestTest.php</file>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-html" target="build/phpUnit/report" lowUpperBound="35" highLowerBound="70"/>
+        <log type="coverage-clover" target="build/phpUnit/coverage.xml"/>
+        <log type="junit" target="build/phpUnit/tests-junit.xml" logIncompleteSkipped="false"/>
+    </logging>
+</phpunit>

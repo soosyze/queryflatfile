@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * Class DriverTxt | src/DriverTxt.php
+ * 
+ * @package Queryflatfile
+ * @author  Mathieu NOËL <mathieu@soosyze.com>
+ * 
+ */
+
+namespace Queryflatfile;
+
+/**
+ * Implémentation de Queryflatfile\DriverInterface par l'héritage de Queryflatfile\Driver
+ * Manipule des données sérialisées dans des fichiers texte
+ * @author Mathieu NOËL <mathieu@soosyze.com>
+ */
+class DriverTxt extends Driver
+{
+
+    /**
+     * {@inheritDoc}
+     */
+    public function create( $path, $fileName, array $data = [] )
+    {
+        $file = $this->getFile($path, $fileName);
+
+        if( !file_exists($path) )
+        {
+            mkdir($path, 0775);
+        }
+        if( !file_exists($file) )
+        {
+            $fichier = fopen($file, 'w+');
+            fwrite($fichier, serialize($data));
+            return fclose($fichier);
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function read( $path, $fileName )
+    {
+        $file = $this->getFile($path, $fileName);
+
+        $this->isExist($file);
+        $this->isRead($file);
+
+        $data = file_get_contents($file);
+        return unserialize($data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function save( $path, $fileName, array $data )
+    {
+        $file = $this->getFile($path, $fileName);
+
+        $this->isExist($file);
+        $this->isWrite($file);
+
+        $fp = fopen($file, 'w');
+        fwrite($fp, serialize($data));
+        return fclose($fp);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getExtension()
+    {
+        return 'txt';
+    }
+}
