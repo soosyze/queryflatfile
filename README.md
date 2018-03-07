@@ -24,7 +24,7 @@
 * [Driver](/README.md#driver)
 
 # Introduction
-Queryflatfile est un framework de base de données flat flie écrit en PHP basé par défaut sur le format JSON. L'objectif est de pouvoir manipuler des données contenues dans des fichiers JSON de la même façon dont ont manipule les données avec le langage SQL.
+Queryflatfile est un framework de base de données NoSQL écrit en PHP qui stocke les données par défaut au format JSON (flat file). L'objectif est de pouvoir manipuler des données contenues dans des fichiers de la même façon dont ont manipule les données avec le langage SQL.
 
 # Requirements
 Vous devez avoir la version PHP 5.4 ou plus ainsi que l'extension `json` activé.
@@ -34,12 +34,12 @@ Vous devez avoir la version PHP 5.4 ou plus ainsi que l'extension `json` activé
 Ajouter les lignes suivantes à votre `composer.json` de votre projet
 ```js
 "require": {
-	"soosyze/queryflatfile": "1.*"
+    "soosyze/queryflatfile": "1.*"
 },
 "autoload": {
-	"psr-4": {
-		"Queryflatfile\\": "src"
-	}
+    "psr-4": {
+        "Queryflatfile\\": "src"
+    }
 }
 ```
 Ou simplement lancé la commande
@@ -81,7 +81,6 @@ $request->unionAll( Request $union );
 $request->update( $table, array $columns = null );
 $request->values( array $columns );
 $request->delete();
-
 ```
 Les fonctionnalitées de Request pour conditionner les données
 ```php
@@ -132,6 +131,7 @@ $request->execute();
 
 ## Initialisation
 Pour commencer il faut créer un objet `Schema` pour manipuler les tables et leurs paramètres.
+
 Requête au format SQL :
 ```sql
 CREATE DATABASE schema
@@ -146,6 +146,7 @@ $request = new Queryflatfile\Request($bdd);
 ```
 ## Create table
 Maintenant que le schéma de votre base de données est initialisé vous devez créer les schémas de vos tables.
+
 Requête au format SQL :
 ```sql
 CREATE TABLE `user` (
@@ -262,6 +263,7 @@ $request->insertInto('user_role', [ 'id_user', 'id_role' ])
     ->execute();
 ```
 Table user :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -271,13 +273,17 @@ Table user :
 | 4  | DUPOND | Pierre    |
 | 5  | MEYER  | Eva       |
 | 6  | ROBERT | ''        |
+
 Table role :
+
 | id | labelle |
 |----|---------|
 | 0  | Admin   |
 | 1  | Author  |
 | 2  | User    |
+
 Table (pivot) user_role :
+
 | id_user | id_role |
 |---------|---------|
 | 0       | 0       |
@@ -300,9 +306,11 @@ $request->select([ 'firstname' ])->from('user')->fetch();
 $request->select('firstname')->from('user')->fetch();
 ```
 Résultat(s) de la requête :
+
 | firstname |
 |-----------|
 | Mathieu   |
+
 ### Select all
 Requête au format SQL :
 ```sql
@@ -316,6 +324,7 @@ $request->select()->from('user')->fetch();
 $request->from('user')->fetch();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -332,6 +341,7 @@ $request->select([ 'firstname' ])->from('user')->lists();
 $request->select('firstname')->from('user')->lists();
 ```
 Résultat(s) de la requête :
+
 | output    |
 |-----------|
 | Mathieu   |
@@ -371,6 +381,7 @@ $request->select([ 'name' ])
     ->fetch();
 ```
 Résultat(s) de la requête :
+
 | name   |
 |--------|
 | DUPOND |
@@ -396,6 +407,7 @@ $request->select( 'firstname' )
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | firstname |
 |-----------|
 | Mathieu   |
@@ -416,6 +428,7 @@ $request->from('user')
     ->where('id', '<', 1)
     ->fetch();
 ```
+
 Résultat(s) de la requête :
 | id | name   | firstname |
 |----|--------|-----------|
@@ -432,6 +445,7 @@ $request->from('user')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -448,6 +462,7 @@ $request->from('user')
     ->fetch();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 6  | ROBERT | ''        |
@@ -463,6 +478,7 @@ $request->from('user')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 5  | MEYER  | Eva       |
@@ -480,6 +496,7 @@ $request->from('user')
     ->fetch();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 4  | DUPOND | Pierre    |
@@ -496,6 +513,7 @@ $request->from('user')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -513,6 +531,7 @@ $request->from('user')
     ->fetch();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 1  | DUPOND | Jean      |
@@ -528,6 +547,7 @@ $request->from('user')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -544,6 +564,7 @@ $request->from('user')
     ->fetch();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 6  | ROBERT | ''        |
@@ -555,6 +576,7 @@ $request->from('user')
         ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 1  | DUPOND | Jean      |
@@ -577,6 +599,7 @@ $request->from('user')
     })->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 4  | DUPOND | Pierre    |
@@ -596,6 +619,7 @@ $request->from('user')
     })->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -616,6 +640,7 @@ $request->select( 'firstname' )
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | firstname |
 |-----------|
 | ''        |
@@ -638,6 +663,7 @@ $request->select( 'firstname' )
 	->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | firstname |
 |-----------|
 | Pierre    |
@@ -661,6 +687,7 @@ $request->select( 'name', 'firstname' )
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | name   | firstname |
 |--------|-----------|
 | ROBERT | ''        |
@@ -684,6 +711,7 @@ $request->select( 'name', 'firstname' )
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | name   | firstname |
 |--------|-----------|
 | ROBERT | ''        |
@@ -709,6 +737,7 @@ $request->from('user')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 2  | MARTIN | Manon     |
@@ -745,6 +774,7 @@ $request->select('id', 'name', 'firstname')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -768,6 +798,7 @@ $request->select('id', 'name', 'firstname')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -797,6 +828,7 @@ $request->update('user', [ 'name'=>'PETIT' ])
     ->execute();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | PETIT  | Mathieu   |
@@ -820,6 +852,7 @@ $request2->select('name')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | name   |
 |--------|
 | NOEL   |
@@ -845,6 +878,7 @@ $request2->select('name')
     ->fetchAll();
 ```
 Résultat(s) de la requête :
+
 | name   |
 |--------|
 | NOEL   |
@@ -872,6 +906,7 @@ $request->from('user')
     ->execute();
 ```
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
@@ -903,22 +938,22 @@ $bdd->dropSchema();
 Les exceptions sont ordonnées de façon à pouvoir capturer précisément les erreurs.
 ```
 Exception
-|-- QueryException					// Exception relative à l'utilisation des requêtes et du schéma
-|   |-- BadFunctionException		// levée lorsqu'une méthode attendue est absente
-|   |-- ColumnsNotFoundException	// levée lorsque le champ ou les champs ne trouve pas de correspondance
-|   |-- ColumnsValueException		// levée lors d'un mauvais type valeur pour le champ sélectionné
-|	|-- OperatorNotFound			// levée lorsqu'un opérateur WHERE n'existe pas
-|	+-- TableNotFoundException		// levée lorsqu'une table absente du schema
+|-- QueryException                  // Exception relative à l'utilisation des requêtes et du schéma
+|   |-- BadFunctionException        // levée lorsqu'une méthode attendue est absente
+|   |-- ColumnsNotFoundException    // levée lorsque le champ ou les champs ne trouve pas de correspondance
+|   |-- ColumnsValueException       // levée lors d'un mauvais type valeur pour le champ sélectionné
+|   |-- OperatorNotFound            // levée lorsqu'un opérateur WHERE n'existe pas
+|   +-- TableNotFoundException      // levée lorsqu'une table absente du schema
 |
-|-- TableBuilderException			// Exception relative à la construction d'une table
-|	|-- ColumnsNotFoundException	// levée lorsque aucun champ est sélectionné
-|	+-- ColumnsValueException		// levée lors d'un mauvais type valeur pour le champ sélectionné
+|-- TableBuilderException           // Exception relative à la construction d'une table
+|   |-- ColumnsNotFoundException    // levée lorsque aucun champ est sélectionné
+|   +-- ColumnsValueException       // levée lors d'un mauvais type valeur pour le champ sélectionné
 |
 +-- DriverException                 // Exception relative à l'utilisation du Driver
-	|-- ExtensionNotLoadedException	// levée lorsque l'extension du driver est non chargée
-	|-- FileNotFoundException		// levée lorsque le fichier de stockage est absent
-	|-- FileNotReadableException	// levée lorsque le fichier de stockage est non lisible
-	+-- FileNotWritableException	// levée lorsque le fichier de stockage est non éditable
+    |-- ExtensionNotLoadedException // levée lorsque l'extension du driver est non chargée
+    |-- FileNotFoundException       // levée lorsque le fichier de stockage est absent
+    |-- FileNotReadableException    // levée lorsque le fichier de stockage est non lisible
+    +-- FileNotWritableException    // levée lorsque le fichier de stockage est non éditable
 ```
 # Exemple
 ```php
