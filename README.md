@@ -430,6 +430,7 @@ $request->from('user')
 ```
 
 Résultat(s) de la requête :
+
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
