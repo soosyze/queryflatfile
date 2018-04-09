@@ -7,19 +7,13 @@
          convertWarningsToExceptions="true"
          stopOnFailure="false">
     <testsuites>
-        <testsuite name="queryjson">
-            <file>tests/src/DriverJsonTest.php</file>
-            <file>tests/src/TableBuilderTest.php</file>
-            <file>tests/src/WhereTest.php</file>
-            <file>tests/src/RequestTest.php</file>
+        <testsuite name="queryflatfile">
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <file>tests/src/DriverJsonTest.php</file>
-            <file>tests/src/TableBuilderTest.php</file>
-            <file>tests/src/WhereTest.php</file>
-            <file>tests/src/RequestTest.php</file>
+            <directory>src</directory>
         </whitelist>
     </filter>
     <logging>

@@ -48,7 +48,6 @@ class DriverJsonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Driver\FileNotFoundException
      */
     public function testReadException()
@@ -70,7 +69,6 @@ class DriverJsonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Driver\FileNotFoundException
      */
     public function testSaveException()

@@ -72,7 +72,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Exception
      */
     public function testCreateTableException()
@@ -134,7 +133,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\TableNotFoundException
      */
     public function testInsertIntoExceptionTable()
@@ -143,7 +141,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testInsertIntoExceptionColumn()
@@ -152,7 +149,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testInsertIntoExceptionValue()
@@ -185,7 +181,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testListsException()
@@ -194,7 +189,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testSelectExceptionValue()
@@ -203,7 +197,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\TableNotFoundException
      */
     public function testSelectExceptionFrom()
@@ -221,7 +214,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\TableNotFoundException
      */
     public function testSelectAlternativeExceptionFrom()
@@ -397,7 +389,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereEqualsExceptionColumn()
@@ -419,7 +410,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereBetweenExceptionColumn()
@@ -444,7 +434,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereInExceptionColumn()
@@ -466,7 +455,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereIsNullExceptionColumn()
@@ -574,7 +562,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereRegexExceptionColumns()
@@ -815,7 +802,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testLeftJoinExceptionColumn()
@@ -876,7 +862,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testUnionMultipleException()
@@ -952,7 +937,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testUnionAllMultipleException()
@@ -993,7 +977,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @codeCoverageIgnore
      * @expectedException Queryflatfile\Exception\Query\BadFunctionException
      */
     public function testExecuteException()
