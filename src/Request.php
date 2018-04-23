@@ -699,6 +699,10 @@ class Request
      */
     public function __call( $name, $arg )
     {
+        if($this->where === null)
+        {
+            $this->where = new Where();
+        }
         if( method_exists($this->where, $name) )
         {
             if( $name === 'in' && is_callable($arg[ 1 ]) )

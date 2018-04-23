@@ -347,7 +347,7 @@ class Where
      */
     public function isNotNull( $column )
     {
-        $this->isNull($column, '!==', 'and', true);
+        $this->isNull($column, '===', 'and', true);
         return $this;
     }
 
@@ -373,7 +373,7 @@ class Where
      */
     public function orIsNotNull( $column )
     {
-        $this->isNull($column, '!==', 'or', true);
+        $this->isNull($column, '===', 'or', true);
         return $this;
     }
 
