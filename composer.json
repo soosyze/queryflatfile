@@ -23,7 +23,7 @@
     },
     "autoload-dev": {
         "psr-4": { 
-            "Queryflatfile\\Test\\": "tests/src"
+            "Queryflatfile\\Test\\": "tests"
         }
     }
 }
