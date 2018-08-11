@@ -1,18 +1,19 @@
 <?php
 
 /**
- * Class Driver | src/Driver.php
+ * Queryflatfile
  * 
  * @package Queryflatfile
  * @author  Mathieu NOËL <mathieu@soosyze.com>
- * 
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
 namespace Queryflatfile;
 
 /**
- * Implementation partiel Queryflatfile\DriverInterface
- * @author Mathieu NOËL <mathieu@soosyze.com>
+ * Implementation partiel Queryflatfile\DriverInterface.
+ * 
+ * @author Mathieu NOËL
  */
 abstract class Driver implements DriverInterface
 {
@@ -56,10 +57,10 @@ abstract class Driver implements DriverInterface
     /**
      * Concatène le chemin, le nom du fichier et l'extension.
      * 
-     * @param string $path chemin de la table
-     * @param string $fileName nom du fichier
+     * @param string $path Chemin de la table.
+     * @param string $fileName Nom du fichier.
      * 
-     * @return string le chemin complet du fichier
+     * @return string Chemin complet du fichier.
      */
     public function getFile( $path, $fileName )
     {
@@ -71,7 +72,7 @@ abstract class Driver implements DriverInterface
     /**
      * Déclenche une exception si le fichier passé en paramètre d'existe pas.
      * 
-     * @param string $file le chemin complet du fichier
+     * @param string $file Chemin complet du fichier.
      * 
      * @throws Exception\Driver\FileNotFoundException
      */
@@ -86,7 +87,7 @@ abstract class Driver implements DriverInterface
     /**
      * Déclenche une exception si le fichier passé en paramètre n'a pas le droit d'écriture.
      * 
-     * @param string $file le chemin complet du fichier
+     * @param string $file Chemin complet du fichier.
      * 
      * @throws Exception\Driver\FileNotWritableException
      */
@@ -101,7 +102,7 @@ abstract class Driver implements DriverInterface
     /**
      * Déclenche une exception si le fichier passé en paramètre n'a pas le droit d'être lu.
      * 
-     * @param string $file le chemin complet du fichier
+     * @param string $file Chemin complet du fichier.
      * 
      * @throws Exception\Driver\FileNotReadableException
      */

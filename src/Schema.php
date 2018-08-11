@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Class Schema | src/Schema.php
+ * Queryflatfile
  * 
  * @package Queryflatfile
  * @author  Mathieu NOËL <mathieu@soosyze.com>
- * 
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
 namespace Queryflatfile;
@@ -15,29 +15,35 @@ use Queryflatfile\TableBuilder,
 
 /**
  * Pattern fluent pour la gestion d'un schéma de données.
+ * 
+ * @author Mathieu NOËL
  */
 class Schema
 {
     /**
-     * Le format de la base de données
+     * Format de la base de données.
+     * 
      * @var DriverInterface
      */
     protected $driver;
 
     /**
-     * Le répertoire de stockage
+     * Répertoire de stockage.
+     * 
      * @var string
      */
     protected $path;
 
     /**
-     * Le nom du schéma
+     * Nom du schéma.
+     * 
      * @var string
      */
     protected $name;
 
     /**
-     * Le chemin, nom et extension du schéma
+     * Chemin, nom et extension du schéma.
+     * 
      * @var string
      */
     protected $file;
@@ -45,9 +51,9 @@ class Schema
     /**
      * Construis l'objet avec une configuration.
      * 
-     * @param string $host le répertoire de stockage des données
-     * @param string $name le nom du fichier contenant le schéma de base
-     * @param DriverInterface $driver l'interface de manipulation de données
+     * @param string $host Répertoire de stockage des données.
+     * @param string $name Nom du fichier contenant le schéma de base.
+     * @param DriverInterface $driver Interface de manipulation de données.
      */
     public function __construct( $host = null, $name = 'schema',
         DriverInterface $driver = null )
@@ -61,9 +67,9 @@ class Schema
     /**
      * Enregistre la configuration.
      * 
-     * @param string $host le répertoire de stockage des données
-     * @param string $name le nom du fichier contenant le schéma de base
-     * @param DriverInterface $driver l'interface de manipulation de données
+     * @param string $host Répertoire de stockage des données.
+     * @param string $name Nom du fichier contenant le schéma de base.
+     * @param DriverInterface|null $driver Interface de manipulation de données.
      */
     public function setConfig( $host, $name = 'schema',
         DriverInterface $driver = null )
@@ -84,11 +90,11 @@ class Schema
     /**
      * Modifie les valeurs incrémentales d'une table.
      * 
-     * @param string $table nom de la table
-     * @param array $increments les valeurs incrémentales 
-     * [ field_1=>value:int, ... ]
+     * @param string $table Nom de la table.
+     * @param array $increments Tableau associatif des valeurs incrémentales.
      * 
-     * @return boolean si le schéma d'incrémentaion est bien enregistré
+     * @return bool Si le schéma d'incrémentaion est bien enregistré.
+     * 
      */
     public function setIncrements( $table, array $increments )
     {
@@ -101,7 +107,7 @@ class Schema
     /**
      * Génère le schéma s'il n'existe pas en fonction du fichier de configuration.
      * 
-     * @return array le schema de la base de données
+     * @return array Schéma de la base de données.
      */
     public function getSchema()
     {
@@ -118,9 +124,9 @@ class Schema
     /**
      * Cherche le schéma de la table passée en paramètre.
      * 
-     * @param string $table nom de la table
+     * @param string $table Nom de la table.
      * 
-     * @return array le schema de la table
+     * @return array Schéma de la table.
      * 
      * @throws Exception\Query\TableNotFoundException
      */
@@ -145,13 +151,13 @@ class Schema
     {
         $schema = $this->getSchema();
 
-        /* Supprime les fichiers des tables */
+        /* Supprime les fichiers des tables. */
         foreach( $schema as $table )
         {
             $this->delete($table[ 'path' ], $table[ 'table' ]);
         }
 
-        /* Supprime le fichier de schéma */
+        /* Supprime le fichier de schéma. */
         unlink($this->file);
 
         /**
@@ -170,8 +176,10 @@ class Schema
     /**
      * Créer une référence dans le schéma et le fichier de la table.
      * 
-     * @param string $table le nom de la table
-     * @param callable $callback fonction(TableBuilder $table) pour créer les champs
+     * @param string $table Nom de la table.
+     * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
+     * 
+     * @return $this
      */
     public function createTable( $table, callable $callback = null )
     {
@@ -209,8 +217,8 @@ class Schema
     /**
      * Créer une référence dans le schéma et un fichier de données si ceux si n'existe pas.
      * 
-     * @param string $table le nom de la table
-     * @param callable $callback fonction(TableBuilder $table) pour créer les champs
+     * @param string $table Nom de la table.
+     * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
      * 
      * @return $this
      */
@@ -226,7 +234,7 @@ class Schema
         }
         if( !$this->driver->has($sch[ $table ][ 'path' ], $sch[ $table ][ 'table' ]) )
         {
-            /* Si elle existe dans le schéma et que le fichier est absent alors on le créer */
+            /* Si elle existe dans le schéma et que le fichier est absent alors on le créer. */
             $this->create($this->path, $table);
         }
 
@@ -237,7 +245,7 @@ class Schema
      * Modifie les champs du schéma de données.
      * 
      * @param string $table
-     * @param callable $callback
+     * @param callable|null $callback
      * 
      * @return $this
      */
@@ -250,9 +258,9 @@ class Schema
     /**
      * Détermine une table existe.
      * 
-     * @param string $table nom de la table
+     * @param string $table Nom de la table.
      * 
-     * @return boolean si le schéma de référence et le fichier de données existent
+     * @return bool Si le schéma de référence et le fichier de données existent.
      */
     public function hasTable( $table )
     {
@@ -264,10 +272,10 @@ class Schema
     /**
      * Détermine si une colonne existe.
      * 
-     * @param string $table nom de la table
-     * @param string $column nom de la colonne
+     * @param string $table Nom de la table.
+     * @param string $column Nom de la colonne.
      * 
-     * @return boolean si le shéma de référence et le fichier de données existent
+     * @return bool Si le schéma de référence et le fichier de données existent.
      */
     public function hasColumn( $table, $column )
     {
@@ -279,9 +287,9 @@ class Schema
     /**
      * Vide la table et initialise les champs incrémentaux.
      * 
-     * @param String $table le nom de la table
+     * @param String $table Nom de la table.
      * 
-     * @return boolean
+     * @return bool
      */
     public function truncateTable( $table )
     {
@@ -306,9 +314,10 @@ class Schema
     /**
      * Supprime du schéma la référence de la table et son fichier de données.
      * 
-     * @param string $table le nom de la table
+     * @param string $table Nom de la table.
      * 
-     * @return boolean si la suppression du schema et des données se son bien passé
+     * @return bool Si la suppression du schema et des données se son bien passé.
+     * 
      */
     public function dropTable( $table )
     {
@@ -329,9 +338,9 @@ class Schema
     /**
      * Supprime une table si elle existe.
      * 
-     * @param string $table nom de la table
+     * @param string $table Nom de la table.
      * 
-     * @return boolean si la table n'existe plus
+     * @return bool Si la table n'existe plus.
      */
     public function dropTableIfExists( $table )
     {
@@ -344,7 +353,7 @@ class Schema
     /**
      * Utilisation du driver pour connaître l'extension de fichier utilisé.
      * 
-     * @return string l'extension de fichier sans le '.'
+     * @return string Extension de fichier sans le '.'.
      */
     public function getExtension()
     {
@@ -371,7 +380,7 @@ class Schema
      * @param string $file
      * @param array $data
      * 
-     * @return boolean
+     * @return bool
      */
     public function save( $path, $file, array $data )
     {
@@ -385,7 +394,7 @@ class Schema
      * @param string $file
      * @param array $data
      * 
-     * @return boolean
+     * @return bool
      */
     protected function create( $path, $file, array $data = [] )
     {
@@ -398,7 +407,7 @@ class Schema
      * @param string $path
      * @param string $file
      * 
-     * @return boolean
+     * @return bool
      */
     protected function delete( $path, $file )
     {

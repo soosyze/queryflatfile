@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Class DriverJson | src/DriverJson.php
+ * Queryflatfile
  * 
  * @package Queryflatfile
  * @author  Mathieu NOËL <mathieu@soosyze.com>
- * 
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
 namespace Queryflatfile;
@@ -13,7 +13,8 @@ namespace Queryflatfile;
 /**
  * Implémentation de Queryflatfile\DriverInterface par l'héritage de Queryflatfile\Driver
  * Manipule des données dans des fichiers de type JSON
- * @author Mathieu NOËL <mathieu@soosyze.com>
+ * 
+ * @author Mathieu NOËL
  */
 class DriverJson extends Driver
 {

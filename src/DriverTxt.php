@@ -1,19 +1,20 @@
 <?php
 
 /**
- * Class DriverTxt | src/DriverTxt.php
+ * Queryflatfile
  * 
  * @package Queryflatfile
  * @author  Mathieu NOËL <mathieu@soosyze.com>
- * 
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
 namespace Queryflatfile;
 
 /**
  * Implémentation de Queryflatfile\DriverInterface par l'héritage de Queryflatfile\Driver
- * Manipule des données sérialisées dans des fichiers texte
- * @author Mathieu NOËL <mathieu@soosyze.com>
+ * Manipule des données sérialisées dans des fichiers texte.
+ * 
+ * @author  Mathieu NOËL
  */
 class DriverTxt extends Driver
 {

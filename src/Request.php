@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Class Request | src/Request.php
+ * Queryflatfile
  * 
  * @package Queryflatfile
  * @author  Mathieu NOËL <mathieu@soosyze.com>
- * 
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
 namespace Queryflatfile;
@@ -18,6 +18,8 @@ use Queryflatfile\Exception\Query\BadFunctionException,
 /**
  * Réalise des requêtes à partir d'un schéma de données passé en paramètre.
  * Les requêtes se construisent avec le pattern fluent.
+ * 
+ * @author Mathieu NOËL
  * 
  * @method Request where( callable|string $column, null|string $operator = null, null|string $value = null, string $bool = 'and', boolean $not = false ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request notWhere( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
@@ -43,68 +45,79 @@ use Queryflatfile\Exception\Query\BadFunctionException,
 class Request
 {
     /**
-     * Le nombre de résultat de la requête
-     * @var integer 
+     * Le nombre de résultat de la requête.
+     * 
+     * @var int
      */
     private $limit = null;
 
     /**
-     * Le décalage des résultats de la requête
-     * @var integer 
+     * Le décalage des résultats de la requête.
+     * 
+     * @var int 
      */
     private $offset = 0;
 
     /**
-     * La configuration de la requête
+     * La configuration de la requête.
+     * 
      * @var array 
      */
     private $request = [];
 
     /**
-     * Le nom de la table courante
+     * Le nom de la table courante.
+     * 
      * @var string 
      */
     private $table = '';
 
     /**
-     * Les données de la table
+     * Les données de la table.
+     * 
      * @var array 
      */
     private $tableData = [];
 
     /**
-     * Le schéma des tables utilisées par la requête
+     * Le schéma des tables utilisées par la requête.
+     * 
      * @var array 
      */
     private $tableSchema = [];
 
     /**
-     * Les conditions de la requête
+     * Les conditions de la requête.
+     * 
      * @var Where
      */
     private $where;
 
     /**
-     * Les colonnes à trier
+     * Les colonnes à trier.
+     * 
      * @var array 
      */
     private $orderBy = [];
 
     /**
-     * Le schéma de base de données
-     * @var Schema 
+     * Le schéma de base de données.
+     * 
+     * @var Schema
      */
     private $schema = null;
 
     /**
-     * Le type d'exécution (delete/update/insert)
-     * @var string 
+     * Le type d'exécution (delete|update|insert).
+     * 
+     * @var string
      */
     private $execute = null;
 
     /**
-     * Retourne la requête sous forme de liste
-     * @var boolean 
+     * Retourne la requête sous forme de liste.
+     * 
+     * @var bool
      */
     private $lists = null;
 
@@ -135,9 +148,9 @@ class Request
     /**
      * Lit les données d'une table.
      * 
-     * @param string $name nom de la table
+     * @param string $name Nom de la table.
      * 
-     * @return array les données de la table
+     * @return array Données de la table.
      */
     public function getTableData( $name )
     {
@@ -161,7 +174,7 @@ class Request
     /**
      * Retourne les clauses de la requête exécutées.
      * 
-     * @return string la chaine de caractère à évaluer
+     * @return string Chaine de caractère à évaluer.
      */
     public function getWhere()
     {
@@ -172,7 +185,7 @@ class Request
      * Enregistre les champs sélectionnées par la requête.
      * En cas d'absence de selection, la requêtes retournera toutes les champs.
      * 
-     * @param array $columns liste ou tableau des noms des colonnes
+     * @param array $columns Liste ou tableau des noms des colonnes.
      * 
      * @return $this
      */
@@ -182,13 +195,13 @@ class Request
 
         foreach( $columns as $column )
         {
-            /* Dans le cas ou les colonnes sont normales */
+            /* Dans le cas ou les colonnes sont normales. */
             if( !is_array($column) )
             {
                 $this->request[ 'columns' ][] = $column;
                 continue;
             }
-            /* Dans le cas ou les colonnes sont dans un tableau */
+            /* Dans le cas ou les colonnes sont dans un tableau. */
             foreach( $column as $fields )
             {
                 $this->request[ 'columns' ][] = $fields;
@@ -201,7 +214,7 @@ class Request
     /**
      * Enregistre le nom de la source des données principale de la requête.
      * 
-     * @param string $table nom de la table
+     * @param string $table Nom de la table.
      * 
      * @return $this
      */
@@ -217,13 +230,13 @@ class Request
     /**
      * Enregistre une jointure gauche.
      * 
-     * @param string $table le nom de la table à joindre
-     * @param string|Closure $column le nom de la colonne d'une des tables précédentes
-     * ou une closure pour affiner les conditions
-     * @param string|null $operator l'opérateur logique ou null pour une closure
-     * @param string|null $value valeur
+     * @param string $table Nom de la table à joindre.
+     * @param string|Closure $column Nom de la colonne d'une des tables précédentes
+     * ou une closure pour affiner les conditions.
+     * @param string|null $operator Opérateur logique ou null pour une closure.
+     * @param string|null $value Valeur
      * ou une colonne de la table jointe (au format nom_table.colonne)
-     * ou null pour une closure
+     * ou null pour une closure.
      * 
      * @return $this
      */
@@ -249,13 +262,13 @@ class Request
     /**
      * Enregistre une jointure droite.
      * 
-     * @param string $table le nom de la table à joindre
-     * @param string|Closure $column le nom de la colonne d'une des tables précédentes
-     * ou une closure pour affiner les conditions
-     * @param string|null $operator l'opérateur logique ou null pour une closure
-     * @param string|null $value valeur
+     * @param string $table Nom de la table à joindre
+     * @param string|Closure $column Nom de la colonne d'une des tables précédentes
+     * ou une closure pour affiner les conditions.
+     * @param string|null $operator Opérateur logique ou null pour une closure.
+     * @param string|null $value Valeur
      * ou une colonne de la table jointe (au format nom_table.colonne)
-     * ou null pour une closure
+     * ou null pour une closure.
      * 
      * @return $this
      */
@@ -281,8 +294,8 @@ class Request
     /**
      * Enregistre une limitation et un décalage au retour de la requête.
      * 
-     * @param int $limit nombre de résultat maximum à retourner
-     * @param int $offset décalage sur le jeu de résultat
+     * @param int $limit Nombre de résultat maximum à retourner.
+     * @param int $offset Décalage sur le jeu de résultat.
      * 
      * @return $this
      */
@@ -297,8 +310,8 @@ class Request
     /**
      * Enregistre un trie des résultats de la requête.
      * 
-     * @param string $columns les colonnes à trier
-     * @param string $order l'ordre du trie (asc|desc)
+     * @param string $columns Colonnes à trier.
+     * @param string $order Ordre du trie (asc|desc).
      * 
      * @return $this
      */
@@ -313,9 +326,9 @@ class Request
      * Enregistre l'action d'insertion de données.
      * Cette fonction doit-être suivie la fonction values().
      * 
-     * @param string $table nom de la table
-     * @param array $columns la liste des champs par ordre d'insertion dans 
-     * la fonction values()
+     * @param string $table Nom de la table.
+     * @param array $columns Liste des champs par ordre d'insertion dans 
+     * la fonction values().
      * 
      * @return $this
      */
@@ -331,7 +344,7 @@ class Request
      * Cette fonction doit suivre la fonction insertInto(). 
      * Les valeurs doivent suivre le même ordre que les clés précédemment enregistrées.
      * 
-     * @param array $columns les valeurs des champs
+     * @param array $columns Valeurs des champs.
      * 
      * @return $this
      */
@@ -345,8 +358,8 @@ class Request
     /**
      * Enregistre l'action de modification de données. 
      * 
-     * @param string $table nom de la table
-     * @param array $columns key=>value des données à modifier
+     * @param string $table Nom de la table.
+     * @param array $columns key=>value des données à modifier.
      * 
      * @return $this
      */
@@ -376,8 +389,8 @@ class Request
      * Enregistre une union 'simple' entre 2 ensembles.
      * Le résultat de l'union ne possède pas de doublon de ligne.
      * 
-     * @param \Queryflatfile\Request $request la seconde requête
-     * @param string $type ('simple'|'all') le type d'union
+     * @param \Queryflatfile\Request $request Seconde requête.
+     * @param string $type (simple|all) Type d'union.
      * 
      * @return $this
      */
@@ -389,7 +402,7 @@ class Request
     }
 
     /**
-     * Enregistre une union 'all' entre 2 ensembles.
+     * Enregistre une union all entre 2 ensembles.
      * Les doublons de lignes figure dans le resultat de l'union.
      * 
      * @param \Queryflatfile\Request $request
@@ -452,10 +465,10 @@ class Request
         $this->fetchPrepareUnion();
 
         $return = [];
-        /* Le pointeur en cas de limite de résultat */
+        /* Le pointeur en cas de limite de résultat. */
         $i      = 0;
 
-        /* Exécution des jointures */
+        /* Exécution des jointures. */
         if( isset($this->request[ 'leftJoin' ]) )
         {
             foreach( $this->request[ 'leftJoin' ] as $value )
@@ -472,7 +485,7 @@ class Request
             }
         }
 
-        /* Exécution des conditions */
+        /* Exécution des conditions. */
         if( !empty($this->where) )
         {
             $testEval = $this->where->execute();
@@ -534,15 +547,15 @@ class Request
         {
             foreach( $this->request[ 'union' ] as $union )
             {
-                /* Si le retour est demandé en liste */
+                /* Si le retour est demandé en liste. */
                 $fetch = $this->lists !== null
                     ? $union[ 'request' ]->lists()
                     : $union[ 'request' ]->fetchAll();
 
                 /**
                  * UNION ALL
-                 * Pour chaque requêtes unions, on récupère les résultats
-                 * On merge puis on supprime les doublons
+                 * Pour chaque requêtes unions, on récupère les résultats.
+                 * On merge puis on supprime les doublons.
                  */
                 $return = array_merge($return, $fetch);
 
@@ -567,7 +580,7 @@ class Request
     /**
      * Retourne le premier résultat de la requête.
      * 
-     * @return array résultat de la requête
+     * @return array Résultat de la requête.
      */
     public function fetch()
     {
@@ -582,9 +595,9 @@ class Request
      * Retourne les résultats de la requête sous forme de tableau simple,
      * composé uniquement du champ passé en paramètre ou du premier champ sélectionné.
      * 
-     * @param string $name nom du champ
+     * @param string|null $name Nom du champ.
      * 
-     * @return array la liste du champ passé en paramètre
+     * @return array Liste du champ passé en paramètre.
      * 
      * @throws ColumnsNotFoundException
      */
@@ -606,7 +619,7 @@ class Request
     }
 
     /**
-     * Initialise les paramètre de la requête
+     * Initialise les paramètre de la requête.
      */
     public function init()
     {
@@ -625,9 +638,9 @@ class Request
     }
 
     /**
-     * Retourne les paramètre de la requête en format pseudo SQL
+     * Retourne les paramètre de la requête en format pseudo SQL.
      * 
-     * @return string la requête
+     * @return string
      */
     public function __toString()
     {
@@ -692,8 +705,8 @@ class Request
      * Permet d'utiliser les méthodes de l'objet \Queryflatfile\Where
      * et de personnaliser les closures pour certaines méthodes.
      * 
-     * @param string $name nom de la méthode appelée
-     * @param array $arg pararètre de la méthode
+     * @param string $name Nom de la méthode appelée.
+     * @param array $arg Pararètre de la méthode.
      * 
      * @return $this
      */
@@ -720,8 +733,8 @@ class Request
     /**
      * Exécute le calcule d'une jointure droite entre 2 ensembles.
      * 
-     * @param string $table nom de la table à joindre
-     * @param Where $where condition de la jointure
+     * @param string $table Nom de la table à joindre.
+     * @param Where $where Condition de la jointure.
      * 
      * @return $this
      */
@@ -731,26 +744,26 @@ class Request
         $tableJoin = $this->getTableData($table);
         $testEval  = $where->executeJoin();
 
-        /* Si les lignes se sont jointes */
+        /* Si les lignes se sont jointes. */
         $addRow       = false;
-        /* Le schéma de la table à joindre */
+        /* Le schéma de la table à joindre. */
         $sch          = $this->tableSchema;
-        /* Prend les noms des champs de la table à joindre */
+        /* Prend les noms des champs de la table à joindre. */
         $rowTableKey  = array_keys($sch[ 'fields' ]);
-        /* Utilise les nom pour créer un tableau avec des valeurs null */
+        /* Utilise les nom pour créer un tableau avec des valeurs null. */
         $rowTableNull = array_fill_keys($rowTableKey, null);
 
         foreach( $tableJoin as $rowJoin )
         {
-            /* Join les tables */
+            /* Join les tables. */
             foreach( $this->tableData as $row )
             {
-                /* Vérifie les conditions */
+                /* Vérifie les conditions. */
                 $test = eval('return ' . $testEval . ';');
 
                 if( $test )
                 {
-                    /* Join les lignes si la condition est bonne */
+                    /* Join les lignes si la condition est bonne. */
                     $result[] = array_merge($row, $rowJoin);
                     $addRow   = true;
                 }
@@ -758,7 +771,7 @@ class Request
 
             /**
              * Si aucun résultat n'est trouvé alors la ligne est remplie
-             * avec les colonnes de la table jointe avec des valeurs null 
+             * avec les colonnes de la table jointe avec des valeurs null.
              */
             if( !$addRow )
             {
@@ -775,8 +788,8 @@ class Request
     /**
      * Exécute le calcule d'une jointure gauche entre 2 ensembles.
      * 
-     * @param string $table nom de la table à joindre
-     * @param Where $where condition de la jointure
+     * @param string $table Nom de la table à joindre.
+     * @param Where $where Condition de la jointure.
      * 
      * @return $this
      */
@@ -786,25 +799,25 @@ class Request
         $tableJoin = $this->getTableData($table);
         $testEval  = $where->executeJoin();
 
-        /* Si les lignes se sont jointes */
+        /* Si les lignes se sont jointes. */
         $addRow       = false;
-        /* Le schéma de la table à joindre */
+        /* Le schéma de la table à joindre. */
         $sch          = $this->schema->getSchemaTable($table);
-        /* Prend les noms des champs de la table à joindre */
+        /* Prend les noms des champs de la table à joindre. */
         $rowTableKey  = array_keys($sch[ 'fields' ]);
-        /* Utilise les noms pour créer un tableau avec des valeurs null */
+        /* Utilise les noms pour créer un tableau avec des valeurs null. */
         $rowTableNull = array_fill_keys($rowTableKey, null);
 
         foreach( $this->tableData as $row )
         {
-            /* Join les tables */
+            /* Join les tables. */
             foreach( $tableJoin as $rowJoin )
             {
                 /* Vérifie les conditions */
                 $test = eval('return ' . $testEval . ';');
                 if( $test )
                 {
-                    /* Join les lignes si la condition est bonne */
+                    /* Join les lignes si la condition est bonne. */
                     $result[] = array_merge($rowJoin, $row);
                     $addRow   = true;
                 }
@@ -812,7 +825,7 @@ class Request
 
             /**
              * Si aucun resultat n'est trouvé alors la ligne est remplie
-             * avec les colonnes de la table jointe avec des valeurs null 
+             * avec les colonnes de la table jointe avec des valeurs null.
              */
             if( !$addRow )
             {
@@ -829,8 +842,8 @@ class Request
     /**
      * Trie le tableau en fonction des clés paramétrés.
      * 
-     * @param array $data les données à trier
-     * @param array $keys les clés sur lesquelles le trie s'exécute
+     * @param array $data Données à trier.
+     * @param array $keys Clés sur lesquelles le trie s'exécute.
      * 
      * @return array les données triées
      */
@@ -879,30 +892,30 @@ class Request
      */
     protected function executeInsert()
     {
-        /* Si l'une des colonnes est de type incrémental */
+        /* Si l'une des colonnes est de type incrémental. */
         $increments = $this->getIncrement();
 
-        /* Je charge les colonnes de mon schéma */
+        /* Je charge les colonnes de mon schéma. */
         $schemaColumns = $this->tableSchema[ 'fields' ];
 
         foreach( $this->request[ 'values' ] as $column )
         {
-            /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée */
+            /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
             if( count($this->request[ 'columns' ]) != count($column) )
             {
                 throw new ColumnsNotFoundException('keys : ' . implode(',', $this->request[ 'columns' ]) . ' != ' . implode(',', $column));
             }
 
-            /* Je prépare l'association clé=>valeur pour chaque ligne à insérer */
+            /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
             $row = array_combine($this->request[ 'columns' ], $column);
 
             foreach( $schemaColumns as $field => $arg )
             {
-                /* Si mon champs existe dans le schema */
+                /* Si mon champs existe dans le schema. */
                 if( isset($row[ $field ]) )
                 {
                     $data[ $field ] = $this->getValue($field, $arg[ 'type' ], $row[ $field ], $arg);
-                    /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma */
+                    /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma. */
                     if( $arg[ 'type' ] === 'increments' && ($data[ $field ] > $increments[ $field ] ) )
                     {
                         $increments[ $field ] = $data[ $field ];
@@ -910,7 +923,7 @@ class Request
                     continue;
                 }
 
-                /* Si mon champ n'existe pas qu'il est de type incrémental */
+                /* Si mon champ n'existe pas qu'il est de type incrémental. */
                 if( !isset($row[ $field ]) && $arg[ 'type' ] === 'increments' )
                 {
                     $increments[ $field ] ++;
@@ -918,13 +931,13 @@ class Request
                     continue;
                 }
 
-                /* Sinon on vérifie si une valeur par défaut lui est attribué */
+                /* Sinon on vérifie si une valeur par défaut lui est attribué. */
                 $data[ $field ] = $this->getValueDefault($field, $arg);
             }
 
             $this->tableData[] = $data;
         }
-        /* Met à jour les valeurs incrémentales dans le schéma de la table */
+        /* Met à jour les valeurs incrémentales dans le schéma de la table. */
         $this->schema->setIncrements($this->table, $increments);
     }
 
@@ -938,7 +951,7 @@ class Request
             $testEval = $this->where->execute();
         }
 
-        /* La variable $row est utilisé dans le test d'évaluation */
+        /* La variable $row est utilisé dans le test d'évaluation. */
         foreach( $this->tableData as $key => $row )
         {
             if( isset($testEval) )
@@ -987,10 +1000,10 @@ class Request
      * Retourne la valeur s'il correspond au type déclaré.
      * Sinon déclenche une exception.
      * 
-     * @param string $field la clé du champ
-     * @param string $type le type de donnée (string|text|integer|float|boolean|char|date|datetime)
-     * @param mixed $value la valeur à tester
-     * @param array $arg les arguments de tests optionnels (length)
+     * @param string $field Clé du champ.
+     * @param string $type Type de donnée (string|text|int|float|bool|char|date|datetime).
+     * @param mixed $value Valeur à tester.
+     * @param array $arg Arguments de tests optionnels (length).
      * 
      * @return mixed
      * 
@@ -1072,10 +1085,10 @@ class Request
     /**
      * Retourne la valeur par defaut du champ passé en paramêtre.
      * 
-     * @param string $field le nom du champ
-     * @param array $arg les différente configurations
+     * @param string $field Nom du champ.
+     * @param array $arg Différente configurations.
      * 
-     * @return mixed la valeur par defaut
+     * @return mixed Valeur par defaut.
      * 
      * @throws ColumnsValueException
      */
@@ -1096,17 +1109,17 @@ class Request
                 return date('Y-m-d H:i:s', time());
             }
 
-            /* Si les variables magiques ne sont pas utilisé alors la vrais valeur par defaut est retourné */
+            /* Si les variables magiques ne sont pas utilisé alors la vrais valeur par defaut est retourné. */
             return $arg[ 'default' ];
         }
-        // Si il n'y a pas default il est donc nullable
+        /* Si il n'y a pas default il est donc nullable. */
         return null;
     }
 
     /**
      * Retourne les champs incrémental de la courrante.
      * 
-     * @return array le tableau des champ incrémentales et leur valeur
+     * @return array Tableau des champ incrémentales et leur valeur.
      */
     protected function getIncrement()
     {
@@ -1117,9 +1130,9 @@ class Request
      * Fonction d'appui à orderByExecute().
      * 
      * @param array $obj
-     * @param type $ix
+     * @param int $ix
      * 
-     * @return boolean|integer
+     * @return bool|int
      */
     private function obIx( array $obj, $ix )
     {
@@ -1161,16 +1174,16 @@ class Request
     /**
      * Revoie les instances uniques d'un tableau multidimensionnel.
      * 
-     * @param array $input table multidimensionnelle
+     * @param array $input Table multidimensionnelle.
      * 
-     * @return array tableau multidimensionnel avec des entrées uniques
+     * @return array Tableau multidimensionnel avec des entrées uniques.
      */
     private function arrayUniqueMultidimensional( array $input )
     {
-        /* Sérialise les données du tableaux */
+        /* Sérialise les données du tableaux. */
         $serialized = array_map('serialize', $input);
 
-        /* Supprime les doublons sérialisés */
+        /* Supprime les doublons sérialisés. */
         $unique = array_unique($serialized);
 
         /* Redonne les clés au tableau */
@@ -1232,7 +1245,7 @@ class Request
         }
         else
         {
-            /* Si aucunes colonnes selectionnées */
+            /* Si aucunes colonnes selectionnées. */
             $this->request[ 'columns' ] = [];
         }
     }
@@ -1246,7 +1259,7 @@ class Request
         $columns = [];
         if( isset($this->request[ 'leftJoin' ]) )
         {
-            /* Merge toutes les colonnes des conditions de chaque jointure */
+            /* Merge toutes les colonnes des conditions de chaque jointure. */
             foreach( $this->request[ 'leftJoin' ] as $value )
             {
                 $columns = array_merge($columns, $value[ 'where' ]->getColumns());
@@ -1255,13 +1268,13 @@ class Request
 
         if( isset($this->request[ 'rightJoin' ]) )
         {
-            /* Merge toutes les colonnes des conditions de chaque jointure */
+            /* Merge toutes les colonnes des conditions de chaque jointure. */
             foreach( $this->request[ 'rightJoin' ] as $value )
             {
                 $columns = array_merge($columns, $value[ 'where' ]->getColumns());
             }
         }
-        /* Merge les colonnes des conditions de la requête courante */
+        /* Merge les colonnes des conditions de la requête courante. */
         if( isset($this->where) )
         {
             $columns = array_merge($columns, $this->where->getColumns());
@@ -1278,7 +1291,6 @@ class Request
      */
     private function fetchPrepareOrderBy()
     {
-        /* Si aucunes colonnes sélectionnées alors */
         if( isset($this->orderBy) )
         {
             $columns = array_keys($this->orderBy);
@@ -1314,7 +1326,7 @@ class Request
      * Déclenche une exception si l'un des champs passés en paramètre diffère 
      * des champs disponibles dans les tables.
      * 
-     * @param array $columns liste des champs
+     * @param array $columns Liste des champs.
      * 
      * @throws ColumnsNotFoundException
      */

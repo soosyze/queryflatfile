@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Class TableBuilder | src/TableBuilder.php
+ * Queryflatfile
  * 
  * @package Queryflatfile
  * @author  Mathieu NOËL <mathieu@soosyze.com>
- * 
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
 namespace Queryflatfile;
@@ -15,23 +15,28 @@ use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException,
 
 /**
  * Pattern fluent pour la création et configuration des types de données.
+ * 
+ * @author Mathieu NOËL
  */
 class TableBuilder
 {
     /**
-     * Les champs et leurs paramètres
+     * Les champs et leurs paramètres.
+     * 
      * @var array 
      */
     private $builder = [];
 
     /**
-     * La valeur des champs incrémentaux
+     * La valeur des champs incrémentaux.
+     * 
      * @var array 
      */
     private $increment = [];
 
     /**
-     * Le dernier champ appelé pour renforcer le pattern fluent
+     * Le dernier champ appelé pour renforcer le pattern fluent.
+     * 
      * @var string 
      */
     private $previousBuild = '';
@@ -40,7 +45,7 @@ class TableBuilder
      * Enregistre un champ de type `boolean`, true ou false.
      * http://php.net/manual/fr/language.types.boolean.php
      * 
-     * @param string $name nom du champ
+     * @param string $name Nom du champ.
      * 
      * @return $this
      */
@@ -55,8 +60,8 @@ class TableBuilder
      * Enregistre un champ de type `char` avec une limite de taille par défaut de un caractère.
      * http://php.net/language.types.string
      * 
-     * @param string $name nom du champ
-     * @param numeric|int $length longueur maximum de la chaine
+     * @param string $name Nom du champ
+     * @param numeric|int $length longueur maximum de la chaine.
      * 
      * @return $this
      */
@@ -74,7 +79,7 @@ class TableBuilder
     /**
      * Enregistre un champ de type `date` sous le format Y-m-d.
      * 
-     * @param string $name nom du champ
+     * @param string $name Nom du champ.
      * 
      * @return $this
      */
@@ -88,7 +93,7 @@ class TableBuilder
     /**
      * Enregistre un champ de type `datetime`, sous le format Y-m-d H:i:s.
      * 
-     * @param string $name nom du champ
+     * @param string $name Nom du champ.
      * 
      * @return $this
      */
@@ -102,9 +107,9 @@ class TableBuilder
     /**
      * Enregistre un champ de type `float`, nombre à virgule flottant.
      * http://php.net/manual/fr/language.types.float.php
-     * Valeur d'insertion autorisé : 1, '1', 1.0, '1.0' (enregistrera 1.0)
+     * Valeur d'insertion autorisé : 1, '1', 1.0, '1.0' (enregistrera 1.0).
      * 
-     * @param string $name nom du champ
+     * @param string $name Nom du champ.
      * 
      * @return $this
      */
@@ -136,7 +141,7 @@ class TableBuilder
      * http://php.net/manual/fr/language.types.integer.php
      * Valeur d'insertion autorisé : 1, '1', 1.1, '1.1' (enregistrera 1)
      * 
-     * @param string $name nom du champ
+     * @param string $name Nom du champ.
      * 
      * @return $this
      */
@@ -151,8 +156,8 @@ class TableBuilder
      * Enregistre un champ de type `string` avec une limite de taille  par défaut de 255 caractères.
      * http://php.net/language.types.string
      * 
-     * @param string $name nom du champ
-     * @param numeric|int $length longueur maximum de la chaine
+     * @param string $name Nom du champ.
+     * @param numeric|int $length Longueur maximum de la chaine.
      * 
      * @return $this
      */
@@ -171,7 +176,7 @@ class TableBuilder
      * Enregistre un champ de type `text` sans limite de taille.
      * http://php.net/language.types.string
      * 
-     * @param string $name nom du champ
+     * @param string $name Nom du champ.
      * 
      * @return $this
      */
@@ -185,7 +190,7 @@ class TableBuilder
     /**
      * Enregistre un commentaire sur le dernier champ appelé.
      * 
-     * @param string $comment commentaire du champ précédent
+     * @param string $comment Commentaire du champ précédent.
      * 
      * @return $this
      * 
@@ -251,7 +256,7 @@ class TableBuilder
      * Enregistre une valeur par défaut au champ précédent.
      * Lève une exception si la valeur par défaut ne correspond pas au type de valeur passée en paramètre.
      * 
-     * @param mixed $value valeur à tester
+     * @param mixed $value Valeur à tester.
      * 
      * @return $this
      * 
@@ -356,7 +361,7 @@ class TableBuilder
     /**
      * Retourne le tableau contenant toutes les configurations.
      * 
-     * @return array les configurations
+     * @return array Les configurations.
      */
     public function build()
     {
@@ -376,7 +381,7 @@ class TableBuilder
     /**
      * Enregistre la suppression d'une colonne.
      * 
-     * @param string $name le nom de la colonne
+     * @param string $name Nom de la colonne.
      * 
      * @return $this
      */

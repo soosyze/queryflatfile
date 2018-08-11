@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Class Where | src/Where.php
+ * Queryflatfile
  * 
  * @package Queryflatfile
  * @author  Mathieu NOËL <mathieu@soosyze.com>
- * 
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
 namespace Queryflatfile;
@@ -14,17 +14,21 @@ use Queryflatfile\Exception\Query\ColumnsNotFoundException;
 
 /**
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
+ * 
+ * @author Mathieu NOËL
  */
 class Where
 {
     /**
      * Les conditions à exécuter.
+     * 
      * @var array 
      */
     protected $where = [];
 
     /**
      * Les conditions binaires autorisées.
+     * 
      * @var array 
      */
     protected $contidion = [
@@ -46,20 +50,20 @@ class Where
 
     /**
      * Les colonnes appelées pour les clauses.
+     * 
      * @var array 
      */
     protected $columns = [];
 
     /**
      * Ajoute une condition simple pour la requête.
-     * 
      * Si la valeur du champ est égal (non égale, supérieur à, ...)  par rapport à une valeur.
      * 
-     * @param callable|string $column une sous condition ou une colonne
-     * @param null|string $operator le type de condition
-     * @param null|string $value la valeur de teste
-     * @param string $bool la porte logique de la condition (and|or)
-     * @param boolean $not inverse la condition
+     * @param callable|string $column Sous condition ou une colonne.
+     * @param null|string $operator Type de condition.
+     * @param null|string $value Valeur de teste.
+     * @param string $bool Porte logique de la condition (and|or).
+     * @param bool $not Inverse la condition.
      * 
      * @return $this
      */
@@ -86,10 +90,10 @@ class Where
             $operator = '=';
         }
 
-        /* Pour que l'opérateur soit insensible à la case */
+        /* Pour que l'opérateur soit insensible à la case. */
         $condition = strtolower($operator);
 
-        /* Si l'opérateur n'est pas autorisé */
+        /* Si l'opérateur n'est pas autorisé. */
         if( !in_array($condition, $this->contidion) )
         {
             throw new Exception\Query\OperatorNotFound('The condition ' . htmlspecialchars($condition) . ' is not exist.');
@@ -100,15 +104,15 @@ class Where
         }
         else if( in_array($condition, [ 'like', 'ilike', 'not like', 'not ilike' ]) )
         {
-            /* Le paterne commun au 4 conditions */
+            /* Le paterne commun au 4 conditions. */
             $pattern = '/' . str_replace('%', '.*', $value);
 
-            /* Pour rendre lea regex inssencible à la case */
+            /* Pour rendre lea regex inssencible à la case. */
             $pattern .= $condition === 'like' || $condition === 'not like'
                 ? '/'
                 : '/i';
 
-            /* Pour inverser le comportement du like */
+            /* Pour inverser le comportement du like. */
             $not = $condition === 'like' || $condition === 'ilike'
                 ? false
                 : true;
@@ -175,14 +179,13 @@ class Where
 
     /**
      * Ajoute une condition between à la requête.
-     * 
      * Si la valeur du champ est compris entre 2 valeurs.
      * 
-     * @param string $column nom de la colonne
-     * @param mixed $min la valeur minimum ou égale
-     * @param mixed $max la valeur maximum ou égale
-     * @param string $bool la porte logique de la condition (and|or)
-     * @param boolean $not inverse la condition
+     * @param string $column Nom de la colonne.
+     * @param mixed $min Valeur minimum ou égale.
+     * @param mixed $max Valeur maximum ou égale.
+     * @param string $bool Porte logique de la condition (and|or).
+     * @param bool $not Inverse la condition.
      * 
      * @return $this
      */
@@ -201,7 +204,7 @@ class Where
     }
 
     /**
-     * Alias inverse de la fonction between()
+     * Alias inverse de la fonction between().
      * 
      * @param callable|string $column
      * @param mixed $min
@@ -216,7 +219,7 @@ class Where
     }
 
     /**
-     * Alias avec la porte logique 'OR' de la fonction between()
+     * Alias avec la porte logique 'OR' de la fonction between().
      * 
      * @param callable|string $column
      * @param mixed $min
@@ -231,7 +234,7 @@ class Where
     }
 
     /**
-     * Alias inverse avec la porte logique 'OR' de la fonction between()
+     * Alias inverse avec la porte logique 'OR' de la fonction between().
      * 
      * @param callable|string $column
      * @param mixed $min
@@ -246,14 +249,13 @@ class Where
     }
 
     /**
-     * Ajoute une condition in à la requête
-     * 
+     * Ajoute une condition in à la requête.
      * Si la valeur du champs est contenu dans une liste.
      *  
-     * @param string $column nom de la colonne
-     * @param array $values les valeurs a tester
-     * @param string $bool la porte logique de la condition (and|or)
-     * @param boolean $not inverse la condition
+     * @param string $column Nom de la colonne.
+     * @param array $values Valeurs a tester.
+     * @param string $bool Porte logique de la condition (and|or).
+     * @param bool $not Inverse la condition.
      * 
      * @return $this
      */
@@ -271,7 +273,7 @@ class Where
     }
 
     /**
-     * Alias inverse de la fonction in()
+     * Alias inverse de la fonction in().
      * 
      * @param string $column
      * @param array $values
@@ -285,7 +287,7 @@ class Where
     }
 
     /**
-     * Alias avec la porte logique 'OR' de la fonction in()
+     * Alias avec la porte logique 'OR' de la fonction in().
      * 
      * @param string $column
      * @param array $values
@@ -299,7 +301,7 @@ class Where
     }
 
     /**
-     * Alias inverse avec la porte logique 'OR' de la fonction in()(
+     * Alias inverse avec la porte logique 'OR' de la fonction in().
      * 
      * @param string $column
      * @param array $values
@@ -314,13 +316,12 @@ class Where
 
     /**
      * Ajoute une condition isNull à la requête.
-     * 
      * Si la valeur du champ est strictement égale à null.
      * 
-     * @param string $column nom de la colonne
-     * @param string $condition la condition de validation (===|!==)
-     * @param string $bool la porte logique de la condition (and|or)
-     * @param boolean $not inverse la condition
+     * @param string $column Nom de la colonne.
+     * @param string $condition Condition de validation (===|!==).
+     * @param string $bool Porte logique de la condition (and|or).
+     * @param bool $not Inverse la condition.
      * 
      * @return $this
      */
@@ -339,9 +340,9 @@ class Where
     }
 
     /**
-     * Alias inverse de la fonction isNull
+     * Alias inverse de la fonction isNull().
      * 
-     * @param type $column
+     * @param string $column
      * 
      * @return $this
      */
@@ -352,9 +353,9 @@ class Where
     }
 
     /**
-     * Alias avec la porte logique 'OR' de la fonction isNull()
+     * Alias avec la porte logique 'OR' de la fonction isNull().
      * 
-     * @param type $column
+     * @param string $column
      * 
      * @return $this
      */
@@ -367,7 +368,7 @@ class Where
     /**
      * Alias inverse avec la porte logique 'OR' de la fonction isNull()
      * 
-     * @param type $column
+     * @param string $column
      * 
      * @return $this
      */
@@ -380,10 +381,10 @@ class Where
     /**
      * Ajoute une condition avec une expression régulière à la requête.
      * 
-     * @param string $column nom de la colonne
-     * @param string $pattern l'expression régulière
-     * @param string $bool la porte logique de la condition (and|or)
-     * @param boolean $not inverse la condition
+     * @param string $column Nom de la colonne.
+     * @param string $pattern Expression régulière.
+     * @param string $bool Porte logique de la condition (and|or).
+     * @param bool $not Inverse la condition.
      * 
      * @return $this
      */
@@ -401,10 +402,10 @@ class Where
     }
 
     /**
-     *  Alias inverse de la fonction regex()
+     *  Alias inverse de la fonction regex().
      * 
-     * @param string $column nom de la colonne
-     * @param string $pattern l'expression régulière
+     * @param string $column
+     * @param string $pattern
      * 
      * @return $this
      */
@@ -415,10 +416,10 @@ class Where
     }
 
     /**
-     *  Alias avec la porte logique 'OR' de la fonction regex()
+     *  Alias avec la porte logique 'OR' de la fonction regex().
      * 
-     * @param string $column nom de la colonne
-     * @param string $pattern l'expression régulière
+     * @param string $column
+     * @param string $pattern
      * 
      * @return $this
      */
@@ -431,8 +432,8 @@ class Where
     /**
      *  Alias inverse avec la porte logique 'OR' de la fonction regex()
      * 
-     * @param string $column nom de la colonne
-     * @param string $pattern l'expression régulière
+     * @param string $column
+     * @param string $pattern
      * 
      * @return $this
      */
@@ -444,11 +445,10 @@ class Where
 
     /**
      * Construit la chaine conditionnée pour les requêtes.
-     * 
      * Cette chaine de caractère représente les conditions au format PHP et 
      * sera utilisé dans une fonction d'évaluation.
      * 
-     * @return string la chaine
+     * @return string Chaine exécutable.
      */
     public function execute()
     {
@@ -512,11 +512,10 @@ class Where
 
     /**
      * Construit une chaine conditionné pour les jointures.
-     * 
      * Cette chaine de caractère représente les conditions au format PHP et 
      * sera utilisé dans une fonction d'évaluation.
      * 
-     * @return string la chaine
+     * @return string Chaine exécutable.
      */
     public function executeJoin()
     {
@@ -583,7 +582,7 @@ class Where
     /**
      * Retourne toutes les colonnes utilisées pour créer la clause.
      * 
-     * @return array les colonnes
+     * @return array Colonnes.
      */
     public function getColumns()
     {
@@ -605,13 +604,13 @@ class Where
     /**
      * Retourne une chaine de caractère au format PHP représentant la colonne pour la requête.
      * 
-     * @param string $key le nom de la colonne
+     * @param string $key Nom de la colonne.
      * 
      * @return string
      */
     protected function getRow( $key )
     {
-        /* Le nom de la colonne doit-être au format string */
+        /* Le nom de la colonne doit-être au format string. */
         if( !is_string($key) )
         {
             throw new ColumnsNotFoundException('The column name must be in string format.');
@@ -622,13 +621,13 @@ class Where
     /**
      * Retourne une chaine de caractère au format PHP représentant la colonne pour les jointures.
      * 
-     * @param string $key le nom de la colonne
+     * @param string $key Nom de la colonne.
      * 
      * @return string
      */
     protected function getRowJoin( $key )
     {
-        /* Le nom de la colonne doit-être au format string */
+        /* Le nom de la colonne doit-être au format string. */
         if( !is_string($key) )
         {
             throw new ColumnsNotFoundException('The column name must be in string format.');
@@ -637,16 +636,16 @@ class Where
     }
 
     /**
-     * Revoie la valeur si elle est strictement  numérique (int, float, double, long..)
+     * Revoie la valeur si elle est strictement  numérique (int, float, double, long..).
      * Sinon ajoute des simples quottes et des slashs si la valeur est une chaine de caractère.
      * 
-     * @param mixed $value la valeur d'une condition
+     * @param mixed $value Valeur d'une condition.
      * 
      * @return mixed
      */
     protected function getValue( $value )
     {
-        /* La valeur de test doit-être doit-être au format string|numérique|boolean */
+        /* La valeur de test doit-être doit-être au format string|numérique|bool. */
         if( !is_string($value) && !is_numeric($value) && !is_bool($value) )
         {
             throw new ColumnsNotFoundException('The column name must be in string format.');
@@ -671,14 +670,13 @@ class Where
     }
 
     /**
-     * Si la valeur représente une colonne ou une valeur.
-     * 
-     * where('id', '=', 'test') ici 'test' est une valeur de type chaine de caractère
-     * where('id', '=', 'table.test') ici 'test' est une colonne puisqu'il est précédé du nom de sa table
+     * Si la valeur représente une colonne ou une valeur,
+     * where('id', '=', 'test') ici 'test' est une valeur de type chaine de caractère,
+     * where('id', '=', 'table.test') ici 'test' est une colonne puisqu'il est précédé du nom de sa table.
      * 
      * @param string $value
      * 
-     * @return boolean
+     * @return bool
      */
     protected function isColumn( $value )
     {
