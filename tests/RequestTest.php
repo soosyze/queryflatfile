@@ -2,9 +2,9 @@
 
 namespace Queryflatfile\Test;
 
-use Queryflatfile\Schema,
-    Queryflatfile\Request,
-    Queryflatfile\TableBuilder;
+use Queryflatfile\Schema;
+use Queryflatfile\Request;
+use Queryflatfile\TableBuilder;
 
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
@@ -15,13 +15,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     /**
      *
-     * @var Request 
+     * @var Request
      */
     protected $request;
 
     /**
      *
-     * @var Request 
+     * @var Request
      */
     protected $request2;
 
@@ -44,24 +44,20 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-        
     }
 
     public function testCreateTable()
     {
-        $this->bdd->createTable('user', function(TableBuilder $table)
-        {
+        $this->bdd->createTable('user', function (TableBuilder $table) {
             $table->increments('id')
                 ->string('name')
                 ->string('firstname')->nullable();
         });
-        $this->bdd->createTable('user_role', function(TableBuilder $table)
-        {
+        $this->bdd->createTable('user_role', function (TableBuilder $table) {
             $table->integer('id_user')
                 ->integer('id_role');
         });
-        $this->bdd->createTable('role', function(TableBuilder $table)
-        {
+        $this->bdd->createTable('role', function (TableBuilder $table) {
             $table->increments('id')
                 ->string('labelle');
         });
@@ -124,9 +120,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateTableIfNotExistsData()
     {
-        $this->bdd->createTableIfNotExists('user', function(TableBuilder $table)
-        {
-            
+        $this->bdd->createTableIfNotExists('user', function (TableBuilder $table) {
         });
 
         $this->assertFileExists('tests/data/user.' . $this->bdd->getExtension());
@@ -603,8 +597,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $data = $this->request
             ->from('user')
             ->where('id', '>=', 2)
-            ->where(function($query)
-            {
+            ->where(function ($query) {
                 $query->where('name', 'DUPOND')
                 ->orWhere('firstname', 'Eva');
             })
@@ -621,8 +614,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $data = $this->request
             ->from('user')
             ->where('name', 'DUPOND')
-            ->orWhere(function($query)
-            {
+            ->orWhere(function ($query) {
                 $query->where('firstname', 'Eva')
                 ->orWhere('firstname', 'Mathieu');
             })
@@ -787,8 +779,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $data = $this->request->select('id', 'name', 'firstname')
             ->from('user')
-            ->leftJoin('user_role', function($query)
-            {
+            ->leftJoin('user_role', function ($query) {
                 $query->where('id', '=', 'user_role.id_user');
             })
             ->leftJoin('role', 'id_role', '=', 'role.id')

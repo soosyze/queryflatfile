@@ -30,7 +30,6 @@ class DriverJsonTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-        
     }
 
     public function testCreate()
@@ -92,5 +91,4 @@ class DriverJsonTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($output);
         $this->assertFileNotExists('tests/data/driver_test.json');
     }
-
 }

@@ -27,7 +27,6 @@ class WhereTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-        
     }
 
     public function testWhereEqualsString()
@@ -86,5 +85,4 @@ class WhereTest extends \PHPUnit_Framework_TestCase
         $row['i\"d'] = '1';
         $this->assertFalse(eval('return ' . $exe . ';'));
     }
-
 }

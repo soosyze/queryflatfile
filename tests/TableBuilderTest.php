@@ -27,7 +27,6 @@ class TableBuilderTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-        
     }
 
     public function testIncrements()
@@ -283,5 +282,4 @@ class TableBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->object->datetime('0')->valueDefault('1');
     }
-
 }
