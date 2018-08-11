@@ -509,9 +509,7 @@ class Request
             /* WHERE */
             if( isset($testEval) )
             {
-                $test = eval('return ' . $testEval . ';');
-
-                if( $test )
+                if( eval('return ' . $testEval . ';') )
                 {
                     $rowEval = $row;
                 }
@@ -759,9 +757,7 @@ class Request
             foreach( $this->tableData as $row )
             {
                 /* Vérifie les conditions. */
-                $test = eval('return ' . $testEval . ';');
-
-                if( $test )
+                if( eval('return ' . $testEval . ';') )
                 {
                     /* Join les lignes si la condition est bonne. */
                     $result[] = array_merge($row, $rowJoin);
@@ -813,9 +809,8 @@ class Request
             /* Join les tables. */
             foreach( $tableJoin as $rowJoin )
             {
-                /* Vérifie les conditions */
-                $test = eval('return ' . $testEval . ';');
-                if( $test )
+                /* Vérifie les conditions. */
+                if( eval('return ' . $testEval . ';') )
                 {
                     /* Join les lignes si la condition est bonne. */
                     $result[] = array_merge($rowJoin, $row);
@@ -946,26 +941,18 @@ class Request
      */
     protected function executeUpdate()
     {
-        if( isset($this->where) )
-        {
-            $testEval = $this->where->execute();
-        }
+        $test = isset($this->where) 
+            ? $this->where->execute() 
+            : false;
 
         /* La variable $row est utilisé dans le test d'évaluation. */
         foreach( $this->tableData as $key => $row )
         {
-            if( isset($testEval) )
+            if( eval('return !' . $test . ';') )
             {
-                $test = eval('return ' . $testEval . ';');
-                if( $test )
-                {
-                    $this->tableData[ $key ] = array_merge($this->tableData[ $key ], $this->request[ 'setUpdate' ]);
-                }
+                continue;
             }
-            else
-            {
-                $this->tableData[ $key ] = array_merge($this->tableData[ $key ], $this->request[ 'setUpdate' ]);
-            }
+            $this->tableData[ $key ] = array_merge($this->tableData[ $key ], $this->request[ 'setUpdate' ]);
         }
     }
 
@@ -974,24 +961,17 @@ class Request
      */
     protected function executeDelete()
     {
-        if( isset($this->where) )
-        {
-            $testEval = $this->where->execute();
-        }
+        $test = isset($this->where) 
+            ? $this->where->execute() 
+            : false;
+
         foreach( $this->tableData as $key => $row )
         {
-            if( isset($testEval) )
+            if( eval('return !' . $test . ';') )
             {
-                $test = eval('return ' . $testEval . ';');
-                if( $test )
-                {
-                    unset($this->tableData[ $key ]);
-                }
+                continue;
             }
-            else
-            {
-                unset($this->tableData[ $key ]);
-            }
+            unset($this->tableData[ $key ]);
         }
         $this->tableData = array_values($this->tableData);
     }

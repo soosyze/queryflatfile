@@ -11,7 +11,8 @@
 namespace Queryflatfile;
 
 use Queryflatfile\TableBuilder,
-    Queryflatfile\DriverInterface;
+    Queryflatfile\DriverInterface,
+    Queryflatfile\Exception\Query\TableNotFoundException;
 
 /**
  * Pattern fluent pour la gestion d'un schéma de données.
@@ -47,6 +48,13 @@ class Schema
      * @var string
      */
     protected $file;
+    
+    /**
+     * Schéma des tables.
+     * 
+     * @var array
+     */
+    protected $schema = [];
 
     /**
      * Construis l'objet avec une configuration.
@@ -74,12 +82,9 @@ class Schema
     public function setConfig( $host, $name = 'schema',
         DriverInterface $driver = null )
     {
-        $this->driver = $driver;
-        if( is_null($driver) )
-        {
-            $this->driver = new DriverJson();
-        }
-
+        $this->driver = is_null($driver)
+            ? new DriverJson()
+            : $driver;
         $this->path = $host;
         $this->name = $name;
         $this->file = $host . DIRECTORY_SEPARATOR . $name . '.' . $this->driver->getExtension();
@@ -95,10 +100,17 @@ class Schema
      * 
      * @return bool Si le schéma d'incrémentaion est bien enregistré.
      * 
+     * @throws TableNotFoundException
      */
     public function setIncrements( $table, array $increments )
     {
-        $schema                           = $this->getSchema();
+        $schema = $this->getSchema();
+
+        if( !isset($schema[ $table ]) )
+        {
+            throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
+        }
+
         $schema[ $table ][ 'increments' ] = $increments;
 
         return $this->save($this->path, $this->name, $schema);
@@ -111,14 +123,16 @@ class Schema
      */
     public function getSchema()
     {
-        $schema = $this->file;
-
-        if( !file_exists($schema) )
+        if( !file_exists($this->file) )
         {
             $this->create($this->path, $this->name);
         }
+        if( empty($this->schema) )
+        {
+            $this->schema = $this->read($this->path, $this->name);
+        }
 
-        return $this->read($this->path, $this->name);
+        return $this->schema;
     }
 
     /**
@@ -128,18 +142,16 @@ class Schema
      * 
      * @return array Schéma de la table.
      * 
-     * @throws Exception\Query\TableNotFoundException
+     * @throws TableNotFoundException
      */
     public function getSchemaTable( $table )
     {
-        $schema = $this->getSchema();
-
-        if( !isset($schema[ $table ]) )
+        if( !$this->hasTable($table) )
         {
-            throw new Exception\Query\TableNotFoundException("The " . $table . " table is missing in the schema.");
+            throw new TableNotFoundException("The " . htmlspecialchars($table) . " table is missing in the schema.");
         }
 
-        return $schema[ $table ];
+        return $this->getSchema()[ $table ];
     }
 
     /**
@@ -154,7 +166,7 @@ class Schema
         /* Supprime les fichiers des tables. */
         foreach( $schema as $table )
         {
-            $this->delete($table[ 'path' ], $table[ 'table' ]);
+            $this->delete($this->path, $table[ 'table' ]);
         }
 
         /* Supprime le fichier de schéma. */
@@ -180,33 +192,32 @@ class Schema
      * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
      * 
      * @return $this
+     * 
+     * @throws \Exception
      */
     public function createTable( $table, callable $callback = null )
     {
         $schema = $this->getSchema();
 
-        if( isset($schema[ $table ]) )
+        if( $this->hasTable($table) )
         {
             throw new \Exception("Table " . htmlspecialchars($table) . " exist.");
-        }
-
-        $tableBuilder = null;
-        $increments   = [];
-
-        if( !is_null($callback) )
-        {
-            $builder      = new TableBuilder();
-            call_user_func_array($callback, [ &$builder ]);
-            $tableBuilder = $builder->build();
-            $increments   = $builder->getIncrement();
         }
 
         $schema[ $table ] = [
             'table'      => $table,
             'path'       => $this->path,
-            'fields'     => $tableBuilder,
-            'increments' => $increments
+            'fields'     => null,
+            'increments' => []
         ];
+
+        if( !is_null($callback) )
+        {
+            $builder    = new TableBuilder();
+            call_user_func_array($callback, [ &$builder ]);
+            $schema[ $table ][ 'fields' ]     = $builder->build();
+            $schema[ $table ][ 'increments' ] = $builder->getIncrement();
+        }
 
         $this->save($this->path, $this->name, $schema);
         $this->create($this->path, $table);
@@ -224,15 +235,12 @@ class Schema
      */
     public function createTableIfNotExists( $table, callable $callback = null )
     {
-        $sch = $this->getSchema();
-
-        /* Créer la table si elle n'existe pas dans le schéma */
-        if( !isset($sch[ $table ]) )
+        /* Créer la table si elle n'existe pas dans le schéma. */
+        if( !$this->hasTable($table) )
         {
             $this->createTable($table, $callback);
-            return $this;
         }
-        if( !$this->driver->has($sch[ $table ][ 'path' ], $sch[ $table ][ 'table' ]) )
+        else if( !$this->driver->has($this->path, $table) )
         {
             /* Si elle existe dans le schéma et que le fichier est absent alors on le créer. */
             $this->create($this->path, $table);
@@ -266,7 +274,7 @@ class Schema
     {
         $sch = $this->getSchema();
 
-        return isset($sch[ $table ]) && $this->driver->has($sch[ $table ][ 'path' ], $sch[ $table ][ 'table' ]);
+        return isset($sch[ $table ]) && $this->driver->has($this->path, $table);
     }
 
     /**
@@ -281,7 +289,7 @@ class Schema
     {
         $sch = $this->getSchema();
 
-        return isset($sch[ $table ][ $column ]) && $this->driver->has($sch[ $table ][ 'path' ], $sch[ $table ][ 'table' ]);
+        return isset($sch[ $table ]['fields'][ $column ]) && $this->driver->has($this->path, $table);
     }
 
     /**
@@ -290,18 +298,18 @@ class Schema
      * @param String $table Nom de la table.
      * 
      * @return bool
+     * 
+     * @throws TableNotFoundException
      */
     public function truncateTable( $table )
     {
-        $schema = $this->getSchema();
-
-        if( !isset($schema[ $table ]) )
+        if( !$this->hasTable($table) )
         {
-            throw new \Exception("Table " . htmlspecialchars($table) . " is not exist.");
+            throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
         }
 
-        $this->save($schema[ $table ][ 'path' ], $schema[ $table ][ 'table' ], [
-        ]);
+        $this->save($this->path, $table, []);
+        $schema = $this->getSchema();
 
         foreach( $schema[ $table ][ 'increments' ] as $key => $value )
         {
@@ -318,18 +326,19 @@ class Schema
      * 
      * @return bool Si la suppression du schema et des données se son bien passé.
      * 
+     * @throws TableNotFoundException
      */
     public function dropTable( $table )
     {
         $schema = $this->getSchema();
 
-        if( !isset($schema[ $table ]) )
+        if( !$this->hasTable($table) )
         {
-            throw new \Exception("Table " . htmlspecialchars($table) . " is not exist.");
+            throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
         }
 
-        $deleteSchema = $this->delete($schema[ $table ][ 'path' ], $schema[ $table ][ 'table' ]);
         unset($schema[ $table ]);
+        $deleteSchema = $this->delete($this->path, $table);
         $deleteData   = $this->save($this->path, $this->name, $schema);
 
         return $deleteSchema && $deleteData;
@@ -344,10 +353,9 @@ class Schema
      */
     public function dropTableIfExists( $table )
     {
-        if( $this->hasTable($table) )
-        {
-            return $this->dropTable($table);
-        }
+        return $this->hasTable($table) 
+            ? $this->dropTable($table) 
+            : false;
     }
 
     /**
@@ -384,7 +392,9 @@ class Schema
      */
     public function save( $path, $file, array $data )
     {
-        return $this->driver->save($path, $file, $data);
+        $output = $this->driver->save($path, $file, $data);
+        $this->reloadSchema();
+        return $output;
     }
 
     /**
@@ -398,7 +408,8 @@ class Schema
      */
     protected function create( $path, $file, array $data = [] )
     {
-        return $this->driver->create($path, $file, $data);
+        $output = $this->driver->create($path, $file, $data);
+        return $output;
     }
 
     /**
@@ -411,6 +422,13 @@ class Schema
      */
     protected function delete( $path, $file )
     {
-        return $this->driver->delete($path, $file);
+        $output = $this->driver->delete($path, $file);
+        $this->reloadSchema();
+        return $output;
+    }
+    
+    private function reloadSchema()
+    {
+        $this->schema = $this->read($this->path, $this->name);
     }
 }
