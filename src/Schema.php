@@ -224,6 +224,7 @@ class Schema
 
         $this->save($this->path, $this->name, $schema);
         $this->create($this->path, $table);
+        $this->reloadSchema();
 
         return $this;
     }
@@ -324,6 +325,8 @@ class Schema
         $schema[ $table ][ 'fields' ] = $fields;
         $this->save($this->path, $this->name, $schema);
         $this->save($this->path, $table, $dataTable);
+        $this->reloadSchema();
+
         return $this;
     }
 
@@ -423,15 +426,16 @@ class Schema
      */
     public function dropTable($table)
     {
-        $schema = $this->getSchema();
-
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
         }
 
+        $schema = $this->getSchema();
+
         unset($schema[ $table ]);
-        $deleteSchema = $this->delete($this->path, $table);
-        $deleteData   = $this->save($this->path, $this->name, $schema);
+        $deleteData   = $this->delete($this->path, $table);
+        $deleteSchema = $this->save($this->path, $this->name, $schema);
+        $this->reloadSchema();
 
         return $deleteSchema && $deleteData;
     }
@@ -485,7 +489,6 @@ class Schema
     public function save($path, $file, array $data)
     {
         $output = $this->driver->save($path, $file, $data);
-        $this->reloadSchema();
 
         return $output;
     }
@@ -517,7 +520,6 @@ class Schema
     protected function delete($path, $file)
     {
         $output = $this->driver->delete($path, $file);
-        $this->reloadSchema();
 
         return $output;
     }
