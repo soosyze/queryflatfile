@@ -673,20 +673,13 @@ class Request
      */
     protected function executeRightJoin($table, Where $where)
     {
-        $result    = [];
-        $tableJoin = $this->getTableData($table);
-        $testEval  = $where->executeJoin();
-
-        /* Si les lignes se sont jointes. */
-        $addRow       = false;
-        /* Le schéma de la table à joindre. */
-        $sch          = $this->tableSchema;
-        /* Prend les noms des champs de la table à joindre. */
-        $rowTableKey  = array_keys($sch[ 'fields' ]);
-        /* Utilise les nom pour créer un tableau avec des valeurs null. */
-        $rowTableNull = array_fill_keys($rowTableKey, null);
+        $result       = [];
+        $tableJoin    = $this->getTableData($table);
+        $rowTableNull = $this->getRowTableNull($table);
 
         foreach ($tableJoin as $rowJoin) {
+            /* Si les lignes se sont jointes. */
+            $addRow = false;
             /* Join les tables. */
             foreach ($this->tableData as $row) {
                 /* Vérifie les conditions. */
@@ -704,8 +697,6 @@ class Request
             if (!$addRow) {
                 $result[] = array_merge($rowTableNull, $rowJoin);
             }
-
-            $addRow = false;
         }
         $this->tableData = $result;
 
@@ -722,20 +713,13 @@ class Request
      */
     protected function executeLeftJoin($table, Where $where)
     {
-        $result    = [];
-        $tableJoin = $this->getTableData($table);
-        $testEval  = $where->executeJoin();
-
-        /* Si les lignes se sont jointes. */
-        $addRow       = false;
-        /* Le schéma de la table à joindre. */
-        $sch          = $this->schema->getSchemaTable($table);
-        /* Prend les noms des champs de la table à joindre. */
-        $rowTableKey  = array_keys($sch[ 'fields' ]);
-        /* Utilise les noms pour créer un tableau avec des valeurs null. */
-        $rowTableNull = array_fill_keys($rowTableKey, null);
+        $result       = [];
+        $tableJoin    = $this->getTableData($table);
+        $rowTableNull = $this->getRowTableNull($table);
 
         foreach ($this->tableData as $row) {
+            /* Si les lignes se sont jointes. */
+            $addRow = false;
             /* Join les tables. */
             foreach ($tableJoin as $rowJoin) {
                 /* Vérifie les conditions. */
@@ -753,8 +737,6 @@ class Request
             if (!$addRow) {
                 $result[] = array_merge($rowTableNull, $row);
             }
-
-            $addRow = false;
         }
         $this->tableData = $result;
 
@@ -1095,5 +1077,29 @@ class Request
 
             throw new ColumnsNotFoundException("Column " . implode(',', $columnsDiff) . " is absent : " . $this);
         }
+    }
+    
+    /**
+     * Retourne un tableau associatif avec pour clé les champs de la table et pour valeur null.
+     * Si des champs existent dans le schéma ils seront rajouté. Fonction utilisée
+     * pour les jointures en cas d'absence de résultat.
+     *
+     * @param string $table Nom de la table.
+     *
+     * @return array
+     */
+    private function getRowTableNull($table)
+    {
+        /* Le schéma de la table à joindre. */
+        $sch          = $this->schema->getSchemaTable($table);
+        /* Prend les noms des champs de la table à joindre. */
+        $rowTableKey  = array_keys($sch[ 'fields' ]);
+        /* Prend les noms des champs dans la requête précédente. */
+        if (isset($this->tableSchema[ 'fields' ])) {
+            $rowTableAllKey  = array_keys($this->tableSchema[ 'fields' ]);
+            $rowTableKey  = array_merge($rowTableKey, $rowTableAllKey);
+        }
+        /* Utilise les noms pour créer un tableau avec des valeurs null. */
+        return array_fill_keys($rowTableKey, null);
     }
 }
