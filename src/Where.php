@@ -10,7 +10,7 @@
 
 namespace Queryflatfile;
 
-use Queryflatfile\Exception\Query\ColumnsNotFoundException;
+use Queryflatfile\Exception\Query\OperatorNotFound;
 
 /**
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
@@ -66,6 +66,8 @@ class Where
      * @param bool $not Inverse la condition.
      *
      * @return $this
+     *
+     * @throws OperatorNotFound
      */
     public function where(
         $column,
@@ -97,7 +99,7 @@ class Where
 
         /* Si l'opérateur n'est pas autorisé. */
         if (!in_array($condition, $this->contidion)) {
-            throw new Exception\Query\OperatorNotFound('The condition ' . htmlspecialchars($condition) . ' is not exist.');
+            throw new OperatorNotFound('The condition ' . htmlspecialchars($condition) . ' is not exist.');
         } elseif ($condition === '=') {
             $condition = '===';
         } elseif (in_array($condition, [ 'like', 'ilike', 'not like', 'not ilike' ])) {
@@ -268,8 +270,9 @@ class Where
     {
         $this->where[]   = [
             'type'   => __FUNCTION__,
+            'condition' => 'in',
             'column' => $column,
-            'values' => $values,
+            'value' => $values,
             'bool'   => $bool,
             'not'    => $not
         ];
@@ -328,22 +331,21 @@ class Where
      * Si la valeur du champ est strictement égale à null.
      *
      * @param string $column Nom de la colonne.
-     * @param string $condition Condition de validation (===|!==).
      * @param string $bool Porte logique de la condition (and|or).
      * @param bool $not Inverse la condition.
      *
      * @return $this
      */
     public function isNull(
-        $column,
-        $condition = '===',
+    $column,
         $bool = 'and',
         $not = false
     ) {
         $this->where[]   = [
             'type'      => __FUNCTION__,
-            'condition' => $condition,
-            'column'    => addslashes($column),
+            'condition' => '===',
+            'column'    => $column,
+            'value'     => null,
             'bool'      => $bool,
             'not'       => $not
         ];
@@ -361,7 +363,7 @@ class Where
      */
     public function isNotNull($column)
     {
-        $this->isNull($column, '===', 'and', true);
+        $this->isNull($column, 'and', true);
 
         return $this;
     }
@@ -375,7 +377,7 @@ class Where
      */
     public function orIsNull($column)
     {
-        $this->isNull($column, '===', 'or');
+        $this->isNull($column, 'or');
 
         return $this;
     }
@@ -389,7 +391,7 @@ class Where
      */
     public function orIsNotNull($column)
     {
-        $this->isNull($column, '===', 'or', true);
+        $this->isNull($column, 'or', true);
 
         return $this;
     }
@@ -464,145 +466,6 @@ class Where
     }
 
     /**
-     * Construit la chaine conditionnée pour les requêtes.
-     * Cette chaine de caractère représente les conditions au format PHP et
-     * sera utilisé dans une fonction d'évaluation.
-     *
-     * @return string Chaine exécutable.
-     */
-    public function execute()
-    {
-        if (empty($this->where)) {
-            return '1';
-        }
-
-        $evalWhere = '';
-
-        foreach ($this->where as $key => $values) {
-            /* OPERATEUR BINAIRE */
-            $evalWhere .= $values[ 'bool' ] === 'and'
-                ? ' && '
-                : ' || ';
-
-            /* OPERATEUR INVERSE */
-            $evalWhere .= !empty($values[ 'not' ])
-                ? '!'
-                : '';
-
-            $columns = $values[ 'column' ];
-
-            /* CONDITIONS */
-            switch ($values[ 'type' ]) {
-                case 'where':
-                    $evalWhere .= '(' . $this->getRow($columns) . ' ' . $values[ 'condition' ] . ' ' . $this->getValue($values[ 'value' ]) . ')';
-
-                    break;
-                case 'whereCallback':
-                    $evalWhere .= '(' . $values[ 'value' ]->execute() . ')';
-
-                    break;
-                case 'between':
-                    $evalWhere .= '(' . $this->getRow($columns) . ' >= ' . $this->getValue($values[ 'min' ])
-                        . ' && ' . $this->getRow($columns) . ' <= ' . $this->getValue($values[ 'max' ]) . ')';
-
-                    break;
-                case 'in':
-                    $countIn   = count($values[ 'values' ]);
-                    foreach ($values[ 'values' ] as $key => $value) {
-                        $evalWhere .= '(' . $this->getRow($columns)
-                            . ' == ' . $this->getValue($value) . ')';
-                        if ($countIn != $key + 1) {
-                            $evalWhere .= '||';
-                        }
-                    }
-
-                    break;
-                case 'isNull':
-                    $evalWhere .= '(' . $this->getRow($columns) . ' ' . $values[ 'condition' ] . ' null )';
-
-                    break;
-                case 'regex':
-                    $evalWhere .= '(preg_match("' . $values[ 'values' ] . '",' . $this->getRow($columns) . '))';
-
-                    break;
-            }
-        }
-
-        return substr($evalWhere, 4);
-    }
-
-    /**
-     * Construit une chaine conditionné pour les jointures.
-     * Cette chaine de caractère représente les conditions au format PHP et
-     * sera utilisé dans une fonction d'évaluation.
-     *
-     * @return string Chaine exécutable.
-     */
-    public function executeJoin()
-    {
-        if (empty($this->where)) {
-            return '1';
-        }
-
-        $evalWhere = '';
-
-        foreach ($this->where as $values) {
-            /* OPERATEUR BINAIRE */
-            $evalWhere .= $values[ 'bool' ] === 'and'
-                ? ' && '
-                : ' || ';
-
-            /* OPERATEUR INVERSE */
-            $evalWhere .= !empty($values[ 'not' ])
-                ? '!'
-                : '';
-
-            $columns = $values[ 'column' ];
-
-            /* CONDITIONS */
-            switch ($values[ 'type' ]) {
-                case 'where':
-                    $evalWhere .= '(' . $this->getRow($columns) . ' ' . $values[ 'condition' ] . ' '
-                        . $this->evalWhere($values[ 'value' ]) . ')';
-
-                    break;
-                case 'whereCallback':
-                    $evalWhere .= '(' . $values[ 'value' ]->execute() . ')';
-
-                    break;
-                case 'between':
-                    $evalWhere .= '(' . $this->getRow($columns) . ' >= ' . $this->evalWhere($values[ 'min' ])
-                        . ' && ' . $this->getRow($columns) . ' <= ' . $this->evalWhere($values[ 'max' ]) . ')';
-
-                    break;
-                case 'in':
-                    $countIn   = count($values[ 'values' ]);
-                    foreach ($values[ 'values' ] as $key => $value) {
-                        $evalWhere .= '(' . $this->getRow($columns)
-                            . ' == ' . $this->evalWhere($value) . ')';
-                        if ($countIn != $key + 1) {
-                            $evalWhere .= ' || ';
-                        }
-                    }
-
-                    break;
-                case 'isNull':
-                    $evalWhere .= '(' . $this->getRow($columns) . ' ' . $values[ 'condition' ] . ' null )';
-
-                    break;
-                case 'regex':
-                    $evalWhere .= '( preg_match("' . $values[ 'values' ] . '",' . $this->getRow($columns) . ') )';
-
-                    break;
-            }
-        }
-
-        unset($this->where);
-
-        return substr($evalWhere, 4);
-    }
-
-    /**
      * Retourne toutes les colonnes utilisées pour créer la clause.
      *
      * @return array Colonnes.
@@ -624,57 +487,150 @@ class Where
     }
 
     /**
-     * Retourne une chaine de caractère au format PHP représentant la colonne pour la requête.
+     * Retourne TRUE si la suite de condition enregistrée valide les champs du tableau.
      *
-     * @param string $key Nom de la colonne.
+     * @param array $row Tableau associatif de champ.
      *
-     * @return string
+     * @return bool
      */
-    protected function getRow($key)
+    public function execute(array $row)
     {
-        /* Le nom de la colonne doit-être au format string. */
-        if (!is_string($key)) {
-            throw new ColumnsNotFoundException('The column name must be in string format.');
+        foreach ($this->where as $key => $value) {
+            $columns = $value[ 'column' ];
+            switch ($value[ 'type' ]) {
+                case 'where':
+                case 'isNull':
+                case 'in':
+                    $predicate = self::predicate($row[ $columns ], $value[ 'condition' ], $value[ 'value' ]);
+
+                    break;
+                case 'whereCallback':
+                    $predicate = $value[ 'value' ]->execute($row);
+
+                    break;
+                case 'between':
+                    $predicate = self::predicate($row[ $columns ], '>=', $value[ 'min' ]) && self::predicate($row[ $columns ], '<=', $value[ 'max' ]);
+
+                    break;
+                case 'regex':
+                    $predicate = !empty($value[ 'not' ])
+                        ? !preg_match($value[ 'values' ], $row[ $columns ])
+                        : preg_match($value[ 'values' ], $row[ $columns ]);
+                    $predicate &= self::predicate($row[ $columns ], '!==', null);
+
+                    break;
+            }
+
+            if ($value[ 'type' ] !== 'regex') {
+                $predicate = !empty($value[ 'not' ])
+                    ? !$predicate
+                    : $predicate;
+            }
+
+            if ($key == 0) {
+                $output = $predicate;
+            } elseif ($value[ 'bool' ] === 'and') {
+                $output &= $predicate;
+            } else {
+                $output |= $predicate;
+            }
         }
 
-        return '$row[' . "'" . addslashes($key) . "'" . ']';
+        return $output;
     }
 
     /**
-     * Retourne une chaine de caractère au format PHP représentant la colonne pour les jointures.
+     * Retourne TRUE si la suite de condition enregistrée valide les champs du tableau
+     * par rapport à un autre tableau.
      *
-     * @param string $key Nom de la colonne.
+     * @param array $row Tableau associatif de champ.
+     * @param array $rowTable Tableau associatif de champ à tester.
      *
-     * @return string
+     * @return bool
      */
-    protected function getRowJoin($key)
+    public function executeJoin(array $row, array $rowTable)
     {
-        /* Le nom de la colonne doit-être au format string. */
-        if (!is_string($key)) {
-            throw new ColumnsNotFoundException('The column name must be in string format.');
+        foreach ($this->where as $key => $value) {
+            $columns = $value[ 'column' ];
+            switch ($value[ 'type' ]) {
+                case 'where':
+                case 'isNull':
+                    $val       = $this->isColumn($value[ 'value' ])
+                        ? $rowTable[ substr(strrchr($value[ 'value' ], '.'), 1) ]
+                        : $value[ 'value' ];
+                    $predicate = self::predicate($row[ $columns ], $value[ 'condition' ], $val);
+
+                    break;
+                case 'whereCallback':
+                    $predicate = $value[ 'value' ]->execute($row);
+
+                    break;
+            }
+
+            if ($key == 0) {
+                $output = $predicate;
+            } elseif ($value[ 'bool' ] === 'and') {
+                $output &= $predicate;
+            } else {
+                $output |= $predicate;
+            }
         }
 
-        return '$rowJoin[' . "'" . addslashes($key) . "'" . ']';
+        return $output;
     }
 
     /**
-     * Revoie la valeur si elle est strictement  numérique (int, float, double, long..).
-     * Sinon ajoute des simples quottes et des slashs si la valeur est une chaine de caractère.
+     * Retourne TRUE si la condition est validée.
      *
-     * @param mixed $value Valeur d'une condition.
+     * @param mixed $columns Valeur à tester.
+     * @param string $operator Condition à réaliser.
+     * @param mixed $value Valeur de comparaison.
      *
-     * @return mixed
+     * @return bool
+     *
+     * @throws \Exception
      */
-    protected function getValue($value)
+    public static function predicate($columns, $operator, $value)
     {
-        /* La valeur de test doit-être doit-être au format string|numérique|bool. */
-        if (!is_string($value) && !is_numeric($value) && !is_bool($value)) {
-            throw new ColumnsNotFoundException('The column name must be in string format.');
+        switch ($operator) {
+            case '==':
+                return $columns == $value;
+            case '=':
+            case '===':
+                return $columns === $value;
+            case '!==':
+                return $columns !== $value;
+            case '!=':
+                return $columns != $value;
+            case '<>':
+                return $columns <> $value;
+            case '<':
+                return $columns < $value;
+            case '<=':
+                return $columns <= $value;
+            case '>':
+                return $columns > $value;
+            case '>=':
+                return $columns >= $value;
+            case 'in':
+                return in_array($columns, $value);
         }
+        
+        throw new \Exception("The " . htmlspecialchars($operator) . " operator is not supported.");
+    }
 
-        return is_numeric($value) && !is_string($value)
-            ? $value
-            : "'" . addslashes($value) . "'";
+    /**
+     * Si la valeur représente une colonne ou une valeur,
+     * where('id', '=', 'test') ici 'test' est une valeur de type chaine de caractère,
+     * where('id', '=', 'table.test') ici 'test' est une colonne puisqu'il est précédé du nom de sa table.
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    protected function isColumn($value)
+    {
+        return is_string($value) && strstr($value, '.');
     }
 
     /**
@@ -689,34 +645,5 @@ class Where
         return $this->isColumn($value)
             ? substr(strrchr($value, '.'), 1)
             : $value;
-    }
-
-    /**
-     * Si la valeur représente une colonne ou une valeur,
-     * where('id', '=', 'test') ici 'test' est une valeur de type chaine de caractère,
-     * where('id', '=', 'table.test') ici 'test' est une colonne puisqu'il est précédé du nom de sa table.
-     *
-     * @param string $value
-     *
-     * @return bool
-     */
-    protected function isColumn($value)
-    {
-        return strstr($value, '.');
-    }
-
-    /**
-     * Si la valeur est une colonne alors retourne une chaine représentant une condition,
-     * sinon retour la valeur.
-     *
-     * @param mixed $value
-     *
-     * @return string
-     */
-    protected function evalWhere($value)
-    {
-        return $this->isColumn($value)
-            ? $this->getRowJoin($this->getColumn($value))
-            : $this->getValue($value);
     }
 }

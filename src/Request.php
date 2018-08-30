@@ -91,7 +91,7 @@ class Request
      *
      * @var Where
      */
-    private $where;
+    private $where = null;
 
     /**
      * Les colonnes à trier.
@@ -128,7 +128,6 @@ class Request
      */
     public function __construct(Schema $sch)
     {
-        $this->where  = new Where();
         $this->schema = $sch;
     }
 
@@ -150,11 +149,11 @@ class Request
         }
         if (isset($this->request[ 'leftJoin' ])) {
             foreach ($this->request[ 'leftJoin' ] as $value) {
-                $output .= 'LEFT JOIN ' . $value[ 'table' ] . ' ON ' . $value[ 'where' ]->executeJoin() . ' ';
+                $output .= 'LEFT JOIN ' . $value[ 'table' ] . ' ON ';
             }
         }
         if (!empty($this->where)) {
-            $output .= 'WHERE ' . $this->where->execute() . ' ';
+            $output .= 'WHERE ';
         }
         if (!empty($this->orderBy)) {
             foreach ($this->orderBy as $table => $order) {
@@ -544,10 +543,7 @@ class Request
             }
         }
 
-        /* Exécution des conditions. */
-        if (!empty($this->where)) {
-            $testEval = $this->where->execute();
-        }
+        $test = !empty($this->where);
 
         foreach ($this->tableData as $row) {
             /* LIMITE */
@@ -561,15 +557,10 @@ class Request
             }
 
             /* WHERE */
-            if (isset($testEval)) {
-                if (eval('return ' . $testEval . ';')) {
-                    $rowEval = $row;
-                } else {
-                    continue;
-                }
-            } else {
-                $rowEval = $row;
+            if ($test && !$this->where->execute($row)) {
+                continue;
             }
+            $rowEval = $row;
 
             /* SELECT */
             if ($this->lists !== null) {
@@ -658,7 +649,7 @@ class Request
      */
     public function init()
     {
-        $this->where     = new Where();
+        $this->where     = null;
         $this->tableData = null;
         $this->table     = '';
         $this->request   = null;
@@ -699,7 +690,7 @@ class Request
             /* Join les tables. */
             foreach ($this->tableData as $row) {
                 /* Vérifie les conditions. */
-                if (eval('return ' . $testEval . ';')) {
+                if ($where->executeJoin($row, $rowJoin)) {
                     /* Join les lignes si la condition est bonne. */
                     $result[] = array_merge($row, $rowJoin);
                     $addRow   = true;
@@ -748,7 +739,7 @@ class Request
             /* Join les tables. */
             foreach ($tableJoin as $rowJoin) {
                 /* Vérifie les conditions. */
-                if (eval('return ' . $testEval . ';')) {
+                if ($where->executeJoin($row, $rowJoin)) {
                     /* Join les lignes si la condition est bonne. */
                     $result[] = array_merge($rowJoin, $row);
                     $addRow   = true;
@@ -870,16 +861,14 @@ class Request
      */
     protected function executeUpdate()
     {
-        $test = isset($this->where)
-            ? $this->where->execute()
-            : false;
+        $test = !empty($this->where);
 
         /* La variable $row est utilisé dans le test d'évaluation. */
-        foreach ($this->tableData as $key => $row) {
-            if (eval('return !' . $test . ';')) {
+        foreach ($this->tableData as &$row) {
+            if ($test && !$this->where->execute($row)) {
                 continue;
             }
-            $this->tableData[ $key ] = array_merge($this->tableData[ $key ], $this->request[ 'setUpdate' ]);
+            $row = array_merge($row, $this->request[ 'setUpdate' ]);
         }
     }
 
@@ -888,17 +877,14 @@ class Request
      */
     protected function executeDelete()
     {
-        $test = isset($this->where)
-            ? $this->where->execute()
-            : false;
+        $test = !empty($this->where);
 
         foreach ($this->tableData as $key => $row) {
-            if (eval('return !' . $test . ';')) {
+            if ($test && !$this->where->execute($row)) {
                 continue;
             }
-            unset($this->tableData[ $key ]);
+            unset($this->tableData[$key]);
         }
-        $this->tableData = array_values($this->tableData);
     }
 
     /**
