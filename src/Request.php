@@ -12,7 +12,6 @@ namespace Queryflatfile;
 
 use Queryflatfile\Exception\Query\BadFunctionException;
 use Queryflatfile\Exception\Query\ColumnsNotFoundException;
-use Queryflatfile\Exception\Query\ColumnsValueException;
 use Queryflatfile\Exception\Query\TableNotFoundException;
 
 /**
@@ -664,6 +663,28 @@ class Request
     }
 
     /**
+     * Revoie les instances uniques d'un tableau multidimensionnel.
+     *
+     * @param array $input Table multidimensionnelle.
+     *
+     * @return array Tableau multidimensionnel avec des entrées uniques.
+     */
+    public static function arrayUniqueMultidimensional(array $input)
+    {
+        /* Sérialise les données du tableaux. */
+        $serialized = array_map('serialize', $input);
+
+        /* Supprime les doublons sérialisés. */
+        $unique = array_unique($serialized);
+
+        /* Redonne les clés au tableau */
+        $output = array_intersect_key($input, $unique);
+
+        /* Renvoie le tableau avec ses clés ré-indexé */
+        return array_values($output);
+    }
+
+    /**
      * Exécute le calcule d'une jointure droite entre 2 ensembles.
      *
      * @param string $table Nom de la table à joindre.
@@ -759,10 +780,10 @@ class Request
             return $data;
         }
 
-        foreach ($keys as $k => $value) {
-            $keys[ $k ] = $keys[ $k ] == 'desc' || $keys[ $k ] == -1
+        foreach ($keys as &$value) {
+            $value = $value == 'desc' || $value == -1
                 ? -1
-                : ($keys[ $k ] == 'skip' || $keys[ $k ] === 0
+                : ($value == 'skip' || $value === 0
                 ? 0
                 : 1);
         }
@@ -907,14 +928,14 @@ class Request
      *
      * @param type $a
      * @param type $b
-     * @param type $d
+     * @param type $c
      *
      * @return int
      */
-    private function keySort($a, $b, $d = null)
+    private function keySort($a, $b, $c = null)
     {
-        $d = $d !== null
-            ? $d
+        $d = $c !== null
+            ? $c
             : 1;
         if ($a == $b) {
             return 0;
@@ -923,28 +944,6 @@ class Request
         return ($a > $b)
             ? 1 * $d
             : -1 * $d;
-    }
-
-    /**
-     * Revoie les instances uniques d'un tableau multidimensionnel.
-     *
-     * @param array $input Table multidimensionnelle.
-     *
-     * @return array Tableau multidimensionnel avec des entrées uniques.
-     */
-    private function arrayUniqueMultidimensional(array $input)
-    {
-        /* Sérialise les données du tableaux. */
-        $serialized = array_map('serialize', $input);
-
-        /* Supprime les doublons sérialisés. */
-        $unique = array_unique($serialized);
-
-        /* Redonne les clés au tableau */
-        $output = array_intersect_key($input, $unique);
-
-        /* Renvoie le tableau avec ses clés ré-indexé */
-        return array_values($output);
     }
 
     /**
