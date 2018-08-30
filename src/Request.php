@@ -545,6 +545,12 @@ class Request
         $test = !empty($this->where);
 
         foreach ($this->tableData as $row) {
+            /* WHERE */
+            if ($test && !$this->where->execute($row)) {
+                continue;
+            }
+            $rowEval = $row;
+
             /* LIMITE */
             if (!empty($this->limit)) {
                 if ($i++ < $this->offset) {
@@ -554,12 +560,6 @@ class Request
                     break;
                 }
             }
-
-            /* WHERE */
-            if ($test && !$this->where->execute($row)) {
-                continue;
-            }
-            $rowEval = $row;
 
             /* SELECT */
             if ($this->lists !== null) {
