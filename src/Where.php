@@ -103,8 +103,10 @@ class Where
         } elseif ($condition === '=') {
             $condition = '===';
         } elseif (in_array($condition, [ 'like', 'ilike', 'not like', 'not ilike' ])) {
+            /* Protection des caractères spéciaux des expressions rationnelles autre que celle imposée. */
+            $value   = preg_quote($value);
             /* Le paterne commun au 4 conditions. */
-            $pattern = '/' . str_replace('%', '.*', $value);
+            $pattern = '/' . strtr($value, '%', '.*');
 
             /* Pour rendre lea regex inssencible à la case. */
             $pattern .= $condition === 'like' || $condition === 'not like'
@@ -112,9 +114,7 @@ class Where
                 : '/i';
 
             /* Pour inverser le comportement du like. */
-            $not = $condition === 'like' || $condition === 'ilike'
-                ? false
-                : true;
+            $not = $condition === 'not like' || $condition === 'not ilike';
 
             return $this->regex($column, $pattern, $bool, $not);
         }
