@@ -12,16 +12,11 @@ class TxtTest extends \PHPUnit\Framework\TestCase
      */
     protected $driver;
 
-    /**
-     * Le chemin des fichiers.
-     *
-     * @var string
-     */
-    protected static $path = 'tests/driver/txt';
-
     public static function tearDownAfterClass()
     {
-        rmdir(self::$path);
+        if (count(scandir('tests/txt')) == 2) {
+            rmdir('tests/txt');
+        }
     }
 
     /**
@@ -35,22 +30,22 @@ class TxtTest extends \PHPUnit\Framework\TestCase
 
     public function testCreate()
     {
-        $output = $this->driver->create(self::$path, 'driver_test', [ 'key_test' => 'value_test' ]);
+        $output = $this->driver->create('tests/txt', 'driver_test', [ 'key_test' => 'value_test' ]);
 
         $this->assertTrue($output);
-        $this->assertFileExists(self::$path . '/driver_test.txt');
+        $this->assertFileExists('tests/txt/driver_test.txt');
     }
 
     public function testNoCreate()
     {
-        $output = $this->driver->create(self::$path, 'driver_test', [ 'key_test' => 'value_test' ]);
+        $output = $this->driver->create('tests/txt', 'driver_test', [ 'key_test' => 'value_test' ]);
 
         $this->assertFalse($output);
     }
 
     public function testRead()
     {
-        $json = $this->driver->read(self::$path, 'driver_test');
+        $json = $this->driver->read('tests/txt', 'driver_test');
 
         $this->assertArraySubset($json, [ 'key_test' => 'value_test' ]);
     }
@@ -60,17 +55,17 @@ class TxtTest extends \PHPUnit\Framework\TestCase
      */
     public function testReadException()
     {
-        $this->driver->read(self::$path, 'driver_test_error');
+        $this->driver->read('tests/txt', 'driver_test_error');
     }
 
     public function testSave()
     {
-        $txt                 = $this->driver->read(self::$path, 'driver_test');
+        $txt                 = $this->driver->read('tests/txt', 'driver_test');
         $txt[ 'key_test_2' ] = 'value_test_2';
 
-        $output = $this->driver->save(self::$path, 'driver_test', $txt);
+        $output = $this->driver->save('tests/txt', 'driver_test', $txt);
 
-        $newTxt = $this->driver->read(self::$path, 'driver_test');
+        $newTxt = $this->driver->read('tests/txt', 'driver_test');
 
         $this->assertTrue($output);
         $this->assertArraySubset($newTxt, $txt);
@@ -81,13 +76,13 @@ class TxtTest extends \PHPUnit\Framework\TestCase
      */
     public function testSaveException()
     {
-        $this->driver->save(self::$path, 'driver_test_error', []);
+        $this->driver->save('tests/txt', 'driver_test_error', []);
     }
 
     public function testHas()
     {
-        $has    = $this->driver->has(self::$path, 'driver_test');
-        $notHas = $this->driver->has(self::$path, 'driver_test_not_found');
+        $has    = $this->driver->has('tests/txt', 'driver_test');
+        $notHas = $this->driver->has('tests/txt', 'driver_test_not_found');
 
         $this->assertTrue($has);
         $this->assertFalse($notHas);
@@ -95,9 +90,9 @@ class TxtTest extends \PHPUnit\Framework\TestCase
 
     public function testDelete()
     {
-        $output = $this->driver->delete(self::$path, 'driver_test');
+        $output = $this->driver->delete('tests/txt', 'driver_test');
 
         $this->assertTrue($output);
-        $this->assertFileNotExists(self::$path . '/driver_test.txt');
+        $this->assertFileNotExists('tests/txt/driver_test.txt');
     }
 }
