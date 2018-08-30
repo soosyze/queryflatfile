@@ -1,5 +1,6 @@
 # Queryflatfile
 
+[![Build Status](https://travis-ci.org/soosyze/queryflatfile.svg?branch=master)](https://travis-ci.org/soosyze/queryflatfile)
 ![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)
 ![Packagist](https://img.shields.io/packagist/v/soosyze/queryflatfile.svg)
 ![PHP from Packagist](https://img.shields.io/packagist/php-v/soosyze/queryflatfile.svg)
@@ -31,7 +32,7 @@ Queryflatfile est un framework de base de données NoSQL écrit en PHP qui stock
 
 # Requirements
 
-  * PHP 5.4+,
+  * PHP =>5.4, support PHP 5.6, 7.0, 7.1
   * La permission d'écrire et lire les fichiers,
   * L'extension `json` activé (Si vous utilisez le driver Json).
 
