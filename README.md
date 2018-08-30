@@ -1,5 +1,13 @@
+# Queryflatfile
+
+![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)
+![Packagist](https://img.shields.io/packagist/v/soosyze/queryflatfile.svg)
+![PHP from Packagist](https://img.shields.io/packagist/php-v/soosyze/queryflatfile.svg)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/soosyze/queryflatfile.svg)
+
+Queryflatfile est un framework de base de données NoSQL écrit en PHP qui stocke les données par défaut au format JSON (flat file). L'objectif est de pouvoir manipuler des données contenues dans des fichiers de la même façon dont ont manipule les données avec le langage SQL.
+
 # Sommaire
-* [Introduction](/README.md#introduction)
 * [Requirements](/README.md#requirements)
 * [Installation](/README.md#installation)
 * [Fonctions](/README.md#fonctions)
@@ -11,41 +19,37 @@
   * [Select](/README.md#select)
   * [Where](/README.md#where)
   * [Where group](/README.md#where-group)
-  * [Order, Limit & Offset](/README.md#order)
+  * [Order, Limit & Offset](/README.md#order-limit-offset)
   * [Joins](/README.md#joins)
   * [Unions](/README.md#unions)
   * [Updates](/README.md#updates)
   * [Deletes](/README.md#deletes)
   * [Drop table](/README.md#drop-table)
   * [Drop database](/README.md#drop-database)
-* [Console](/README.md#console)
 * [Exception](/README.md#exception)
 * [Driver](/README.md#driver)
 
-# Introduction
-Queryflatfile est un framework de base de données NoSQL écrit en PHP qui stocke les données par défaut au format JSON (flat file). L'objectif est de pouvoir manipuler des données contenues dans des fichiers de la même façon dont ont manipule les données avec le langage SQL.
-
 # Requirements
-Vous devez avoir la version PHP 5.4 ou plus ainsi que l'extension `json` activé.
+
+  * PHP 5.4+,
+  * La permission d'écrire et lire les fichiers,
+  * L'extension `json` activé (Si vous utilisez le driver Json).
 
 # Installation
+
 ## Composer
-Ajouter les lignes suivantes à votre `composer.json` de votre projet
-```js
-"require": {
-    "soosyze/queryflatfile": "1.*"
-},
-"autoload": {
-    "psr-4": {
-        "Queryflatfile\\": "src"
-    }
-}
+
+Vous pouvez utiliser [Composer](https://getcomposer.org/) pour l'installation avec la commande suivante :
+```sh
+composer require soosyze/queryflatfile
 ```
-Ou simplement lancé la commande
+
+Ou, si vous utilisez le PHAR (assurez-vous que l'exécutable php.exe est dans votre PATH):
 ```sh
 php composer.phar require soosyze/queryflatfile
 ```
 # Fonctions
+
 Les fonctions du Schéma pour manipuler les tables
 ```php
 # Queryflatfile\Schema
@@ -64,6 +68,7 @@ $bdd->truncateTable( $table );
 $bdd->dropTable( $table );
 $bdd->dropTableIfExists( $table );
 ```
+
 Les fonctionnalitées del'objet Request pour construire la requête
 ```php
 # Queryflatfile\Request
@@ -74,34 +79,35 @@ $request->select( mixed $var [, mixed $... ] );
 $request->from( $table );
 $request->limit( $limit, $offset = 0 );
 $request->orderBy( $columns, $order = 'asc' );
-$request->leftJoin( $table, Closure|$column, $condition = null, $value = null );
-$request->rightJoin( $table, Closure|$column, $condition = null, $value = null );
-$request->union( Request $union );
-$request->unionAll( Request $union );
+$request->leftJoin( $table, callable|$column, $condition = null, $value = null );
+$request->rightJoin( $table, callable|$column, $condition = null, $value = null );
+$request->union( Queryflatfile\Request $union );
+$request->unionAll( Queryflatfile\Request $union );
 $request->update( $table, array $columns = null );
 $request->values( array $columns );
 $request->delete();
 ```
+
 Les fonctionnalitées de Request pour conditionner les données
 ```php
 # Queryflatfile\Where
 
 // condition (===, ==, !=, <>, <, <=, >, >=, like, ilike, not like, not ilike)
-$request->where( Closure|$column, $condition = null, $value = null, $bool = 'and', $not = false );
-$request->orWhere( Closure|$column, $condition = null, $value = null );
+$request->where( callable|$column, $condition = null, $value = null, $bool = 'and', $not = false );
+$request->orWhere( callable|$column, $condition = null, $value = null );
 // NOT WHERE
-$request->notWhere( Closure|$column, $condition = null, $value = null );
-$request->orNotWhere( Closure|$column, $condition = null, $value = null );
+$request->notWhere( callable|$column, $condition = null, $value = null );
+$request->orNotWhere( callable|$column, $condition = null, $value = null );
 // WHERE BETWEEN
 $request->between( $column, $min, $max, $bool = 'and', $not = false );
 $request->orBetween( $column, $min, $max );
 $request->notBetween( $column, $min, $max );
 $request->orNotBetween( $column, $min, $max );
 // WHERE IN
-$request->in( $column, Closure|array $values, $bool = 'and', $not = false );
-$request->orIn( $column, Closure|array $values );
-$request->notIn( $column, Closure|array $values );
-$request->orNotIn( $column, Closure|array $values );
+$request->in( $column, callable|array $values, $bool = 'and', $not = false );
+$request->orIn( $column, callable|array $values );
+$request->notIn( $column, callable|array $values );
+$request->orNotIn( $column, callable|array $values );
 // WHERE NULL
 $request->isNull( $column, $condition = '===', $bool = 'and', $not = false );
 $request->orIsNull( $column );
@@ -113,6 +119,7 @@ $request->orRegex( $column, $pattern );
 $request->notRegex( $column, $pattern );
 $request->orNotRegex( $column, $pattern );
 ```
+
 Les fonctions de Request pour executer la requête :
 ```php
 # Queryflatfile\Request
@@ -130,21 +137,25 @@ $request->execute();
 # Usage
 
 ## Initialisation
-Pour commencer il faut créer un objet `Schema` pour manipuler les tables et leurs paramètres.
+
+Pour commencer il faut créer un objet `Queryflatfile\Schema` pour manipuler les tables et leurs paramètres.
 
 Requête au format SQL :
 ```sql
 CREATE DATABASE schema
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 // En ne renseignant pas le dernier paramètre les données seront stockées au format JSON par défaut
 $bdd = new Queryflatfile\Schema('data', 'schema');
 
-// Ajout le schéma de base pour pouvoir réaliser des requêtes dessus
+// Ajout du schéma de base pour pouvoir réaliser des requêtes dessus
 $request = new Queryflatfile\Request($bdd);
 ```
+
 ## Create table
+
 Maintenant que le schéma de votre base de données est initialisé vous devez créer les schémas de vos tables.
 
 Requête au format SQL :
@@ -163,6 +174,7 @@ CREATE TABLE `role` (
     `labelle`   VARCHAR(100) NOT NULL
 );
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $bdd->createTable('user', function(Queryflatfile\TableBuilder $table){
@@ -179,39 +191,31 @@ $bdd->createTable('role', function(Queryflatfile\TableBuilder $table){
           ->string('labelle', 100);
 });
 ```
+
 ### Types de données
-```php
-# Queryflatfile\TableBuilder
 
-$table->boolean( $name );
-$table->char( $name, $length = 1 );
-$table->date( $name );
-$table->dateTime( $name );
-$table->float( $name );
-$table->increments( $name );
-$table->integer( $name );
-$table->string( $name, $length = 255 );
-$table->text( $name );
-```
+| Type                                | Description                                                           |
+|-------------------------------------|-----------------------------------------------------------------------|
+| `$table->boolean( 'valid' );`       | Colonne de type boolean.                                              |
+| `$table->char( 'firstname', 80 );`  | Colonne de type caractère avec une option pour la longueur.           |
+| `$table->date( 'created' );`        | Colonne de type date.                                                 |
+| `$table->dateTime( 'created' );`    | Colonne de type dateTime.                                             |
+| `$table->float( 'cost' );`          | Colonne de type nombre flottant.                                      |
+| `$table->increments( 'id' );`       | Colonne de type incrémentale.                                         |
+| `$table->integer( 'weight' );`      | Colonne de type nombre entier.                                        |
+| `$table->string( 'libelle', 255 );` | Colonne de type chaine de caractère avec une option pour la longueur. |
+| `$table->text( 'description' );`    | Colonne de type texte.                                                |
+
 ### Options des données
-```php
-# Queryflatfile\TableBuilder
 
-// Autorise que le champ possède la valeur null
-->nullable();
-// Autorise que le champ (uniquement pour le type integer) soit non signé
-->unsigned();
-// Donne une valeur par défaut au champ (attention au type de données)
-->valueDefault( 'N/A' );
-// Pour un champ de type date le mot clé 'current_date'
-// donne par défaut la date courante lors de l'insertion
-->valueDefault( 'current_date' ); // date('Y-m-d', time())
-// Pour un champ de type dateTime le mot clé 'current_datetime'
-// donne par défaut la date et l'heure courante lors de l'insertion
-->valueDefault( 'current_datetime' ); // date('Y-m-d H:i:s', time())
-// Ajoute un commentaire à votre champ
-->comment( $comment );
-```
+| Option                                  | Description                                                                                                                                          |
+|-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `->nullable();`                         | Autorise que le champ possède la valeur null.                                                                                                        |
+| `->unsigned();`                         | Autorise que le champ (uniquement pour le type integer) soit non signé.                                                                              |
+| `->valueDefault( 'N/A' );`              | Donne une valeur par défaut au champ (attention au type de données).                                                                                 |
+| `->valueDefault( 'current_date' );`     | Pour un champ de type date le mot clé 'current_date' donne par défaut la date courante lors de l'insertion au format Y-m-d.                          |
+| `->valueDefault( 'current_datetime' );` | Pour un champ de type dateTime le mot clé 'current_datetime' donne par défaut la date et l'heure courante lors de l'insertion au format Y-m-d H:i:s. |
+| `->comment( $comment );`                | Ajoute un commentaire à votre champ.                                                                                                                 |
 
 ## Alter table
 
@@ -282,6 +286,7 @@ $bdd->alterTable('user', function (TableBuilder $table)
 ```
 
 ## Inserts
+
 Requête au format SQL :
 ```sql
 INSERT INTO `user` (`id`, `name`, `firstname`) VALUES
@@ -305,6 +310,7 @@ INSERT INTO `user` (`id_user`, `id_role`) VALUES
     (2, 2),
     (3, 2);
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->insertInto('user', [ 'id', 'name', 'firstname' ])
@@ -331,6 +337,7 @@ $request->insertInto('user_role', [ 'id_user', 'id_role' ])
     ->values([ 6, 2 ])
     ->execute();
 ```
+
 Table user :
 
 | id | name   | firstname |
@@ -364,16 +371,19 @@ Table (pivot) user_role :
 | 6       | 2       |
 
 ## Select
+
 Requête au format SQL :
 ```sql
 SELECT `firstname` FROM `user` LIMIT 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select([ 'firstname' ])->from('user')->fetch();
 // Vous pouvez également saisir les champs hors d'un tableau
 $request->select('firstname')->from('user')->fetch();
 ```
+
 Résultat(s) de la requête :
 
 | firstname |
@@ -381,10 +391,12 @@ Résultat(s) de la requête :
 | Mathieu   |
 
 ### Select all
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` LIMIT 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 // Une absence de sélection revient par défaut à retourner toutes les données de la ligne
@@ -392,6 +404,7 @@ $request->select([])->from('user')->fetch();
 $request->select()->from('user')->fetch();
 $request->from('user')->fetch();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
@@ -399,9 +412,11 @@ Résultat(s) de la requête :
 | 0  | NOEL   | Mathieu   |
 
 ### Lists
+
 La fonction `lists( $name = null );` contrairement à la fonction `fetch();` ou `fetchAll();` 
 renvoie les résultats du champ passé en paramètre ou du premier champ sélectionné dans 
 un tableau simple (sans clé).
+
 Requête en PHP avec QueryFlatFile :
 ```php
 // Ces 3 fonctions sont équivalentes
@@ -409,6 +424,7 @@ $request->from('user')->lists('firstname');
 $request->select([ 'firstname' ])->from('user')->lists();
 $request->select('firstname')->from('user')->lists();
 ```
+
 Résultat(s) de la requête :
 
 | output    |
@@ -422,10 +438,11 @@ Résultat(s) de la requête :
 | ''        |
 
 ## Where
-La fonction where standard peut-être utilisé avec les opérateurs suivants
+
+La fonction where standard peut-être utilisé avec les opérateurs suivants :
 * `==` égal
-* `===`/(alias `=`) strictement égal (par valeur et type de données),
-* `<>`/(alias `!=`) différent de,
+* `===` ou `=` strictement égal (par valeur et type de données),
+* `<>` ou `!=` différent de,
 * `!==` strictement différent de (par valeur et type de données),
 * `<` inférieur à,
 * `<=` inférieur ou strictement égal à,
@@ -437,11 +454,14 @@ La fonction where standard peut-être utilisé avec les opérateurs suivants
 * `not ilike` ne correspond pas au modèle (condition non sensible à la case).
 
 Les opérateurs de la fonction where sont insensibles à la case (`like` peut s'écrire `LIKE`, `Like`, `LiKe`, `LIke`...)
+
 ### Where equals
+
 Requête au format SQL :
 ```sql
 SELECT `name` FROM `user` WHERE `firstname` = 'Jean' LIMIT 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select([ 'name' ])
@@ -449,6 +469,7 @@ $request->select([ 'name' ])
     ->where('firstname', '=', 'Jean')
     ->fetch();
 ```
+
 Résultat(s) de la requête :
 
 | name   |
@@ -464,10 +485,12 @@ $request->select( 'name' )
 ```
 
 ### Where not equals
+
 Requête au format SQL :
 ```sql
 SELECT `firstname` FROM `user` WHERE `firstname` <> 'Jean';
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select( 'firstname' )
@@ -475,6 +498,7 @@ $request->select( 'firstname' )
     ->where('firstname', '<>', 'Jean')
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | firstname |
@@ -486,11 +510,14 @@ Résultat(s) de la requête :
 | Pierre    |
 | Eva       |
 | ''        |
+
 ### Where less
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `id` < 1 LIMIT 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
@@ -503,85 +530,107 @@ Résultat(s) de la requête :
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
+
 ### Where less or equals
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `id` <= 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
     ->where('id', '<=', 1)
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
 | 1  | DUPOND | Jean      |
+
 ### Where greater
+
 Requête au format SQL :
 ```sql
-SELECT * FROM `user` WHERE `id` > 5;
+SELECT * FROM `user` WHERE `id` > 5 LIMIT 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
     ->where('id', '>', 5)
     ->fetch();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 6  | ROBERT | ''        |
 ### Where greater or equals
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `id` >= 5;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
     ->where('id', '>=', 5)
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 5  | MEYER  | Eva       |
 | 6  | ROBERT | ''        |
+
 ### Where and
+
 Requête au format SQL :
+
 ```sql
 SELECT * FROM `user` WHERE `name` = 'DUPOND' AND `firstname` = 'Pierre' LIMIT 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
+
 ```php
 $request->from('user')
     ->where('name', 'DUPOND')
     ->where('firstname', 'Pierre')
     ->fetch();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 4  | DUPOND | Pierre    |
+
 ### Where or
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `name` = 'DUPOND' OR `firstname` = 'Pierre';
 ```
+
 Requête en PHP avec QueryFlatFile :
+
 ```php
 $request->from('user')
     ->where('name', 'DUPOND')
     ->orWhere('firstname', 'Pierre')
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
@@ -589,62 +638,77 @@ Résultat(s) de la requête :
 | 0  | NOEL   | Mathieu   |
 | 1  | DUPOND | Jean      |
 | 4  | DUPOND | Pierre    |
+
 ### Where between / orBetween / notBetween / orNotBetween
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `id` BETWEEN 0 AND 2 LIMIT 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
     ->between('id', 0, 2)
     ->fetch();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 1  | DUPOND | Jean      |
+
 ### Where in / orIn / notIn / orNotIn
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `id` IN (0, 1);
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
     ->in('id', [ 0, 1 ])
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
 | 1  | DUPOND | Jean      |
+
 ### Where isNull / orIsNull / isNotNull / orIsNotNull
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `firstname` IS NULL LIMIT 1;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
     ->isNull('firstname')
     ->fetch();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 6  | ROBERT | ''        |
+
 ### Where regex / orRegex / notRegex / orNotRegex
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
         ->regex('name', '/^D.*/')
         ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
@@ -653,32 +717,40 @@ Résultat(s) de la requête :
 | 4  | DUPOND | Pierre    |
 
 ## Where group
+
 Dans le cas où vous devez grouper vos conditions vous devez créer une fonction anonyme dans le premier paramètre de la fonction where.
+
 ### Where group AND
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `id` >= 2 AND (`name` = 'DUPOND' OR `firstname` = 'Eva');
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
     ->where('id', '>=', 2)
     ->where(function($query){
         $query->where('name', 'DUPOND')
-        ->orWhere('firstname', 'Eva');
+              ->orWhere('firstname', 'Eva');
     })->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 4  | DUPOND | Pierre    |
 | 5  | MEYER  | Eva       |
+
 ### Where group OR
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` WHERE `name` = 'DUPOND' OR ( `firstname` = 'Eva' OR `firstname` = 'Mathieu');
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
@@ -688,6 +760,7 @@ $request->from('user')
         ->orWhere('firstname', 'Mathieu');
     })->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
@@ -696,12 +769,16 @@ Résultat(s) de la requête :
 | 1  | DUPOND | Jean      |
 | 4  | DUPOND | Pierre    |
 | 5  | MEYER  | Eva       |
+
 ## Order, Limit, Offset
+
 ### OrderBy ASC
+
 Requête au format SQL :
 ```sql
 SELECT `firstname` FROM `user` ORDER BY `firstname` ASC;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select( 'firstname' )
@@ -709,6 +786,7 @@ $request->select( 'firstname' )
     ->orderBy('firstname')
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | firstname |
@@ -720,18 +798,22 @@ Résultat(s) de la requête :
 | Marie     |
 | Mathieu   |
 | Pierre    |
+
 ### OrderBy DESC
+
 Requête au format SQL :
 ```sql
 SELECT `firstname` FROM `user` ORDER BY `firstname` DESC;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select( 'firstname' )
-	->from('user')
+    ->from('user')
     ->orderBy('firstname', 'desc')
-	->fetchAll();
+    ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | firstname |
@@ -743,11 +825,14 @@ Résultat(s) de la requête :
 | Jean      |
 | Eva       |
 | ''        |
+
 ### OrderBy ASC (multiple)
+
 Requête au format SQL :
 ```sql
 SELECT `name`, `firstname` FROM `user` ORDER BY `name` DESC, `firstname` ASC;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select( 'name', 'firstname' )
@@ -756,6 +841,7 @@ $request->select( 'name', 'firstname' )
     ->orderBy('firstname')
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | name   | firstname |
@@ -767,11 +853,14 @@ Résultat(s) de la requête :
 | MARTIN | Manon     |
 | DUPOND | Jean      |
 | DUPOND | Pierre    |
+
 ### OrderBy DESC (multiple)
+
 Requête au format SQL :
 ```sql
 SELECT `name` FROM `user` ORDER BY `name` DESC, `firstname` DESC;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select( 'name', 'firstname' )
@@ -780,6 +869,7 @@ $request->select( 'name', 'firstname' )
     ->orderBy('firstname', 'desc')
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | name   | firstname |
@@ -793,25 +883,31 @@ Résultat(s) de la requête :
 | DUPOND | Jean      |
 
 ### Limit & Offset
+
 La méthode `fetch()` retourne le premier résultat de la requête en forçant `$limite`à 1.
 Vous pouvez également le définir avec à la méthode `limit( $limit, $offset = 0 )`.
 À noter que si `$offset` est égale à 0 alors les données ne seront pas décalées.
+
 Requête au format SQL :
 ```sql
 SELECT * FROM `user` LIMIT 1 OFFSET 2;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
     ->limit(1, 2)
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 2  | MARTIN | Manon     |
+
 ## Joins
+
 ```php
 /**
  * @param string $table le nom de la table à joindre
@@ -825,7 +921,9 @@ Résultat(s) de la requête :
 public function leftJoin( $table, $column, $operator = null, $value = null );
 public function rightJoin( $table, $column, $operator = null, $value = null );
 ```
+
 ### Left join
+
 Requête au format SQL :
 ```sql
 SELECT `name`
@@ -834,6 +932,7 @@ FROM `user`
     LEFT JOIN `role` ON `id_role` = `role.id`
 WHERE `labelle` = 'Admin';
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select('id', 'name', 'firstname')
@@ -843,13 +942,16 @@ $request->select('id', 'name', 'firstname')
     ->where('labelle', 'Admin')
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
 | 1  | DUPOND | Jean      |
+
 ### Right join
+
 Requête au format SQL :
 ```sql
 SELECT `name`
@@ -858,6 +960,7 @@ FROM `user`
     RIGHT JOIN `role` ON `id_role` = `role.id`
 WHERE `labelle` = 'Admin';
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->select('id', 'name', 'firstname')
@@ -867,13 +970,16 @@ $request->select('id', 'name', 'firstname')
     ->where('labelle', 'Admin')
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
 |----|--------|-----------|
 | 0  | NOEL   | Mathieu   |
 | 1  | DUPOND | Jean      |
+
 ## Join clause multiple
+
 Vous pouvez également introduire une fonction anonyme pour afiner les conditions de la jointure.
 ```php
 $request->select('id', 'name', 'firstname')
@@ -886,30 +992,18 @@ $request->select('id', 'name', 'firstname')
     ->where('labelle', 'Admin')
     ->fetchAll();
 ```
-## Updates
-Requête au format SQL :
-```sql
-UPDATE `user` SET `name` = 'PETIT' WHERE `id` = 0;
-```
-Requête avec Queryflatfile :
-```php
-$request->update('user', [ 'name'=>'PETIT' ])
-    ->where('id', 0)
-    ->execute();
-```
-Résultat(s) de la requête :
-
-| id | name   | firstname |
-|----|--------|-----------|
-| 0  | PETIT  | Mathieu   |
 
 ## Unions
+
 ### Union
+
+Requête au format SQL :
 ```sql
 SELECT `name` FROM `user` WHERE `id` BETWEEN 1 AND 5 
 UNION
 SELECT `name` FROM `user`;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $union = $request->select('name')
@@ -921,6 +1015,7 @@ $request2->select('name')
     ->union($union)
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | name   |
@@ -931,12 +1026,16 @@ Résultat(s) de la requête :
 | PETIT  |
 | MEYER  |
 | ROBERT |
+
 ### Union All
+
+Requête au format SQL :
 ```sql
 SELECT `name` FROM `user` WHERE `id` BETWEEN 1 AND 5 
 UNION ALL
 SELECT `name` FROM `user`;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $union = $request->select('name')
@@ -947,6 +1046,7 @@ $request2->select('name')
     ->unionAll($union)
     ->fetchAll();
 ```
+
 Résultat(s) de la requête :
 
 | name   |
@@ -963,11 +1063,34 @@ Résultat(s) de la requête :
 | PETIT  |
 | DUPOND |
 | MEYER  |
+
+## Updates
+
+Requête au format SQL :
+```sql
+UPDATE `user` SET `name` = 'PETIT' WHERE `id` = 0;
+```
+
+Requête avec Queryflatfile :
+```php
+$request->update('user', [ 'name'=>'PETIT' ])
+    ->where('id', 0)
+    ->execute();
+```
+
+Résultat(s) de la requête :
+
+| id | name   | firstname |
+|----|--------|-----------|
+| 0  | PETIT  | Mathieu   |
+
 ## Deletes
+
 Requête au format SQL :
 ```sql
 DELETE FROM `user` WHERE `id` BETWEEN 0 AND 5;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $request->from('user')
@@ -975,6 +1098,7 @@ $request->from('user')
     ->between('id', 0, 5)
     ->execute();
 ```
+
 Résultat(s) de la requête :
 
 | id | name   | firstname |
@@ -982,29 +1106,37 @@ Résultat(s) de la requête :
 | 0  | NOEL   | Mathieu   |
 | 5  | MEYER  | Eva       |
 | 6  | ROBERT | ''        |
+
 ## Drop table
+
 Requête au format SQL :
 ```sql
 DROP TABLE `user`;
 DROP TABLE `user_role`;
 DROP TABLE `role`;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $bdd->dropTable('user');
 $bdd->dropTable('user_role');
 $bdd->dropTable('role');
 ```
+
 ## Drop database
+
 Requête au format SQL :
 ```sql
 DROP DATABASE `schema`;
 ```
+
 Requête en PHP avec QueryFlatFile :
 ```php
 $bdd->dropSchema();
 ```
+
 # Exception
+
 Les exceptions sont ordonnées de façon à pouvoir capturer précisément les erreurs.
 ```
 Exception
@@ -1025,7 +1157,9 @@ Exception
     |-- FileNotReadableException    // levée lorsque le fichier de stockage est non lisible
     +-- FileNotWritableException    // levée lorsque le fichier de stockage est non éditable
 ```
+
 # Exemple
+
 ```php
 try{
     $request->select($fields)->from('user')->fetch();
@@ -1040,6 +1174,7 @@ catch(\Queryflatfile\Exception\Query\QueryException $e) {
      // Exception levée dans les 2 cas grâce à l'héritage
 } 
 ```
+
 # Driver
 
 Le driver permet l'abstraction de la manipulation des données.
@@ -1145,6 +1280,7 @@ $bdd->setConfig('data', 'schema', new Queryflatfile\DriverFormatX());
 Vous pouvez choisir d'hériter de la class `Queryflatfile\Dirver` au lieu d'implémenter l'interface.
 Cette class fournit un ensemble de méthode qui facilitera votre développement.
 ```php
+
 # Queryflatfile\Dirver
 
 /* Implementation avec unlink() */
