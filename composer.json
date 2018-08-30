@@ -5,7 +5,8 @@
     "authors": [
         {
             "name": "Mathieu NOËL",
-            "email": "mathieu@soosyze.com"
+            "email": "mathieu@soosyze.com",
+            "homepage": "http://mathieu-noel.fr"
         }
     ],
     "keywords": ["php", "library", "php-library", "nosql", "db", "database", "flat file", "db flat file", "query-builder", "composer"],
