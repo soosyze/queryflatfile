@@ -10,7 +10,7 @@
     ],
     "keywords": ["php", "library", "php-library", "nosql", "db", "database", "flat file", "db flat file", "query-builder", "composer"],
     "require": {
-        "php": ">=5.3"
+        "php": ">=5.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8",
