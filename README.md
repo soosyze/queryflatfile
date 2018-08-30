@@ -6,8 +6,7 @@
 * [Usage](/README.md#usage)
   * [Initialisation](/README.md#initialisation)
   * [Create table](/README.md#create-table)
-    * [Types de données](/README.md#types-de-donnees)
-    * [Options des données](/README.md#options-des-donnees)
+  * [Alter table](/README.md#alter-table)
   * [Inserts](/README.md#inserts)
   * [Select](/README.md#select)
   * [Where](/README.md#where)
@@ -58,8 +57,9 @@ $bdd->dropSchema();
 $bdd->hasTable( $table );
 $bdd->hasColumn( $table, $columns );
 /* Manipulation des tables */
-$bdd->createTable( $table, $callback = null );
-$bdd->createTableIfNotExists( $table, $callback = null );
+$bdd->createTable( $table, callable $callback = null );
+$bdd->createTableIfNotExists( $table, callable $callback = null );
+$bdd->alterTable( $table, callable $callback );
 $bdd->truncateTable( $table );
 $bdd->dropTable( $table );
 $bdd->dropTableIfExists( $table );
@@ -212,6 +212,75 @@ $table->text( $name );
 // Ajoute un commentaire à votre champ
 ->comment( $comment );
 ```
+
+## Alter table
+
+Vous pouvez renommer, ajouter, modifier ou supprimer les colonnes des tables après leur création.
+
+### Renommer une colonne
+
+Requête au format SQL :
+```sql
+ALTER TABLE `user`
+MODIFY `name` `other`
+```
+
+Requête en PHP avec QueryFlatFile :
+```php
+$bdd->alterTable('user', function (TableBuilder $table)
+{
+    $table->renameColumn('name', 'other');
+});
+```
+
+### Ajouter une colonne
+
+Requête au format SQL :
+```sql
+ALTER TABLE `user`
+ADD `country` VARCHAR(100)
+```
+
+Requête en PHP avec QueryFlatFile :
+```php
+$bdd->alterTable('user', function (TableBuilder $table)
+{
+    $table->string('country', 100);
+});
+```
+
+### Modifier une colonne
+
+Requête au format SQL :
+```sql
+ALTER TABLE `user`
+MODIFY `country` VARCHAR(255)
+```
+
+Requête en PHP avec QueryFlatFile :
+```php
+$bdd->alterTable('user', function (TableBuilder $table)
+{
+    $table->string('country', 255)->modify();
+});
+```
+
+### Supprimer une colonne
+
+Requête au format SQL :
+```sql
+ALTER TABLE `user`
+DROP `country`
+```
+
+Requête en PHP avec QueryFlatFile :
+```php
+$bdd->alterTable('user', function (TableBuilder $table)
+{
+    $table->dropColumn('country');
+});
+```
+
 ## Inserts
 Requête au format SQL :
 ```sql
