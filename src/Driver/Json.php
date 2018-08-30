@@ -8,15 +8,15 @@
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Queryflatfile\Driver;
 
 /**
  * Implémentation de Queryflatfile\DriverInterface par l'héritage de Queryflatfile\Driver
- * Manipule des données sérialisées dans des fichiers texte.
+ * Manipule des données dans des fichiers de type JSON
  *
- * @author  Mathieu NOËL
+ * @author Mathieu NOËL
  */
-class DriverTxt extends Driver
+class Json extends \Queryflatfile\Driver
 {
 
     /**
@@ -24,6 +24,8 @@ class DriverTxt extends Driver
      */
     public function create($path, $fileName, array $data = [])
     {
+        $this->checkExtension();
+
         $file = $this->getFile($path, $fileName);
 
         if (!file_exists($path)) {
@@ -31,12 +33,12 @@ class DriverTxt extends Driver
         }
         if (!file_exists($file)) {
             $fichier = fopen($file, 'w+');
-            fwrite($fichier, serialize($data));
+            fwrite($fichier, json_encode($data));
 
             return fclose($fichier);
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -44,14 +46,15 @@ class DriverTxt extends Driver
      */
     public function read($path, $fileName)
     {
+        $this->checkExtension();
         $file = $this->getFile($path, $fileName);
 
         $this->isExist($file);
         $this->isRead($file);
 
-        $data = file_get_contents($file);
+        $json = file_get_contents($file);
 
-        return unserialize($data);
+        return json_decode($json, true);
     }
 
     /**
@@ -59,13 +62,15 @@ class DriverTxt extends Driver
      */
     public function save($path, $fileName, array $data)
     {
+        $this->checkExtension();
+
         $file = $this->getFile($path, $fileName);
 
         $this->isExist($file);
         $this->isWrite($file);
 
         $fp = fopen($file, 'w');
-        fwrite($fp, serialize($data));
+        fwrite($fp, json_encode($data));
 
         return fclose($fp);
     }
@@ -75,6 +80,20 @@ class DriverTxt extends Driver
      */
     public function getExtension()
     {
-        return 'txt';
+        return 'json';
+    }
+
+    /**
+     * Déclanche une exception si le l'extension du fichier n'est pas chargée.
+     *
+     * @codeCoverageIgnore has
+     *
+     * @throws Exception\Driver\ExtensionNotLoadedException
+     */
+    private function checkExtension()
+    {
+        if (!extension_loaded('json')) {
+            throw new Exception\Driver\ExtensionNotLoadedException('The json extension is not loaded.');
+        }
     }
 }

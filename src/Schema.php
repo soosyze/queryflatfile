@@ -88,7 +88,7 @@ class Schema
         DriverInterface $driver = null
     ) {
         $this->driver = is_null($driver)
-            ? new DriverJson()
+            ? new Driver\Json()
             : $driver;
         $this->path = $host;
         $this->name = $name;

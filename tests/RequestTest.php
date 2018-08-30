@@ -32,7 +32,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->bdd = new Schema();
-        $this->bdd->setConfig('tests/data', 'schema', new \Queryflatfile\DriverJson());
+        $this->bdd->setConfig('tests/data', 'schema', new \Queryflatfile\Driver\Json());
 
         $this->request  = new Request($this->bdd);
         $this->request2 = new Request($this->bdd);
