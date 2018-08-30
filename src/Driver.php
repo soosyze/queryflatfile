@@ -87,6 +87,8 @@ abstract class Driver implements DriverInterface
     /**
      * Déclenche une exception si le fichier passé en paramètre n'a pas le droit d'écriture.
      *
+     * @codeCoverageIgnore has
+     *
      * @param string $file Chemin complet du fichier.
      *
      * @throws Exception\Driver\FileNotWritableException
@@ -100,6 +102,8 @@ abstract class Driver implements DriverInterface
 
     /**
      * Déclenche une exception si le fichier passé en paramètre n'a pas le droit d'être lu.
+     *
+     * @codeCoverageIgnore has
      *
      * @param string $file Chemin complet du fichier.
      *
