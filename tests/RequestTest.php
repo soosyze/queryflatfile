@@ -6,7 +6,7 @@ use Queryflatfile\Schema;
 use Queryflatfile\Request;
 use Queryflatfile\TableBuilder;
 
-class RequestTest extends \PHPUnit_Framework_TestCase
+class RequestTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Schema
@@ -50,7 +50,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $this->bdd->createTable('user', function (TableBuilder $table) {
             $table->increments('id')
-                ->string('name')
+                ->string('name')->nullable()
                 ->string('firstname')->nullable();
         });
         $this->bdd->createTable('user_role', function (TableBuilder $table) {
@@ -58,7 +58,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 ->integer('id_role');
         });
         $this->bdd->createTable('role', function (TableBuilder $table) {
-            $table->increments('id')
+            $table->increments('id_role')
                 ->string('labelle');
         });
 
@@ -91,7 +91,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $this->request->insertInto('user', [ 'name', 'firstname' ])
             ->values([ 'MARTIN', 'Manon' ])
-            ->values([ 'PETIT', 'Marie' ])
+            ->values([ null, 'Marie' ])
             ->values([ 'DUPOND', 'Pierre' ])
             ->execute();
 
@@ -100,7 +100,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ->values([ 6, 'ROBERT', null ])
             ->execute();
 
-        $this->request->insertInto('role', [ 'id', 'labelle' ])
+        $this->request->insertInto('role', [ 'id_role', 'labelle' ])
             ->values([ 0, 'Admin' ])
             ->values([ 1, 'Author' ])
             ->values([ 2, 'User' ])
@@ -198,6 +198,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->request->select([ 'firstname' ])->from('foo')->fetch();
     }
 
+    /**
+     * @expectedException Queryflatfile\Exception\Query\TableNotFoundException
+     */
+    public function testFromException()
+    {
+        $this->request->select([ 'firstname' ])->fetch();
+    }
+
     public function testSelectAlternative()
     {
         $data1 = $this->request->select()->from('user')->fetch();
@@ -234,13 +242,30 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $data4 = $this->request->select('name')
             ->from('user')
-            ->where('id', '===', 1)
+            ->where('id', '===', '1')
+            ->fetch();
+
+        $data5 = $this->request->select('name')
+            ->from('user')
+            ->where('id', '==', '1')
             ->fetch();
 
         $this->assertArraySubset($data1, []);
         $this->assertArraySubset($data2, []);
         $this->assertArraySubset($data3, [ 'name' => 'DUPOND' ]);
         $this->assertArraySubset($data4, [ 'name' => 'DUPOND' ]);
+        $this->assertArraySubset($data5, [ 'name' => 'DUPOND' ]);
+    }
+
+    /**
+     * @expectedException Queryflatfile\Exception\Query\OperatorNotFound
+     */
+    public function testWhereOperatorException()
+    {
+        $this->request->select('name')
+            ->from('user')
+            ->where('id', 'error', '1')
+            ->fetch();
     }
 
     public function testWhereEqualsAlternative()
@@ -403,6 +428,55 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertArraySubset($data, [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]);
     }
 
+    public function testWhereNotBetween()
+    {
+        $data = $this->request
+            ->from('user')
+            ->notBetween('id', 1, 2)
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+        ]);
+    }
+
+    public function testWhereOrBetween()
+    {
+        $data = $this->request
+            ->from('user')
+            ->between('id', 1, 2)
+            ->orBetween('id', 5, 6)
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+        ]);
+    }
+
+    public function testWhereOrNotBetween()
+    {
+        $data = $this->request
+            ->from('user')
+            ->between('id', 1, 2)
+            ->orNotBetween('id', 5, 6)
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
+        ]);
+    }
+
     /**
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
@@ -427,6 +501,55 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
+    public function testWhereNotIn()
+    {
+        $data = $this->request
+            ->from('user')
+            ->notIn('id', [ 0, 1 ])
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+        ]);
+    }
+
+    public function testWhereOrIn()
+    {
+        $data = $this->request
+            ->from('user')
+            ->in('id', [ 0, 1 ])
+            ->orIn('id', [ 5, 6 ])
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+        ]);
+    }
+
+    public function testWhereOrNotIn()
+    {
+        $data = $this->request
+            ->from('user')
+            ->in('id', [ 0, 1 ])
+            ->orNotIn('id', [ 5, 6 ])
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+        ]);
+    }
+
     /**
      * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
@@ -446,6 +569,55 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ->fetch();
 
         $this->assertArraySubset($data, [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]);
+    }
+
+    public function testWhereIsNotNull()
+    {
+        $data = $this->request
+            ->from('user')
+            ->isNotNull('firstname')
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+        ]);
+    }
+
+    public function testWhereOrIsNull()
+    {
+        $data = $this->request
+            ->from('user')
+            ->isNull('firstname')
+            ->orIsNull('name')
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+        ]);
+    }
+
+    public function testWhereOrIsNotNull()
+    {
+        $data = $this->request
+            ->from('user')
+            ->isNull('firstname')
+            ->orIsNotNull('name')
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+        ]);
     }
 
     /**
@@ -474,8 +646,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
         $this->assertArraySubset($data3, [
-            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
-            [ 'id' => 3, 'name' => 'PETIT', 'firstname' => 'Marie' ]
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
         ]);
     }
 
@@ -494,8 +665,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
         $this->assertArraySubset($data3, [
-            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
-            [ 'id' => 3, 'name' => 'PETIT', 'firstname' => 'Marie' ]
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
         ]);
     }
 
@@ -538,7 +708,38 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArraySubset($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ] ]);
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
+        ]);
+    }
+
+    public function testWhereNotRegex()
+    {
+        $data = $this->request
+            ->from('user')
+            ->notRegex('name', '/^D/')
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+        ]);
+    }
+
+    public function testWhereOrNotRegex()
+    {
+        $data = $this->request
+            ->from('user')
+            ->regex('name', '/^D/')
+            ->orNotRegex('firstname', '/^M/')
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ]
+        ]);
     }
 
     public function testWhereOrRegex()
@@ -589,6 +790,24 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
+        ]);
+    }
+
+    public function testOrNotWhere()
+    {
+        $data = $this->request
+            ->from('user')
+            ->where('name', 'DUPOND')
+            ->orNotWhere('firstname', 'Mathieu')
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
         ]);
     }
 
@@ -648,6 +867,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertArraySubset($data, [ [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ] ]);
     }
 
+    public function testLimitOffsetWhere()
+    {
+        $data = $this->request
+            ->from('user')
+            ->where('name', '=', 'DUPOND')
+            ->limit(1, 1)
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [ [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ] ]);
+    }
+
     public function testOrderByAsc()
     {
         $data = $this->request->select([ 'firstname' ])
@@ -694,12 +924,12 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArraySubset($data, [
             [ 'name' => 'ROBERT', 'firstname' => null ],
-            [ 'name' => 'PETIT', 'firstname' => 'Marie' ],
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
+            [ 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+            [ 'name' => null, 'firstname' => 'Marie' ]
         ]);
     }
 
@@ -713,30 +943,32 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArraySubset($data, [
             [ 'name' => 'ROBERT', 'firstname' => null ],
-            [ 'name' => 'PETIT', 'firstname' => 'Marie' ],
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
-            [ 'name' => 'DUPOND', 'firstname' => 'Jean', ]
+            [ 'name' => 'DUPOND', 'firstname' => 'Jean', ],
+            [ 'name' => null, 'firstname' => 'Marie' ]
         ]);
     }
 
     public function testRightJoin()
     {
         $data = $this->request->select('id', 'name', 'firstname', 'labelle')
-            ->from('user')
-            ->rightJoin('user_role', 'id', '=', 'user_role.id_user')
-            ->rightJoin('role', 'id_role', '=', 'role.id')
+            ->from('role')
+            ->rightJoin('user_role', 'id_role', '=', 'user_role.id_role')
+            ->rightJoin('user', 'id_user', '=', 'user.id')
             ->fetchAll();
 
         $this->assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
-            [ 'id' => 0, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
-            [ 'id' => 1, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
-            [ 'id' => 1, 'name' => 'PETIT', 'firstname' => 'Marie', 'labelle' => 'Author' ],
-            [ 'id' => 2, 'name' => 'DUPOND', 'firstname' => 'Pierre', 'labelle' => 'User' ],
-            [ 'id' => 2, 'name' => 'MEYER', 'firstname' => 'Eva', 'labelle' => 'User' ]
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie', 'labelle' => 'Author' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre', 'labelle' => 'User' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva', 'labelle' => 'User' ],
+            /* Pas de corespondance pour ROBERT donc le reste des colonnes en null */
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null, 'labelle' => null ],
         ]);
     }
 
@@ -745,14 +977,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $data = $this->request->select('id', 'name', 'firstname', 'labelle')
             ->from('user')
             ->leftJoin('user_role', 'id', '=', 'user_role.id_user')
-            ->leftJoin('role', 'id_role', '=', 'role.id')
+            ->leftJoin('role', 'id_role', '=', 'role.id_role')
             ->fetchAll();
 
         $this->assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
-            [ 'id' => 3, 'name' => 'PETIT', 'firstname' => 'Marie', 'labelle' => 'Author' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie', 'labelle' => 'Author' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre', 'labelle' => 'User' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva', 'labelle' => 'User' ],
             /* Pas de corespondance pour ROBERT donc le reste des colonnes en null */
@@ -765,7 +997,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $data = $this->request->select('id', 'name', 'firstname')
             ->from('user')
             ->leftJoin('user_role', 'id', '=', 'user_role.id_user')
-            ->leftJoin('role', 'id_role', '=', 'role.id')
+            ->leftJoin('role', 'id_role', '=', 'role.id_role')
             ->where('labelle', 'Admin')
             ->fetchAll();
 
@@ -782,13 +1014,54 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ->leftJoin('user_role', function ($query) {
                 $query->where('id', '=', 'user_role.id_user');
             })
-            ->leftJoin('role', 'id_role', '=', 'role.id')
+            ->leftJoin('role', 'id_role', '=', 'role.id_role')
             ->where('labelle', 'Admin')
             ->fetchAll();
 
         $this->assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+        ]);
+    }
+
+    public function testLeftJoinGroupMultiple()
+    {
+        $data = $this->request->select('id', 'name', 'firstname', 'labelle')
+            ->from('user')
+            ->leftJoin('user_role', 'id', '=', 'user_role.id_user')
+            ->leftJoin('role', function ($query) {
+                $query->where(function ($query) {
+                    $query->where('id_role', '=', 'role.id_role');
+                });
+            })
+            ->where('labelle', 'Admin')
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+        ]);
+    }
+
+    public function testRightJoinGroupe()
+    {
+        $data = $this->request->select('id', 'name', 'firstname', 'labelle')
+            ->from('role')
+            ->rightJoin('user_role', 'id_role', '=', 'user_role.id_role')
+            ->rightJoin('user', function ($query) {
+                $query->where('id_user', '=', 'user.id');
+            })
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
+            [ 'id' => 3, 'name' => null, 'firstname' => 'Marie', 'labelle' => 'Author' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre', 'labelle' => 'User' ],
+            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva', 'labelle' => 'User' ],
+            /* Pas de corespondance pour ROBERT donc le reste des colonnes en null */
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null, 'labelle' => null ],
         ]);
     }
 
@@ -822,7 +1095,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             [ 'name' => 'NOEL' ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MARTIN' ],
-            [ 'name' => 'PETIT' ],
+            [ 'name' => null ],
             [ 'name' => 'MEYER' ],
             [ 'name' => 'ROBERT' ]
         ]);
@@ -845,7 +1118,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
-            [ 'name' => 'PETIT', 'firstname' => 'Marie' ],
+            [ 'name' => null, 'firstname' => 'Marie' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
             [ 'name' => 'ROBERT', 'firstname' => null ]
@@ -886,13 +1159,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             [ 'name' => 'NOEL' ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MARTIN' ],
-            [ 'name' => 'PETIT' ],
+            [ 'name' => null ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MEYER' ],
             [ 'name' => 'ROBERT' ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MARTIN' ],
-            [ 'name' => 'PETIT' ],
+            [ 'name' => null ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MEYER' ]
         ]);
@@ -915,13 +1188,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
-            [ 'name' => 'PETIT', 'firstname' => 'Marie' ],
+            [ 'name' => null, 'firstname' => 'Marie' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
             [ 'name' => 'ROBERT', 'firstname' => null ],
             [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
-            [ 'name' => 'PETIT', 'firstname' => 'Marie' ],
+            [ 'name' => null, 'firstname' => 'Marie' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ]
         ]);
@@ -961,7 +1234,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             'NOEL',
             'DUPOND',
             'MARTIN',
-            'PETIT',
+            null,
             'MEYER',
             'ROBERT'
         ]);
@@ -1034,5 +1307,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $this->bdd->dropSchema();
         $this->assertFileNotExists('test/data/schema.json');
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testPredicate()
+    {
+        \Queryflatfile\Where::predicate('', 'error', '');
     }
 }
