@@ -829,31 +829,33 @@ class Request
             foreach ($schemaColumns as $field => $arg) {
                 /* Si mon champs existe dans le schema. */
                 if (isset($row[ $field ])) {
-                    $data[ $field ] = $this->getValue($field, $arg[ 'type' ], $row[ $field ], $arg);
+                    $data[ $field ] = TableBuilder::checkValue($field, $arg[ 'type' ], $row[ $field ], $arg);
                     /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma. */
-                    if ($arg[ 'type' ] === 'increments' && ($data[ $field ] > $increments[ $field ])) {
-                        $increments[ $field ] = $data[ $field ];
+                    if ($arg[ 'type' ] === 'increments' && ($data[ $field ] > $increments)) {
+                        $increments = $data[ $field ];
                     }
 
                     continue;
                 }
 
-                /* Si mon champ n'existe pas qu'il est de type incrémental. */
+                /* Si mon champ n'existe pas et qu'il de type incrémental. */
                 if (!isset($row[ $field ]) && $arg[ 'type' ] === 'increments') {
-                    $increments[ $field ] ++;
-                    $data[ $field ] = $increments[ $field ];
+                    $increments++;
+                    $data[ $field ] = $increments;
 
                     continue;
                 }
 
                 /* Sinon on vérifie si une valeur par défaut lui est attribué. */
-                $data[ $field ] = $this->getValueDefault($field, $arg);
+                $data[ $field ] = $this->schema->getValueDefault($field, $arg);
             }
 
             $this->tableData[] = $data;
         }
         /* Met à jour les valeurs incrémentales dans le schéma de la table. */
-        $this->schema->setIncrements($this->table, $increments);
+        if ($increments !== null) {
+            $this->schema->setIncrements($this->table, $increments);
+        }
     }
 
     /**
@@ -885,101 +887,6 @@ class Request
             }
             unset($this->tableData[$key]);
         }
-    }
-
-    /**
-     * Retourne la valeur s'il correspond au type déclaré.
-     * Sinon déclenche une exception.
-     *
-     * @param string $field Clé du champ.
-     * @param string $type Type de donnée (string|text|int|float|bool|char|date|datetime).
-     * @param mixed $value Valeur à tester.
-     * @param array $arg Arguments de tests optionnels (length).
-     *
-     * @return mixed
-     *
-     * @throws ColumnsValueException
-     */
-    protected function getValue($field, $type, $value, array $arg = [])
-    {
-        $error = htmlspecialchars('The default value (' . $value . ') for column ' . $field . ' does not correspond to type ' . $type . '.');
-
-        if ($type === 'string' && !is_string($value)) {
-            throw new ColumnsValueException($error);
-        } elseif ($type === 'string' && is_string($value)) {
-            if (strlen($value) > $arg[ 'length' ]) {
-                throw new ColumnsValueException("The default value is larger than the specified size.");
-            }
-
-            return $value;
-        } elseif ($type === 'text' && !is_string($value)) {
-            throw new ColumnsValueException($error);
-        } elseif (($type === 'integer' || $type === 'increments')) {
-            if (!is_numeric($value) && !is_int($value)) {
-                throw new ColumnsValueException($error);
-            }
-
-            return ( int ) $value;
-        } elseif (($type === 'float')) {
-            if (!is_numeric($value) && !is_float($value)) {
-                throw new ColumnsValueException($error);
-            }
-
-            return ( float ) $value;
-        } elseif (($type === 'boolean') && !is_bool($value)) {
-            throw new ColumnsValueException($error);
-        } elseif (($type === 'char') && !is_string($value)) {
-            throw new ColumnsValueException($error);
-        } elseif (($type === 'char') && is_string($value)) {
-            if (strlen($value) > $arg[ 'length' ]) {
-                throw new ColumnsValueException($error);
-            }
-
-            return $value;
-        } elseif ($type === 'date') {
-            if (($timestamp = strtotime($value)) === false) {
-                throw new ColumnsValueException($error);
-            }
-
-            return date('Y-m-d', $timestamp);
-        } elseif ($type === 'datetime') {
-            $date   = new \DateTime($value);
-            if (($format = date_format($date, 'Y-m-d H:i:s')) === false) {
-                throw new ColumnsValueException($error);
-            }
-
-            return $format;
-        }
-
-        return $value;
-    }
-
-    /**
-     * Retourne la valeur par defaut du champ passé en paramêtre.
-     *
-     * @param string $field Nom du champ.
-     * @param array $arg Différente configurations.
-     *
-     * @return mixed Valeur par defaut.
-     *
-     * @throws ColumnsValueException
-     */
-    protected function getValueDefault($field, $arg)
-    {
-        if (!isset($arg[ 'nullable' ]) && !isset($arg[ 'default' ])) {
-            throw new ColumnsValueException(htmlspecialchars($field) . " not nullable or not default.");
-        } elseif (isset($arg[ 'default' ])) {
-            if ($arg[ 'type' ] === 'date' && $arg[ 'default' ] === 'current_date') {
-                return date('Y-m-d', time());
-            } elseif ($arg[ 'type' ] === 'datetime' && $arg[ 'default' ] === 'current_datetime') {
-                return date('Y-m-d H:i:s', time());
-            }
-
-            /* Si les variables magiques ne sont pas utilisé alors la vrais valeur par defaut est retourné. */
-            return $arg[ 'default' ];
-        }
-        /* Si il n'y a pas default il est donc nullable. */
-        return null;
     }
 
     /**

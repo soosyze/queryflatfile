@@ -32,15 +32,8 @@ class TableBuilder
      *
      * @var array
      */
-    private $increment = [];
-
-    /**
-     * Le dernier champ appelé pour renforcer le pattern fluent.
-     *
-     * @var string
-     */
-    private $previousBuild = '';
-
+    private $increment = null;
+    
     /**
      * Enregistre un champ de type `boolean`, true ou false.
      * http://php.net/manual/fr/language.types.boolean.php
@@ -51,8 +44,7 @@ class TableBuilder
      */
     public function boolean($name)
     {
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'boolean' ];
+        $this->builder[ $name ][ 'type' ] = 'boolean';
 
         return $this;
     }
@@ -65,14 +57,15 @@ class TableBuilder
      * @param numeric|int $length longueur maximum de la chaine.
      *
      * @return $this
+     *
+     * @throws Exception
      */
     public function char($name, $length = 1)
     {
-        if (is_numeric($length)) {
-            $length = ( int ) $length;
+        if (!is_numeric($length) || $length < 0) {
+            throw new \Exception("The length passed in parameter is not of numeric type.");
         }
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'char', 'length' => $length ];
+        $this->builder[ $name ] = [ 'type' => 'char', 'length' => ( int ) $length ];
 
         return $this;
     }
@@ -86,8 +79,7 @@ class TableBuilder
      */
     public function date($name)
     {
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'date' ];
+        $this->builder[ $name ][ 'type' ] = 'date';
 
         return $this;
     }
@@ -101,8 +93,7 @@ class TableBuilder
      */
     public function datetime($name)
     {
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'datetime' ];
+        $this->builder[ $name ][ 'type' ] = 'datetime';
 
         return $this;
     }
@@ -118,25 +109,30 @@ class TableBuilder
      */
     public function float($name)
     {
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'float' ];
+        $this->builder[ $name ][ 'type' ] = 'float';
 
         return $this;
     }
 
     /**
      * Enregistre un champ de type `increments`, entier positif qui s'incrémente automatiquement.
+     * Un seul champ increments est autorisé par table.
      * http://php.net/manual/fr/language.types.integer.php
      *
      * @param string $name nom du champ
      *
      * @return $this
+     *
+     * @throws Exception
      */
     public function increments($name)
     {
-        $this->previousBuild    = $name;
-        $this->builder[ $name ]   = [ 'name' => $name, 'type' => 'increments' ];
-        $this->increment[ $name ] = 0;
+        if ($this->increment !== null) {
+            throw new \Exception("Only one incremental column is allowed per table.");
+        }
+
+        $this->builder[ $name ][ 'type' ] = 'increments';
+        $this->increment = 0;
 
         return $this;
     }
@@ -152,8 +148,7 @@ class TableBuilder
      */
     public function integer($name)
     {
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'integer' ];
+        $this->builder[ $name ][ 'type' ] = 'integer';
 
         return $this;
     }
@@ -166,14 +161,15 @@ class TableBuilder
      * @param numeric|int $length Longueur maximum de la chaine.
      *
      * @return $this
+     *
+     * @throws Exception
      */
     public function string($name, $length = 255)
     {
-        if (is_numeric($length)) {
-            $length = ( int ) $length;
+        if (!is_numeric($length) || $length < 0) {
+            throw new \Exception("The length passed in parameter is not of numeric type.");
         }
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'string', 'length' => $length ];
+        $this->builder[ $name ] = ['type' => 'string', 'length' => ( int ) $length ];
 
         return $this;
     }
@@ -188,8 +184,7 @@ class TableBuilder
      */
     public function text($name)
     {
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'text' ];
+        $this->builder[ $name ][ 'type' ] = 'text';
 
         return $this;
     }
@@ -200,16 +195,11 @@ class TableBuilder
      * @param string $comment Commentaire du champ précédent.
      *
      * @return $this
-     *
-     * @throws ColumnsNotFoundException
      */
     public function comment($comment)
     {
-        if (!isset($this->builder[ $this->previousBuild ])) {
-            throw new ColumnsNotFoundException("No column selected for nullable.");
-        }
-
-        $this->builder[ $this->previousBuild ][ 'comment' ] = $comment;
+        $this->checkPreviousBuild('comment');
+        $this->builder[ key($this->builder) ][ '_comment' ] = $comment;
 
         return $this;
     }
@@ -218,16 +208,11 @@ class TableBuilder
      * Enregistre le champ précédent comme acceptant la valeur NULL.
      *
      * @return $this
-     *
-     * @throws ColumnsNotFoundException
      */
     public function nullable()
     {
-        if (!isset($this->builder[ $this->previousBuild ])) {
-            throw new ColumnsNotFoundException("No column selected for nullable.");
-        }
-
-        $this->builder[ $this->previousBuild ][ 'nullable' ] = true;
+        $this->checkPreviousBuild('nullable');
+        $this->builder[ key($this->builder) ][ 'nullable' ] = true;
 
         return $this;
     }
@@ -237,21 +222,16 @@ class TableBuilder
      *
      * @return $this
      *
-     * @throws ColumnsNotFoundException
      * @throws ColumnsValueException
      */
     public function unsigned()
     {
-        if (!isset($this->builder[ $this->previousBuild ])) {
-            throw new ColumnsNotFoundException("No column selected for unsigned.");
+        $current = $this->checkPreviousBuild('unsigned');
+        if ($current[ 'type' ] !== 'integer') {
+            throw new ColumnsValueException('Impossiblie of unsigned type ' . $current[ 'type' ] . ' (only integer).');
         }
 
-        $current = $this->builder[ $this->previousBuild ];
-        if ($current[ 'type' ] === 'integer') {
-            $this->builder[ $current[ 'name' ] ][ 'unsigned' ] = true;
-        } else {
-            throw new ColumnsValueException("Impossiblie of unsigned type '" . htmlspecialchars($current[ 'type' ]) . "' (only integer).");
-        }
+        $this->builder[ key($this->builder) ][ 'unsigned' ] = true;
 
         return $this;
     }
@@ -264,79 +244,111 @@ class TableBuilder
      *
      * @return $this
      *
-     * @throws ColumnsNotFoundException
-     * @throws ColumnsValueException
+     * @throws Exception
      */
     public function valueDefault($value)
     {
-        if (!isset($this->builder[ $this->previousBuild ])) {
-            throw new ColumnsNotFoundException("No column selected for value default.");
-        }
-
-        $current = $this->builder[ $this->previousBuild ];
-        $name    = $current[ 'name' ];
+        $current = $this->checkPreviousBuild('value default');
+        $name    = key($this->builder);
         $type    = $current[ 'type' ];
-        $error = htmlspecialchars('The default value (' . $value . ') for column ' . $name . ' does not correspond to type ' . $type . '.');
-
-        if ($type === 'string' && !is_string($value)) {
-            throw new ColumnsValueException($error);
-        } elseif ($type === 'string' && is_string($value)) {
-            if (strlen($value) > $this->builder[ $name ][ 'length' ]) {
-                throw new ColumnsValueException("The default value is larger than the specified size.");
-            }
-        } elseif ($type === 'text' && !is_string($value)) {
-            throw new ColumnsValueException($error);
-        } elseif (($type === 'integer' || $type === 'increments') && !is_int($value)) {
-            if (!is_numeric($value) && !is_int($value)) {
-                throw new ColumnsValueException($error);
-            }
-
-            return ( int ) $value;
-        } elseif (($type === 'float') && !is_float($value)) {
-            if (!is_numeric($value) && !is_float($value)) {
-                throw new ColumnsValueException($error);
-            }
-
-            return ( float ) $value;
-        } elseif (($type === 'boolean') && !is_bool($value)) {
-            throw new ColumnsValueException($error);
-        } elseif (($type === 'char') && !is_string($value)) {
-            throw new ColumnsValueException($error);
-        } elseif (($type === 'char') && is_string($value)) {
-            if (strlen($value) > $this->builder[ $name ][ 'length' ]) {
-                throw new ColumnsValueException($error);
-            }
-        } elseif ($type === 'date') {
-            if (strtolower($value) === 'current_date') {
-                $this->builder[ $current[ 'name' ] ][ 'default' ] = 'current_date';
-
-                return $this;
-            } elseif (($timestamp = strtotime($value)) === false) {
-                throw new ColumnsValueException($error);
-            }
-
-            $this->builder[ $current[ 'name' ] ][ 'default' ] = date('Y-m-d', $timestamp);
-
-            return $this;
-        } elseif ($type === 'datetime') {
-            if (strtolower($value) === 'current_datetime') {
-                $this->builder[ $current[ 'name' ] ][ 'default' ] = 'current_datetime';
-
-                return $this;
-            }
-            $date   = new \DateTime($value);
-            if (($format = date_format($date, 'Y-m-d H:i:s')) === false) {
-                throw new ColumnsValueException($error);
-            }
-
-            $this->builder[ $current[ 'name' ] ][ 'default' ] = $format;
-
-            return $this;
+        
+        if ($type ===  'increments') {
+            throw new \Exception("An incremental type column can not have a default value.");
         }
 
-        $this->builder[ $current[ 'name' ] ][ 'default' ] = $value;
+        $this->builder[ $name ][ 'default' ] = self::checkValue($name, $type, $value, $current);
 
         return $this;
+    }
+
+    /**
+     * Retourne la valeur s'il correspond au type déclaré.
+     * Sinon déclenche une exception.
+     *
+     * @param string $name Nom du champ.
+     * @param string $type Type de donnée (string|text|int|float|bool|char|date|datetime).
+     * @param mixed $value Valeur à tester.
+     * @param array $arg Arguments de tests optionnels (length).
+     *
+     * @return mixed
+     *
+     * @throws ColumnsValueException
+     */
+    public static function checkValue($name, $type, $value, array $arg = [])
+    {
+        $error = htmlspecialchars('The default value (' . $value . ') for column ' . $name . ' does not correspond to type ' . $type . '.');
+
+        switch (strtolower($type)) {
+            case 'string':
+            case 'char':
+                if (!is_string($value)) {
+                    throw new ColumnsValueException($error);
+                }
+                if (!isset($arg[ 'length' ]) || strlen($value) > $arg[ 'length' ]) {
+                    throw new ColumnsValueException('The default value is larger than the specified size.');
+                }
+
+                break;
+            case 'text':
+                if (!is_string($value)) {
+                    throw new ColumnsValueException($error);
+                }
+
+                break;
+            case 'integer':
+            case 'increments':
+                if (!is_numeric($value)) {
+                    throw new ColumnsValueException($error);
+                }
+
+                return ( int ) $value;
+            case 'float':
+                if (!is_numeric($value)) {
+                    throw new ColumnsValueException($error);
+                }
+
+                return ( float ) $value;
+            case 'boolean':
+                if (!is_bool($value)) {
+                    throw new ColumnsValueException($error);
+                }
+
+                break;
+            case 'date':
+                if (strtolower($value) === 'current_date') {
+                    return 'current_date';
+                }
+                if (($timestamp = strtotime($value))) {
+                    return date('Y-m-d', $timestamp);
+                }
+
+                throw new ColumnsValueException($error);
+            case 'datetime':
+                if (strtolower($value) === 'current_datetime') {
+                    return 'current_datetime';
+                }
+                if (($timestamp = strtotime($value))) {
+                    return date('Y-m-d H:i:s', $timestamp);
+                }
+
+                throw new ColumnsValueException($error);
+            default:
+                throw new ColumnsValueException('Type ' . htmlspecialchars($type) . ' not supported');
+        }
+
+        return $value;
+    }
+
+    /**
+     * Retourne le tableau contenant les configurations d'ajout.
+     *
+     * @return array Les configurations.
+     */
+    public function build()
+    {
+        return array_filter($this->builder, function ($var) {
+            return !isset($var['opt']);
+        });
     }
 
     /**
@@ -344,7 +356,7 @@ class TableBuilder
      *
      * @return array Les configurations.
      */
-    public function build()
+    public function buildFull()
     {
         return $this->builder;
     }
@@ -361,15 +373,69 @@ class TableBuilder
 
     /**
      * Enregistre la suppression d'une colonne.
-     * 
+     *
      * @param string $name Nom de la colonne.
-     * 
+     *
      * @return $this
      */
-    public function dropColumn( $name )
+    public function dropColumn($name)
     {
-        $this->previousBuild  = $name;
-        $this->builder[ $name ] = [ 'name' => $name, 'type' => 'text' ];
+        $this->builder[] = ['opt'=>'drop', 'name'=>$name];
+
         return $this;
+    }
+
+    /**
+     * Enregistre le renommage d'une colonne.
+     *
+     * @param string $from Nom de la colonne.
+     * @param string $to Nouveau nom de la colonne.
+     *
+     * @return $this
+     */
+    public function renameColumn($from, $to)
+    {
+        $this->builder[] = ['opt'=>'rename', 'name'=>$from, 'to'=>$to];
+        
+        return $this;
+    }
+
+    /**
+     * Enregistre la modification du champ précédent.
+     *
+     * @return $this
+     */
+    public function modify()
+    {
+        $this->checkPreviousBuild('modify');
+        $key = key($this->builder);
+        $this->builder[ $key ]['opt']  = 'modify';
+        $this->builder[ $key ]['name'] = $key;
+        
+        return $this;
+    }
+
+    /**
+     * Retourne le champs courant.
+     * Déclenche une exception si le champ courant n'existe pas ou
+     * si le champ courant est une opération.
+     *
+     * @param string $opt Nom de l'opération réalisé.
+     *
+     * @return array Paramètres du champ.
+     *
+     * @throws ColumnsNotFoundException
+     */
+    protected function checkPreviousBuild($opt)
+    {
+        $str = htmlspecialchars('No column selected for ' . $opt . '.');
+        if (!($current = end($this->builder))) {
+            throw new ColumnsNotFoundException($str);
+        }
+        if (isset($current['opt'])) {
+            throw new ColumnsNotFoundException($str);
+        }
+        
+        return $current;
     }
 }

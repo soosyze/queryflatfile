@@ -13,6 +13,8 @@ namespace Queryflatfile;
 use Queryflatfile\TableBuilder;
 use Queryflatfile\DriverInterface;
 use Queryflatfile\Exception\Query\TableNotFoundException;
+use Queryflatfile\Exception\Query\ColumnsValueException;
+use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
 
 /**
  * Pattern fluent pour la gestion d'un schéma de données.
@@ -96,26 +98,33 @@ class Schema
     }
 
     /**
-     * Modifie les valeurs incrémentales d'une table.
+     * Modifie la valeur incrémentale d'une table.
      *
      * @param string $table Nom de la table.
-     * @param array $increments Tableau associatif des valeurs incrémentales.
+     * @param int $increments Tableau associatif des valeurs incrémentales.
      *
      * @return bool Si le schéma d'incrémentaion est bien enregistré.
      *
      * @throws TableNotFoundException
+     * @throws Exception
      */
-    public function setIncrements($table, array $increments)
+    public function setIncrements($table, $increments)
     {
+        if (!$this->hasTable($table)) {
+            throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
+        }
+        
         $schema = $this->getSchema();
 
-        if (!isset($schema[ $table ])) {
-            throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
+        if (!isset($schema[ $table ][ 'increments' ])) {
+            throw new \Exception("Table " . htmlspecialchars($table) . " does not have an incremental value.");
         }
 
         $schema[ $table ][ 'increments' ] = $increments;
-
-        return $this->save($this->path, $this->name, $schema);
+        $output = $this->save($this->path, $this->name, $schema);
+        $this->reloadSchema();
+        
+        return $output;
     }
 
     /**
@@ -194,17 +203,16 @@ class Schema
      */
     public function createTable($table, callable $callback = null)
     {
-        $schema = $this->getSchema();
-
         if ($this->hasTable($table)) {
             throw new \Exception("Table " . htmlspecialchars($table) . " exist.");
         }
-
+        
+        $schema = $this->getSchema();
         $schema[ $table ] = [
             'table'      => $table,
             'path'       => $this->path,
             'fields'     => null,
-            'increments' => []
+            'increments' => null
         ];
 
         if (!is_null($callback)) {
@@ -243,16 +251,108 @@ class Schema
 
     /**
      * Modifie les champs du schéma de données.
-     * 
-     * @param string $table
-     * @param callable|null $callback
-     * 
+     *
+     * @param string $table Nom de la table.
+     * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
+     *
      * @return $this
+     *
+     * @throws TableNotFoundException
+     * @throws Exception
      */
-    public function alterTable( $table, callable $callback = null )
+    public function alterTable($table, callable $callback)
     {
-        $sch = $this->getSchema();
+        if (!$this->hasTable($table)) {
+            throw new \Exception("Table " . htmlspecialchars($table) . " exist.");
+        }
+
+        $builder      = new TableBuilder();
+        call_user_func_array($callback, [ &$builder ]);
+        $tableBuilder = $builder->buildFull();
+        $schema       = $this->getSchema();
+        $dataTable    = $this->read($this->path, $table);
+        $fields       = $schema[ $table ][ 'fields' ];
+
+        foreach ($tableBuilder as $key => $value) {
+            /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
+            if (!isset($value[ 'opt' ]) && isset($fields[ $key ])) {
+                throw new \Exception(htmlspecialchars("Field " . $key . " already exists in table " . $table . "."));
+            }
+            /* Si un champ est modifie il doit exister dans le schéma. */
+            if (isset($value[ 'opt' ]) && $value[ 'opt' ] === 'modify' && !isset($fields[ $key ])) {
+                throw new ColumnsNotFoundException(htmlspecialchars($key . " field does not exists in table " . $table . "."));
+            }
+            /* Si il s'agit d'une opération sur un champ il doit exister dans le schéma. */
+            if (isset($value[ 'opt' ]) && !isset($fields[ $value[ 'name' ] ])) {
+                throw new ColumnsNotFoundException($key . " field does not exists in table " . $table . ".");
+            }
+
+            if (!isset($value[ 'opt' ])) {
+                if ($value[ 'type' ] === 'increments') {
+                    throw new ColumnsValueException("Table " . htmlspecialchars($table)  . " can not have multiple incremental values");
+                }
+                $fields[ $key ] = $value;
+                foreach ($dataTable as &$data) {
+                    $data[$key] = self::getValueDefault($key, $value);
+                }
+            } elseif ($value[ 'opt' ] === 'rename') {
+                $tmp                      = $fields[ $value[ 'name' ] ];
+                unset($fields[ $value[ 'name' ] ]);
+                $fields[ $value[ 'to' ] ] = $tmp;
+
+                foreach ($dataTable as $key => &$data) {
+                    $tmp                                 = $data[$value[ 'name' ] ];
+                    unset($data[$value[ 'name' ] ]);
+                    $dataTable[ $key ][ $value[ 'to' ] ] = $tmp;
+                }
+            } elseif ($value[ 'opt' ] === 'modify') {
+                unset($value[ 'name' ], $value[ 'opt' ]);
+                $fields[ $key ] = $value;
+
+                foreach ($dataTable as &$data) {
+                    $data[$key] = self::getValueDefault($key, $value);
+                }
+            } elseif ($value[ 'opt' ] === 'drop') {
+                unset($fields[ $value[ 'name' ] ]);
+
+                foreach ($dataTable as $key => $data) {
+                    unset($dataTable[$key][$value[ 'name' ]]);
+                }
+            }
+        }
+
+        $schema[ $table ][ 'fields' ] = $fields;
+        $this->save($this->path, $this->name, $schema);
+        $this->save($this->path, $table, $dataTable);
         return $this;
+    }
+
+    /**
+     * Retourne la valeur par defaut du champ passé en paramêtre.
+     *
+     * @param string $field Nom du champ.
+     * @param array $arg Différente configurations.
+     *
+     * @return mixed Valeur par defaut.
+     *
+     * @throws ColumnsValueException
+     */
+    public static function getValueDefault($field, $arg)
+    {
+        if (!isset($arg[ 'nullable' ]) && !isset($arg[ 'default' ])) {
+            throw new ColumnsValueException(htmlspecialchars($field) . " not nullable or not default.");
+        } elseif (isset($arg[ 'default' ])) {
+            if ($arg[ 'type' ] === 'date' && $arg[ 'default' ] === 'current_date') {
+                return date('Y-m-d', time());
+            } elseif ($arg[ 'type' ] === 'datetime' && $arg[ 'default' ] === 'current_datetime') {
+                return date('Y-m-d H:i:s', time());
+            }
+
+            /* Si les variables magiques ne sont pas utilisé alors la vrais valeur par defaut est retourné. */
+            return $arg[ 'default' ];
+        }
+        /* Si il n'y a pas default il est donc nullable. */
+        return null;
     }
 
     /**
@@ -299,14 +399,17 @@ class Schema
             throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
         }
 
-        $this->save($this->path, $table, []);
         $schema = $this->getSchema();
 
-        foreach ($schema[ $table ][ 'increments' ] as $key => $value) {
-            $schema[ $table ][ 'increments' ][ $key ] = 0;
+        $deleteSchema = true;
+        if ($schema[ $table ][ 'increments' ] !== null) {
+            $schema[ $table ][ 'increments' ] = 0;
+            $deleteSchema = $this->save($this->path, $this->name, $schema);
+            $this->reloadSchema();
         }
-
-        return $this->save($this->path, $this->name, $schema);
+        $deleteData   = $this->save($this->path, $table, []);
+        
+        return $deleteSchema && $deleteData;
     }
 
     /**
