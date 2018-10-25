@@ -913,6 +913,32 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [ 'firstname' => null ]
         ]);
     }
+    
+    public function testOrderByDescFetch()
+    {
+        $data = $this->request->select([ 'name' ])
+            ->from('user')
+            ->where('id', '>=', 4)
+            ->orderBy('name', 'desc')
+            ->fetch();
+
+        $this->assertArraySubset($data, [ 'name' => 'ROBERT' ]);
+    }
+    
+    public function testOrderByDescLimitOffset()
+    {
+        $data = $this->request->select([ 'name' ])
+            ->from('user')
+            ->where('id', '>=', 3)
+            ->orderBy('name', 'desc')
+            ->limit(2, 1)
+            ->fetchAll();
+
+        $this->assertArraySubset($data, [
+            [ 'name' => 'MEYER' ],
+            [ 'name' => 'DUPOND' ]
+        ]);
+    }
 
     public function testOrderByMultipleAsc()
     {

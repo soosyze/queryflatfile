@@ -552,7 +552,7 @@ class Request
             $rowEval = $row;
 
             /* LIMITE */
-            if (!empty($this->limit)) {
+            if (!empty($this->limit) && empty($this->orderBy)) {
                 if ($i++ < $this->offset) {
                     continue;
                 }
@@ -598,6 +598,10 @@ class Request
         /* ORDER BY */
         if (!empty($this->orderBy)) {
             $return = $this->executeOrderBy($return, $this->orderBy);
+
+            if (!empty($this->limit)) {
+                $return = array_slice($return, $this->offset, $this->limit);
+            }
         }
 
         $this->init();
@@ -612,7 +616,9 @@ class Request
      */
     public function fetch()
     {
-        $this->limit = 1;
+        $this->limit = $this->orderBy !== []
+            ? null
+            : 1;
         $fetch       = $this->fetchAll();
 
         return !empty($fetch[ 0 ])
