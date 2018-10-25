@@ -15,9 +15,11 @@
     },
     "require-dev": {
         "phpunit/phpunit": "5.*",
-        "phpdocumentor/phpdocumentor": "2.*",
-        "phpmetrics/phpmetrics": "2.*",
         "satooshi/php-coveralls": "^2.0"
+    },
+    "suggest": {
+        "phpdocumentor/phpdocumentor": "Pour générer une documentation en ligne de commande.",
+        "phpmetrics/phpmetrics": "Pour générer un rapport de l'état du code au format HTML."
     },
     "autoload": {
         "psr-4": {
