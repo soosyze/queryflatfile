@@ -1,7 +1,9 @@
 {
     "name": "soosyze/queryflatfile",
-    "type": "library",
     "description": "The Queryflatfile is PHP library for simple database not SQL",
+    "type": "library",
+    "keywords": ["php", "library", "php-library", "nosql", "db", "database", "flat file", "db flat file", "query-builder", "composer"],
+    "license": "MIT",
     "authors": [
         {
             "name": "Mathieu NOËL",
@@ -9,7 +11,9 @@
             "homepage": "http://mathieu-noel.fr"
         }
     ],
-    "keywords": ["php", "library", "php-library", "nosql", "db", "database", "flat file", "db flat file", "query-builder", "composer"],
+    "support": {
+        "email": "mathieu@soosyze.com"
+    },
     "require": {
         "php": ">=5.4"
     },
@@ -30,5 +34,9 @@
         "psr-4": { 
             "Queryflatfile\\Test\\": "tests"
         }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
     }
 }
