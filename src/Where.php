@@ -76,7 +76,7 @@ class Where
         $bool = 'and',
         $not = false
     ) {
-        if (is_callable($column)) {
+        if ($column instanceof \Closure) {
             $where         = new Where();
             call_user_func_array($column, [ &$where ]);
             $this->where[] = [

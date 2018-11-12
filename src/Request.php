@@ -195,7 +195,7 @@ class Request
             $this->where = new Where();
         }
         if (method_exists($this->where, $name)) {
-            if ($name === 'in' && is_callable($arg[ 1 ])) {
+            if ($name === 'in' && $arg[ 1 ] instanceof \Closure) {
                 $request  = new Request($this->schema);
                 call_user_func_array($arg[ 1 ], [ &$request ]);
                 $arg[ 1 ] = $request->lists();
@@ -316,7 +316,7 @@ class Request
      */
     public function leftJoin($table, $column, $operator = null, $value = null)
     {
-        if (is_callable($column)) {
+        if ($column instanceof \Closure) {
             $where = new Where();
             call_user_func_array($column, [ &$where ]);
         } else {
@@ -345,7 +345,7 @@ class Request
      */
     public function rightJoin($table, $column, $operator = null, $value = null)
     {
-        if (is_callable($column)) {
+        if ($column instanceof \Closure) {
             $where = new Where();
             call_user_func_array($column, [ &$where ]);
         } else {
