@@ -33,7 +33,7 @@ Queryflatfile est un framework de base de données NoSQL écrit en PHP qui stock
 
 # Requirements
 
-  * PHP =>5.4, support PHP 5.6, 7.0, 7.1
+  * Toute les versions PHP >=5.4 
   * La permission d'écrire et lire les fichiers,
   * L'extension `json` activé (Si vous utilisez le driver Json).
 
