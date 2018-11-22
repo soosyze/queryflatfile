@@ -137,7 +137,7 @@ class Schema
         if (!file_exists($this->file)) {
             $this->create($this->path, $this->name);
         }
-        if (empty($this->schema)) {
+        if (!$this->schema) {
             $this->schema = $this->read($this->path, $this->name);
         }
 

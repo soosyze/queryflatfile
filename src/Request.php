@@ -62,7 +62,16 @@ class Request
      *
      * @var array
      */
-    private $request = [];
+    private $request = [
+        'allColumnsSchema' => [],
+        'columns'          => [],
+        'leftJoin'         => [],
+        'rightJoin'        => [],
+        'setUpdate'        => [],
+        'union'            => [],
+        'unionAll'         => [],
+        'values'           => [],
+    ];
 
     /**
      * Le nom de la table courante.
@@ -138,43 +147,37 @@ class Request
     public function __toString()
     {
         $output = '';
-        if (isset($this->request[ 'columns' ])) {
+        if ($this->request[ 'columns' ]) {
             $output .= 'SELECT ' . implode(', ', $this->request[ 'columns' ]) . ' ';
         } else {
             $output .= 'SELECT * ';
         }
-        if (isset($this->table)) {
+        if ($this->table) {
+            $output .= "FROM $this->table ";
             $output .= 'FROM ' . $this->table . ' ';
         }
-        if (isset($this->request[ 'leftJoin' ])) {
-            foreach ($this->request[ 'leftJoin' ] as $value) {
-                $output .= 'LEFT JOIN ' . $value[ 'table' ] . ' ON ';
-            }
+        foreach ($this->request[ 'leftJoin' ] as $value) {
+            $output .= 'LEFT JOIN ' . $value[ 'table' ] . ' ON ';
         }
-        if (!empty($this->where)) {
+        if ($this->where) {
             $output .= 'WHERE ';
         }
-        if (!empty($this->orderBy)) {
+        if ($this->orderBy) {
             foreach ($this->orderBy as $table => $order) {
                 $output .= 'ORDER BY ' . $table . ' ' . $order . ' ';
             }
         }
-        if (isset($this->limit)) {
+        if ($this->limit) {
             $output .= 'LIMIT ' . $this->limit . ' ';
         }
         if ($this->offset != 0) {
             $output .= 'OFFSET ' . $this->offset . ' ';
         }
-
-        if (isset($this->request[ 'union' ])) {
-            foreach ($this->request[ 'union' ] as $union) {
-                $output .= 'UNION (' . $union[ 'request' ] . ')';
-            }
+        foreach ($this->request[ 'union' ] as $union) {
+            $output .= 'UNION (' . $union[ 'request' ] . ')';
         }
-        if (isset($this->request[ 'unionAll' ])) {
-            foreach ($this->request[ 'unionAll' ] as $union) {
-                $output .= 'UNION ALL (' . $union . ')';
-            }
+        foreach ($this->request[ 'unionAll' ] as $union) {
+            $output .= 'UNION ALL (' . $union . ')';
         }
 
         return $output;
@@ -242,9 +245,7 @@ class Request
      */
     public function getSelect()
     {
-        return isset($this->request[ 'columns' ])
-            ? $this->request[ 'columns' ]
-            : [];
+        return $this->request[ 'columns' ];
     }
 
     /**
@@ -530,29 +531,23 @@ class Request
         $i      = 0;
 
         /* Exécution des jointures. */
-        if (isset($this->request[ 'leftJoin' ])) {
-            foreach ($this->request[ 'leftJoin' ] as $value) {
-                $this->executeLeftJoin($value[ 'table' ], $value[ 'where' ]);
-            }
+        foreach ($this->request[ 'leftJoin' ] as $value) {
+            $this->executeLeftJoin($value[ 'table' ], $value[ 'where' ]);
         }
 
-        if (isset($this->request[ 'rightJoin' ])) {
-            foreach ($this->request[ 'rightJoin' ] as $value) {
-                $this->executeRightJoin($value[ 'table' ], $value[ 'where' ]);
-            }
+        foreach ($this->request[ 'rightJoin' ] as $value) {
+            $this->executeRightJoin($value[ 'table' ], $value[ 'where' ]);
         }
-
-        $test = !empty($this->where);
 
         foreach ($this->tableData as $row) {
             /* WHERE */
-            if ($test && !$this->where->execute($row)) {
+            if ($this->where && !$this->where->execute($row)) {
                 continue;
             }
             $rowEval = $row;
 
             /* LIMITE */
-            if (!empty($this->limit) && empty($this->orderBy)) {
+            if ($this->limit && !$this->orderBy) {
                 if ($i++ < $this->offset) {
                     continue;
                 }
@@ -564,7 +559,7 @@ class Request
             /* SELECT */
             if ($this->lists !== null) {
                 $return[] = $rowEval[ $this->lists ];
-            } elseif (!empty($this->request[ 'columns' ])) {
+            } elseif ($this->request[ 'columns' ]) {
                 $column   = array_flip($this->request[ 'columns' ]);
                 $return[] = array_intersect_key($rowEval, $column);
             } else {
@@ -574,32 +569,30 @@ class Request
         }
 
         /* UNION */
-        if (isset($this->request[ 'union' ])) {
-            foreach ($this->request[ 'union' ] as $union) {
-                /* Si le retour est demandé en liste. */
-                $fetch = $this->lists !== null
-                    ? $union[ 'request' ]->lists()
-                    : $union[ 'request' ]->fetchAll();
+        foreach ($this->request[ 'union' ] as $union) {
+            /* Si le retour est demandé en liste. */
+            $fetch = $this->lists !== null
+                ? $union[ 'request' ]->lists()
+                : $union[ 'request' ]->fetchAll();
 
-                /**
-                 * UNION ALL
-                 * Pour chaque requêtes unions, on récupère les résultats.
-                 * On merge puis on supprime les doublons.
-                 */
-                $return = array_merge($return, $fetch);
+            /**
+             * UNION ALL
+             * Pour chaque requêtes unions, on récupère les résultats.
+             * On merge puis on supprime les doublons.
+             */
+            $return = array_merge($return, $fetch);
 
-                /* UNION */
-                if ($union[ 'type' ] !== 'all') {
-                    $return = $this->arrayUniqueMultidimensional($return);
-                }
+            /* UNION */
+            if ($union[ 'type' ] !== 'all') {
+                $return = $this->arrayUniqueMultidimensional($return);
             }
         }
 
         /* ORDER BY */
-        if (!empty($this->orderBy)) {
+        if ($this->orderBy) {
             $return = $this->executeOrderBy($return, $this->orderBy);
 
-            if (!empty($this->limit)) {
+            if ($this->limit) {
                 $return = array_slice($return, $this->offset, $this->limit);
             }
         }
@@ -640,7 +633,7 @@ class Request
     {
         if ($name !== null) {
             $this->lists = $name;
-        } elseif (!empty($this->request[ 'columns' ])) {
+        } elseif ($this->request[ 'columns' ]) {
             $this->lists = $this->request[ 'columns' ][ 0 ];
         } else {
             throw new ColumnsNotFoundException('No key selected for the list.');
@@ -657,7 +650,16 @@ class Request
         $this->where     = null;
         $this->tableData = null;
         $this->table     = '';
-        $this->request   = null;
+        $this->request   = [
+            'allColumnsSchema' => [],
+            'columns'          => [],
+            'leftJoin'         => [],
+            'rightJoin'        => [],
+            'setUpdate'        => [],
+            'union'            => [],
+            'unionAll'         => [],
+            'values'           => [],
+        ];
         $this->limit     = null;
         $this->offset    = 0;
         $this->delete    = false;
@@ -782,7 +784,7 @@ class Request
     {
         $keyLength = count($keys);
 
-        if (empty($keys)) {
+        if (!$keys) {
             return $data;
         }
 
@@ -872,11 +874,9 @@ class Request
      */
     protected function executeUpdate()
     {
-        $test = !empty($this->where);
-
         /* La variable $row est utilisé dans le test d'évaluation. */
         foreach ($this->tableData as &$row) {
-            if ($test && !$this->where->execute($row)) {
+            if ($this->where && !$this->where->execute($row)) {
                 continue;
             }
             $row = array_merge($row, $this->request[ 'setUpdate' ]);
@@ -888,13 +888,11 @@ class Request
      */
     protected function executeDelete()
     {
-        $test = !empty($this->where);
-
         foreach ($this->tableData as $key => $row) {
-            if ($test && !$this->where->execute($row)) {
+            if ($this->where && !$this->where->execute($row)) {
                 continue;
             }
-            unset($this->tableData[$key]);
+            unset($this->tableData[ $key ]);
         }
     }
 
@@ -959,18 +957,14 @@ class Request
     {
         $schema = $this->tableSchema[ 'fields' ];
 
-        if (isset($this->request[ 'leftJoin' ])) {
-            foreach ($this->request[ 'leftJoin' ] as $value) {
-                $schemaTable = $this->schema->getSchemaTable($value[ 'table' ]);
-                $schema      = array_merge($schema, $schemaTable[ 'fields' ]);
-            }
+        foreach ($this->request[ 'leftJoin' ] as $value) {
+            $schemaTable = $this->schema->getSchemaTable($value[ 'table' ]);
+            $schema      = array_merge($schema, $schemaTable[ 'fields' ]);
         }
 
-        if (isset($this->request[ 'rightJoin' ])) {
-            foreach ($this->request[ 'rightJoin' ] as $value) {
-                $schemaTable = $this->schema->getSchemaTable($value[ 'table' ]);
-                $schema      = array_merge($schema, $schemaTable[ 'fields' ]);
-            }
+        foreach ($this->request[ 'rightJoin' ] as $value) {
+            $schemaTable = $this->schema->getSchemaTable($value[ 'table' ]);
+            $schema      = array_merge($schema, $schemaTable[ 'fields' ]);
         }
 
         $this->request[ 'allColumnsSchema' ] = $schema;
@@ -993,7 +987,7 @@ class Request
      */
     private function fetchPrepareSelect()
     {
-        if (isset($this->request[ 'columns' ])) {
+        if ($this->request[ 'columns' ]) {
             $this->diffColumns($this->request[ 'columns' ]);
         } else {
             /* Si aucunes colonnes selectionnées. */
@@ -1008,25 +1002,22 @@ class Request
     private function fetchPrepareWhere()
     {
         $columns = [];
-        if (isset($this->request[ 'leftJoin' ])) {
-            /* Merge toutes les colonnes des conditions de chaque jointure. */
-            foreach ($this->request[ 'leftJoin' ] as $value) {
-                $columns = array_merge($columns, $value[ 'where' ]->getColumns());
-            }
+        /* Merge toutes les colonnes des conditions de chaque jointure. */
+        foreach ($this->request[ 'leftJoin' ] as $value) {
+            $columns = array_merge($columns, $value[ 'where' ]->getColumns());
         }
 
-        if (isset($this->request[ 'rightJoin' ])) {
-            /* Merge toutes les colonnes des conditions de chaque jointure. */
-            foreach ($this->request[ 'rightJoin' ] as $value) {
-                $columns = array_merge($columns, $value[ 'where' ]->getColumns());
-            }
+        /* Merge toutes les colonnes des conditions de chaque jointure. */
+        foreach ($this->request[ 'rightJoin' ] as $value) {
+            $columns = array_merge($columns, $value[ 'where' ]->getColumns());
         }
+
         /* Merge les colonnes des conditions de la requête courante. */
-        if (isset($this->where)) {
+        if ($this->where) {
             $columns = array_merge($columns, $this->where->getColumns());
         }
 
-        if (!empty($columns)) {
+        if ($columns) {
             $this->diffColumns($columns);
         }
     }
@@ -1036,7 +1027,7 @@ class Request
      */
     private function fetchPrepareOrderBy()
     {
-        if (isset($this->orderBy)) {
+        if ($this->orderBy) {
             $columns = array_keys($this->orderBy);
             $this->diffColumns($columns);
         }
@@ -1049,10 +1040,6 @@ class Request
      */
     private function fetchPrepareUnion()
     {
-        if (!isset($this->request[ 'union' ])) {
-            return;
-        }
-
         foreach ($this->request[ 'union' ] as $request) {
             if (count($this->getSelect()) != count($request[ 'request' ]->getSelect())) {
                 throw new ColumnsNotFoundException('The number of fields in the selections are different : '
@@ -1074,16 +1061,15 @@ class Request
     private function diffColumns(array $columns)
     {
         $all = $this->request[ 'allColumnsSchema' ];
-
         $diff = array_diff_key(array_flip($columns), $all);
 
-        if (!empty($diff)) {
+        if ($diff) {
             $columnsDiff = array_flip($diff);
 
             throw new ColumnsNotFoundException("Column " . implode(',', $columnsDiff) . " is absent : " . $this);
         }
     }
-    
+
     /**
      * Retourne un tableau associatif avec pour clé les champs de la table et pour valeur null.
      * Si des champs existent dans le schéma ils seront rajouté. Fonction utilisée
@@ -1096,13 +1082,13 @@ class Request
     private function getRowTableNull($table)
     {
         /* Le schéma de la table à joindre. */
-        $sch          = $this->schema->getSchemaTable($table);
+        $sch         = $this->schema->getSchemaTable($table);
         /* Prend les noms des champs de la table à joindre. */
-        $rowTableKey  = array_keys($sch[ 'fields' ]);
+        $rowTableKey = array_keys($sch[ 'fields' ]);
         /* Prend les noms des champs dans la requête précédente. */
         if (isset($this->tableSchema[ 'fields' ])) {
-            $rowTableAllKey  = array_keys($this->tableSchema[ 'fields' ]);
-            $rowTableKey  = array_merge($rowTableKey, $rowTableAllKey);
+            $rowTableAllKey = array_keys($this->tableSchema[ 'fields' ]);
+            $rowTableKey    = array_merge($rowTableKey, $rowTableAllKey);
         }
         /* Utilise les noms pour créer un tableau avec des valeurs null. */
         return array_fill_keys($rowTableKey, null);

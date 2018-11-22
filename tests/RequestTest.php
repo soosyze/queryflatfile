@@ -120,7 +120,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateTableIfNotExistsData()
     {
-        $this->bdd->createTableIfNotExists('user', function (TableBuilder $table) {
+        $this->bdd->createTableIfNotExists('user', function () {
         });
 
         $this->assertFileExists('tests/data/user.' . $this->bdd->getExtension());

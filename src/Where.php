@@ -108,7 +108,7 @@ class Where
             /* Le paterne commun au 4 conditions. */
             $pattern = '/' . strtr($value, '%', '.*');
 
-            /* Pour rendre lea regex inssencible à la case. */
+            /* Pour rendre la regex inssencible à la case. */
             $pattern .= $condition === 'like' || $condition === 'not like'
                 ? '/'
                 : '/i';

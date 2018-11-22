@@ -286,7 +286,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
      */
     public function testAlterTableException()
     {
-        $this->bdd->alterTable('error', function (TableBuilder $table) {
+        $this->bdd->alterTable('error', function () {
         });
     }
 
