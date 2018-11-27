@@ -2,8 +2,8 @@
 
 namespace Queryflatfile\Test;
 
-use Queryflatfile\Schema;
 use Queryflatfile\Request;
+use Queryflatfile\Schema;
 use Queryflatfile\TableBuilder;
 
 class RequestTest extends \PHPUnit\Framework\TestCase
@@ -14,13 +14,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     protected $bdd;
 
     /**
-     *
      * @var Request
      */
     protected $request;
 
     /**
-     *
      * @var Request
      */
     protected $request2;
@@ -68,7 +66,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testCreateTableException()
     {
@@ -127,7 +125,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\TableNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
      */
     public function testInsertIntoExceptionTable()
     {
@@ -135,7 +133,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testInsertIntoExceptionColumn()
     {
@@ -143,7 +141,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testInsertIntoExceptionValue()
     {
@@ -175,7 +173,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testListsException()
     {
@@ -183,7 +181,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testSelectExceptionValue()
     {
@@ -191,7 +189,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\TableNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
      */
     public function testSelectExceptionFrom()
     {
@@ -199,7 +197,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\TableNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
      */
     public function testFromException()
     {
@@ -216,7 +214,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\TableNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
      */
     public function testSelectAlternativeExceptionFrom()
     {
@@ -258,7 +256,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\OperatorNotFound
+     * @expectedException \Queryflatfile\Exception\Query\OperatorNotFound
      */
     public function testWhereOperatorException()
     {
@@ -408,7 +406,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereEqualsExceptionColumn()
     {
@@ -478,7 +476,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereBetweenExceptionColumn()
     {
@@ -551,7 +549,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereInExceptionColumn()
     {
@@ -621,7 +619,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereIsNullExceptionColumn()
     {
@@ -757,7 +755,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testWhereRegexExceptionColumns()
     {
@@ -973,7 +971,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
-            [ 'name' => 'DUPOND', 'firstname' => 'Jean', ],
+            [ 'name' => 'DUPOND', 'firstname' => 'Jean'],
             [ 'name' => null, 'firstname' => 'Marie' ]
         ]);
     }
@@ -1092,7 +1090,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testLeftJoinExceptionColumn()
     {
@@ -1152,7 +1150,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testUnionMultipleException()
     {
@@ -1227,7 +1225,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\ColumnsNotFoundException
+     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
      */
     public function testUnionAllMultipleException()
     {
@@ -1267,7 +1265,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Query\BadFunctionException
+     * @expectedException \Queryflatfile\Exception\Query\BadFunctionException
      */
     public function testExecuteException()
     {

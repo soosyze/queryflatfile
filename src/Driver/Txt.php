@@ -18,7 +18,6 @@ namespace Queryflatfile\Driver;
  */
 class Txt extends \Queryflatfile\Driver
 {
-
     /**
      * {@inheritDoc}
      */

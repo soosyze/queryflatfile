@@ -56,7 +56,7 @@ class JsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Driver\FileNotFoundException
+     * @expectedException \Queryflatfile\Exception\Driver\FileNotFoundException
      */
     public function testReadException()
     {
@@ -77,7 +77,7 @@ class JsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Queryflatfile\Exception\Driver\FileNotFoundException
+     * @expectedException \Queryflatfile\Exception\Driver\FileNotFoundException
      */
     public function testSaveException()
     {

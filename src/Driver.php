@@ -17,7 +17,6 @@ namespace Queryflatfile;
  */
 abstract class Driver implements DriverInterface
 {
-
     /**
      * {@inheritDoc}
      */
@@ -57,7 +56,7 @@ abstract class Driver implements DriverInterface
     /**
      * Concatène le chemin, le nom du fichier et l'extension.
      *
-     * @param string $path Chemin de la table.
+     * @param string $path     Chemin de la table.
      * @param string $fileName Nom du fichier.
      *
      * @return string Chemin complet du fichier.

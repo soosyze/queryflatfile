@@ -53,19 +53,18 @@ class TableBuilder
      * Enregistre un champ de type `char` avec une limite de taille par défaut de un caractère.
      * http://php.net/language.types.string
      *
-     * @param string $name Nom du champ
+     * @param string      $name   Nom du champ
      * @param numeric|int $length longueur maximum de la chaine.
      *
-     * @return $this
-     *
      * @throws Exception
+     * @return $this
      */
     public function char($name, $length = 1)
     {
         if (!is_numeric($length) || $length < 0) {
-            throw new \Exception("The length passed in parameter is not of numeric type.");
+            throw new \Exception('The length passed in parameter is not of numeric type.');
         }
-        $this->builder[ $name ] = [ 'type' => 'char', 'length' => ( int ) $length ];
+        $this->builder[ $name ] = [ 'type' => 'char', 'length' => (int) $length ];
 
         return $this;
     }
@@ -121,14 +120,13 @@ class TableBuilder
      *
      * @param string $name nom du champ
      *
-     * @return $this
-     *
      * @throws Exception
+     * @return $this
      */
     public function increments($name)
     {
         if ($this->increment !== null) {
-            throw new \Exception("Only one incremental column is allowed per table.");
+            throw new \Exception('Only one incremental column is allowed per table.');
         }
 
         $this->builder[ $name ][ 'type' ] = 'increments';
@@ -157,19 +155,18 @@ class TableBuilder
      * Enregistre un champ de type `string` avec une limite de taille  par défaut de 255 caractères.
      * http://php.net/language.types.string
      *
-     * @param string $name Nom du champ.
+     * @param string      $name   Nom du champ.
      * @param numeric|int $length Longueur maximum de la chaine.
      *
-     * @return $this
-     *
      * @throws Exception
+     * @return $this
      */
     public function string($name, $length = 255)
     {
         if (!is_numeric($length) || $length < 0) {
-            throw new \Exception("The length passed in parameter is not of numeric type.");
+            throw new \Exception('The length passed in parameter is not of numeric type.');
         }
-        $this->builder[ $name ] = ['type' => 'string', 'length' => ( int ) $length ];
+        $this->builder[ $name ] = ['type' => 'string', 'length' => (int) $length ];
 
         return $this;
     }
@@ -220,9 +217,8 @@ class TableBuilder
     /**
      * Enregistre le champ précédent (uniquement de type integer) comme étant non signié.
      *
-     * @return $this
-     *
      * @throws ColumnsValueException
+     * @return $this
      */
     public function unsigned()
     {
@@ -242,9 +238,8 @@ class TableBuilder
      *
      * @param mixed $value Valeur à tester.
      *
-     * @return $this
-     *
      * @throws Exception
+     * @return $this
      */
     public function valueDefault($value)
     {
@@ -253,7 +248,7 @@ class TableBuilder
         $type    = $current[ 'type' ];
         
         if ($type ===  'increments') {
-            throw new \Exception("An incremental type column can not have a default value.");
+            throw new \Exception('An incremental type column can not have a default value.');
         }
 
         $this->builder[ $name ][ 'default' ] = self::checkValue($name, $type, $value, $current);
@@ -265,14 +260,13 @@ class TableBuilder
      * Retourne la valeur s'il correspond au type déclaré.
      * Sinon déclenche une exception.
      *
-     * @param string $name Nom du champ.
-     * @param string $type Type de donnée (string|text|int|float|bool|char|date|datetime).
-     * @param mixed $value Valeur à tester.
-     * @param array $arg Arguments de tests optionnels (length).
-     *
-     * @return mixed
+     * @param string $name  Nom du champ.
+     * @param string $type  Type de donnée (string|text|int|float|bool|char|date|datetime).
+     * @param mixed  $value Valeur à tester.
+     * @param array  $arg   Arguments de tests optionnels (length).
      *
      * @throws ColumnsValueException
+     * @return mixed
      */
     public static function checkValue($name, $type, $value, array $arg = [])
     {
@@ -301,13 +295,13 @@ class TableBuilder
                     throw new ColumnsValueException($error);
                 }
 
-                return ( int ) $value;
+                return (int) $value;
             case 'float':
                 if (!is_numeric($value)) {
                     throw new ColumnsValueException($error);
                 }
 
-                return ( float ) $value;
+                return (float) $value;
             case 'boolean':
                 if (!is_bool($value)) {
                     throw new ColumnsValueException($error);
@@ -389,7 +383,7 @@ class TableBuilder
      * Enregistre le renommage d'une colonne.
      *
      * @param string $from Nom de la colonne.
-     * @param string $to Nouveau nom de la colonne.
+     * @param string $to   Nouveau nom de la colonne.
      *
      * @return $this
      */
@@ -422,9 +416,8 @@ class TableBuilder
      *
      * @param string $opt Nom de l'opération réalisé.
      *
-     * @return array Paramètres du champ.
-     *
      * @throws ColumnsNotFoundException
+     * @return array                    Paramètres du champ.
      */
     protected function checkPreviousBuild($opt)
     {

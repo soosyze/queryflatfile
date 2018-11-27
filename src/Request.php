@@ -188,7 +188,7 @@ class Request
      * et de personnaliser les closures pour certaines méthodes.
      *
      * @param string $name Nom de la méthode appelée.
-     * @param array $arg Pararètre de la méthode.
+     * @param array  $arg  Pararètre de la méthode.
      *
      * @return $this
      */
@@ -305,13 +305,13 @@ class Request
     /**
      * Enregistre une jointure gauche.
      *
-     * @param string $table Nom de la table à joindre.
-     * @param string|Closure $column Nom de la colonne d'une des tables précédentes
-     * ou une closure pour affiner les conditions.
-     * @param string|null $operator Opérateur logique ou null pour une closure.
-     * @param string|null $value Valeur
-     * ou une colonne de la table jointe (au format nom_table.colonne)
-     * ou null pour une closure.
+     * @param string         $table    Nom de la table à joindre.
+     * @param string|Closure $column   Nom de la colonne d'une des tables précédentes
+     *                                 ou une closure pour affiner les conditions.
+     * @param string|null    $operator Opérateur logique ou null pour une closure.
+     * @param string|null    $value    Valeur
+     *                                 ou une colonne de la table jointe (au format nom_table.colonne)
+     *                                 ou null pour une closure.
      *
      * @return $this
      */
@@ -334,13 +334,13 @@ class Request
     /**
      * Enregistre une jointure droite.
      *
-     * @param string $table Nom de la table à joindre
-     * @param string|Closure $column Nom de la colonne d'une des tables précédentes
-     * ou une closure pour affiner les conditions.
-     * @param string|null $operator Opérateur logique ou null pour une closure.
-     * @param string|null $value Valeur
-     * ou une colonne de la table jointe (au format nom_table.colonne)
-     * ou null pour une closure.
+     * @param string         $table    Nom de la table à joindre
+     * @param string|Closure $column   Nom de la colonne d'une des tables précédentes
+     *                                 ou une closure pour affiner les conditions.
+     * @param string|null    $operator Opérateur logique ou null pour une closure.
+     * @param string|null    $value    Valeur
+     *                                 ou une colonne de la table jointe (au format nom_table.colonne)
+     *                                 ou null pour une closure.
      *
      * @return $this
      */
@@ -363,7 +363,7 @@ class Request
     /**
      * Enregistre une limitation et un décalage au retour de la requête.
      *
-     * @param int $limit Nombre de résultat maximum à retourner.
+     * @param int $limit  Nombre de résultat maximum à retourner.
      * @param int $offset Décalage sur le jeu de résultat.
      *
      * @return $this
@@ -380,7 +380,7 @@ class Request
      * Enregistre un trie des résultats de la requête.
      *
      * @param string $columns Colonnes à trier.
-     * @param string $order Ordre du trie (asc|desc).
+     * @param string $order   Ordre du trie (asc|desc).
      *
      * @return $this
      */
@@ -395,9 +395,9 @@ class Request
      * Enregistre l'action d'insertion de données.
      * Cette fonction doit-être suivie la fonction values().
      *
-     * @param string $table Nom de la table.
-     * @param array $columns Liste des champs par ordre d'insertion dans
-     * la fonction values().
+     * @param string $table   Nom de la table.
+     * @param array  $columns Liste des champs par ordre d'insertion dans
+     *                        la fonction values().
      *
      * @return $this
      */
@@ -427,8 +427,8 @@ class Request
     /**
      * Enregistre l'action de modification de données.
      *
-     * @param string $table Nom de la table.
-     * @param array $columns key=>value des données à modifier.
+     * @param string $table   Nom de la table.
+     * @param array  $columns key=>value des données à modifier.
      *
      * @return $this
      */
@@ -459,7 +459,7 @@ class Request
      * Le résultat de l'union ne possède pas de doublon de ligne.
      *
      * @param \Queryflatfile\Request $request Seconde requête.
-     * @param string $type (simple|all) Type d'union.
+     * @param string                 $type    (simple|all) Type d'union.
      *
      * @return $this
      */
@@ -502,7 +502,7 @@ class Request
         } elseif ($this->execute === 'delete') {
             $this->executeDelete();
         } else {
-            throw new BadFunctionException("Only the insert, update and delete functions can be executed.");
+            throw new BadFunctionException('Only the insert, update and delete functions can be executed.');
         }
 
         $path = $this->tableSchema[ 'path' ];
@@ -625,9 +625,8 @@ class Request
      *
      * @param string|null $name Nom du champ.
      *
-     * @return array Liste du champ passé en paramètre.
-     *
      * @throws ColumnsNotFoundException
+     * @return array                    Liste du champ passé en paramètre.
      */
     public function lists($name = null)
     {
@@ -696,7 +695,7 @@ class Request
      * Exécute le calcule d'une jointure droite entre 2 ensembles.
      *
      * @param string $table Nom de la table à joindre.
-     * @param Where $where Condition de la jointure.
+     * @param Where  $where Condition de la jointure.
      *
      * @return $this
      */
@@ -719,7 +718,7 @@ class Request
                 }
             }
 
-            /**
+            /*
              * Si aucun résultat n'est trouvé alors la ligne est remplie
              * avec les colonnes de la table jointe avec des valeurs null.
              */
@@ -736,7 +735,7 @@ class Request
      * Exécute le calcule d'une jointure gauche entre 2 ensembles.
      *
      * @param string $table Nom de la table à joindre.
-     * @param Where $where Condition de la jointure.
+     * @param Where  $where Condition de la jointure.
      *
      * @return $this
      */
@@ -759,7 +758,7 @@ class Request
                 }
             }
 
-            /**
+            /*
              * Si aucun resultat n'est trouvé alors la ligne est remplie
              * avec les colonnes de la table jointe avec des valeurs null.
              */
@@ -910,7 +909,7 @@ class Request
      * Fonction d'appui à orderByExecute().
      *
      * @param array $obj
-     * @param int $ix
+     * @param int   $ix
      *
      * @return bool|int
      */
@@ -978,7 +977,7 @@ class Request
     private function fetchPrepareFrom()
     {
         if ($this->table === '') {
-            throw new TableNotFoundException("La table est absente : " . $this);
+            throw new TableNotFoundException('La table est absente : ' . $this);
         }
     }
 
@@ -1066,7 +1065,7 @@ class Request
         if ($diff) {
             $columnsDiff = array_flip($diff);
 
-            throw new ColumnsNotFoundException("Column " . implode(',', $columnsDiff) . " is absent : " . $this);
+            throw new ColumnsNotFoundException('Column ' . implode(',', $columnsDiff) . ' is absent : ' . $this);
         }
     }
 

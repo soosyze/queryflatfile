@@ -10,11 +10,11 @@
 
 namespace Queryflatfile;
 
-use Queryflatfile\TableBuilder;
 use Queryflatfile\DriverInterface;
-use Queryflatfile\Exception\Query\TableNotFoundException;
 use Queryflatfile\Exception\Query\ColumnsValueException;
+use Queryflatfile\Exception\Query\TableNotFoundException;
 use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
+use Queryflatfile\TableBuilder;
 
 /**
  * Pattern fluent pour la gestion d'un schéma de données.
@@ -61,8 +61,8 @@ class Schema
     /**
      * Construis l'objet avec une configuration.
      *
-     * @param string $host Répertoire de stockage des données.
-     * @param string $name Nom du fichier contenant le schéma de base.
+     * @param string          $host   Répertoire de stockage des données.
+     * @param string          $name   Nom du fichier contenant le schéma de base.
      * @param DriverInterface $driver Interface de manipulation de données.
      */
     public function __construct(
@@ -78,8 +78,8 @@ class Schema
     /**
      * Enregistre la configuration.
      *
-     * @param string $host Répertoire de stockage des données.
-     * @param string $name Nom du fichier contenant le schéma de base.
+     * @param string               $host   Répertoire de stockage des données.
+     * @param string               $name   Nom du fichier contenant le schéma de base.
      * @param DriverInterface|null $driver Interface de manipulation de données.
      */
     public function setConfig(
@@ -100,24 +100,23 @@ class Schema
     /**
      * Modifie la valeur incrémentale d'une table.
      *
-     * @param string $table Nom de la table.
-     * @param int $increments Tableau associatif des valeurs incrémentales.
-     *
-     * @return bool Si le schéma d'incrémentaion est bien enregistré.
+     * @param string $table      Nom de la table.
+     * @param int    $increments Tableau associatif des valeurs incrémentales.
      *
      * @throws TableNotFoundException
      * @throws Exception
+     * @return bool                   Si le schéma d'incrémentaion est bien enregistré.
      */
     public function setIncrements($table, $increments)
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
+            throw new TableNotFoundException('Table ' . htmlspecialchars($table) . ' is not exist.');
         }
         
         $schema = $this->getSchema();
 
         if (!isset($schema[ $table ][ 'increments' ])) {
-            throw new \Exception("Table " . htmlspecialchars($table) . " does not have an incremental value.");
+            throw new \Exception('Table ' . htmlspecialchars($table) . ' does not have an incremental value.');
         }
 
         $schema[ $table ][ 'increments' ] = $increments;
@@ -149,14 +148,13 @@ class Schema
      *
      * @param string $table Nom de la table.
      *
-     * @return array Schéma de la table.
-     *
      * @throws TableNotFoundException
+     * @return array                  Schéma de la table.
      */
     public function getSchemaTable($table)
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("The " . htmlspecialchars($table) . " table is missing in the schema.");
+            throw new TableNotFoundException('The ' . htmlspecialchars($table) . ' table is missing in the schema.');
         }
 
         return $this->getSchema()[ $table ];
@@ -179,7 +177,7 @@ class Schema
         /* Supprime le fichier de schéma. */
         unlink($this->file);
 
-        /**
+        /*
          * Dans le cas ou le répertoire utilisé contient d'autre fichier
          * (Si le répertoire contient que les 2 élements '.' et '..')
          * alors nous le supprimons.
@@ -194,17 +192,16 @@ class Schema
     /**
      * Créer une référence dans le schéma et le fichier de la table.
      *
-     * @param string $table Nom de la table.
+     * @param string        $table    Nom de la table.
      * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
      *
-     * @return $this
-     *
      * @throws \Exception
+     * @return $this
      */
     public function createTable($table, callable $callback = null)
     {
         if ($this->hasTable($table)) {
-            throw new \Exception("Table " . htmlspecialchars($table) . " exist.");
+            throw new \Exception('Table ' . htmlspecialchars($table) . ' exist.');
         }
         
         $schema = $this->getSchema();
@@ -232,7 +229,7 @@ class Schema
     /**
      * Créer une référence dans le schéma et un fichier de données si ceux si n'existe pas.
      *
-     * @param string $table Nom de la table.
+     * @param string        $table    Nom de la table.
      * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
      *
      * @return $this
@@ -253,18 +250,17 @@ class Schema
     /**
      * Modifie les champs du schéma de données.
      *
-     * @param string $table Nom de la table.
+     * @param string        $table    Nom de la table.
      * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
-     *
-     * @return $this
      *
      * @throws TableNotFoundException
      * @throws Exception
+     * @return $this
      */
     public function alterTable($table, callable $callback)
     {
         if (!$this->hasTable($table)) {
-            throw new \Exception("Table " . htmlspecialchars($table) . " exist.");
+            throw new \Exception('Table ' . htmlspecialchars($table) . ' exist.');
         }
 
         $builder      = new TableBuilder();
@@ -277,20 +273,20 @@ class Schema
         foreach ($tableBuilder as $key => $value) {
             /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
             if (!isset($value[ 'opt' ]) && isset($fields[ $key ])) {
-                throw new \Exception(htmlspecialchars("Field " . $key . " already exists in table " . $table . "."));
+                throw new \Exception(htmlspecialchars('Field ' . $key . ' already exists in table ' . $table . '.'));
             }
             /* Si un champ est modifie il doit exister dans le schéma. */
             if (isset($value[ 'opt' ]) && $value[ 'opt' ] === 'modify' && !isset($fields[ $key ])) {
-                throw new ColumnsNotFoundException(htmlspecialchars($key . " field does not exists in table " . $table . "."));
+                throw new ColumnsNotFoundException(htmlspecialchars($key . ' field does not exists in table ' . $table . '.'));
             }
             /* Si il s'agit d'une opération sur un champ il doit exister dans le schéma. */
             if (isset($value[ 'opt' ]) && !isset($fields[ $value[ 'name' ] ])) {
-                throw new ColumnsNotFoundException($key . " field does not exists in table " . $table . ".");
+                throw new ColumnsNotFoundException($key . ' field does not exists in table ' . $table . '.');
             }
 
             if (!isset($value[ 'opt' ])) {
                 if ($value[ 'type' ] === 'increments') {
-                    throw new ColumnsValueException("Table " . htmlspecialchars($table)  . " can not have multiple incremental values");
+                    throw new ColumnsValueException('Table ' . htmlspecialchars($table) . ' can not have multiple incremental values');
                 }
                 $fields[ $key ] = $value;
                 foreach ($dataTable as &$data) {
@@ -334,20 +330,21 @@ class Schema
      * Retourne la valeur par defaut du champ passé en paramêtre.
      *
      * @param string $field Nom du champ.
-     * @param array $arg Différente configurations.
-     *
-     * @return mixed Valeur par defaut.
+     * @param array  $arg   Différente configurations.
      *
      * @throws ColumnsValueException
+     * @return mixed                 Valeur par defaut.
      */
     public static function getValueDefault($field, $arg)
     {
         if (!isset($arg[ 'nullable' ]) && !isset($arg[ 'default' ])) {
-            throw new ColumnsValueException(htmlspecialchars($field) . " not nullable or not default.");
-        } elseif (isset($arg[ 'default' ])) {
+            throw new ColumnsValueException(htmlspecialchars($field) . ' not nullable or not default.');
+        }
+        if (isset($arg[ 'default' ])) {
             if ($arg[ 'type' ] === 'date' && $arg[ 'default' ] === 'current_date') {
                 return date('Y-m-d', time());
-            } elseif ($arg[ 'type' ] === 'datetime' && $arg[ 'default' ] === 'current_datetime') {
+            }
+            if ($arg[ 'type' ] === 'datetime' && $arg[ 'default' ] === 'current_datetime') {
                 return date('Y-m-d H:i:s', time());
             }
 
@@ -375,7 +372,7 @@ class Schema
     /**
      * Détermine si une colonne existe.
      *
-     * @param string $table Nom de la table.
+     * @param string $table  Nom de la table.
      * @param string $column Nom de la colonne.
      *
      * @return bool Si le schéma de référence et le fichier de données existent.
@@ -392,14 +389,13 @@ class Schema
      *
      * @param String $table Nom de la table.
      *
-     * @return bool
-     *
      * @throws TableNotFoundException
+     * @return bool
      */
     public function truncateTable($table)
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
+            throw new TableNotFoundException('Table ' . htmlspecialchars($table) . ' is not exist.');
         }
 
         $schema = $this->getSchema();
@@ -420,14 +416,13 @@ class Schema
      *
      * @param string $table Nom de la table.
      *
-     * @return bool Si la suppression du schema et des données se son bien passé.
-     *
      * @throws TableNotFoundException
+     * @return bool                   Si la suppression du schema et des données se son bien passé.
      */
     public function dropTable($table)
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("Table " . htmlspecialchars($table) . " is not exist.");
+            throw new TableNotFoundException('Table ' . htmlspecialchars($table) . ' is not exist.');
         }
 
         $schema = $this->getSchema();
@@ -482,15 +477,13 @@ class Schema
      *
      * @param string $path
      * @param string $file
-     * @param array $data
+     * @param array  $data
      *
      * @return bool
      */
     public function save($path, $file, array $data)
     {
-        $output = $this->driver->save($path, $file, $data);
-
-        return $output;
+        return $this->driver->save($path, $file, $data);
     }
 
     /**
@@ -498,15 +491,13 @@ class Schema
      *
      * @param string $path
      * @param string $file
-     * @param array $data
+     * @param array  $data
      *
      * @return bool
      */
     protected function create($path, $file, array $data = [])
     {
-        $output = $this->driver->create($path, $file, $data);
-
-        return $output;
+        return $this->driver->create($path, $file, $data);
     }
 
     /**
@@ -519,9 +510,7 @@ class Schema
      */
     protected function delete($path, $file)
     {
-        $output = $this->driver->delete($path, $file);
-
-        return $output;
+        return $this->driver->delete($path, $file);
     }
     
     /**

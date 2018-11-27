@@ -2,8 +2,8 @@
 
 namespace Queryflatfile\Test;
 
-use Queryflatfile\Schema;
 use Queryflatfile\Request;
+use Queryflatfile\Schema;
 use Queryflatfile\TableBuilder;
 
 class SchemaJsonTest extends \PHPUnit\Framework\TestCase
@@ -14,7 +14,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     protected $bdd;
 
     /**
-     *
      * @var Request
      */
     protected $request;
@@ -130,7 +129,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testSetIncrementsableNotFoundException()
     {
@@ -138,7 +137,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testSetIncrementsException()
     {
@@ -282,7 +281,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testAlterTableException()
     {
@@ -291,7 +290,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testAlterTableAddException()
     {
@@ -301,7 +300,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testAlterTableModifyException()
     {
@@ -311,7 +310,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testAlterTableRenameException()
     {
@@ -321,7 +320,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testAlterTableDropException()
     {
@@ -331,7 +330,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
     
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testAlterTableAddIncrementsException()
     {
@@ -371,7 +370,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testTruncateTableException()
     {
@@ -387,7 +386,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testDropTableException()
     {

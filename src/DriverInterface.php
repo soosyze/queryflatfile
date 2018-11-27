@@ -17,14 +17,13 @@ namespace Queryflatfile;
  */
 interface DriverInterface
 {
-
     /**
      * Créer un fichier si celui-ci n'existe pas et enregistre des données
      * Les données DOIVENT conserver leur type.
      *
-     * @param string $path Chemin du fichier.
+     * @param string $path     Chemin du fichier.
      * @param string $fileName Nom du fichier SANS l'extension.
-     * @param array $data Tableau associatif à enregistrer.
+     * @param array  $data     Tableau associatif à enregistrer.
      *
      * @throws Exception\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
      *
@@ -36,12 +35,12 @@ interface DriverInterface
      * Lit un fichier et DOIT retourner son contenu sous forme de tableau associatif
      * quelle que soit sa profondeur. Les données DOIVENT conserver leur type.
      *
-     * @param string $path Chemin du fichier.
+     * @param string $path     Chemin du fichier.
      * @param string $fileName Nom du fichier SANS l'extension.
      *
      * @throws Exception\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
-     * @throws Exception\Driver\FileNotFoundException Si le fichier est introuvable.
-     * @throws Exception\Driver\FileNotReadableException Si le fichier n'a pas les droits suffisant pour être lu.
+     * @throws Exception\Driver\FileNotFoundException       Si le fichier est introuvable.
+     * @throws Exception\Driver\FileNotReadableException    Si le fichier n'a pas les droits suffisant pour être lu.
      *
      * @return array les données du fichier
      */
@@ -51,13 +50,13 @@ interface DriverInterface
      * Enregistre des données dans le fichier.
      * Les données DOIVENT conserver leur type.
      *
-     * @param string $path Chemin du fichier.
+     * @param string $path     Chemin du fichier.
      * @param string $fileName Nom du fichier SANS l'extension.
-     * @param array $data Tableau associatif à enregistrer.
+     * @param array  $data     Tableau associatif à enregistrer.
      *
      * @throws Exception\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
-     * @throws Exception\Driver\FileNotFoundException Si le fichier est introuvable.
-     * @throws Exception\Driver\FileNotWritableException Si le fichier n'a pas les droits suffisant pour être écrit.
+     * @throws Exception\Driver\FileNotFoundException       Si le fichier est introuvable.
+     * @throws Exception\Driver\FileNotWritableException    Si le fichier n'a pas les droits suffisant pour être écrit.
      *
      * @return bool TRUE si tous ce passe bien sinon FALSE.
      */
@@ -66,7 +65,7 @@ interface DriverInterface
     /**
      * Supprime un fichier.
      *
-     * @param string $path Chemin du fichier.
+     * @param string $path     Chemin du fichier.
      * @param string $fileName Nom du fichier SANS l'extension.
      *
      * @return bool TRUE si tous ce passe bien sinon FALSE.
@@ -76,7 +75,7 @@ interface DriverInterface
     /**
      * Si le fichier existe.
      *
-     * @param string $path Chemin du fichier.
+     * @param string $path     Chemin du fichier.
      * @param string $fileName Nom du fichier SANS l'extension.
      *
      * @return bool

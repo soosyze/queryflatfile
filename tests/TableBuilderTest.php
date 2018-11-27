@@ -38,7 +38,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testIncrementsException()
     {
@@ -58,7 +58,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testCharException()
     {
@@ -86,7 +86,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testStringException()
     {
@@ -165,7 +165,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testNullableException()
     {
@@ -182,7 +182,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testUnsignedException()
     {
@@ -190,7 +190,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testUnsignedTypeException()
     {
@@ -207,7 +207,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testCommentException()
     {
@@ -244,7 +244,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultException()
     {
@@ -252,7 +252,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultIncrementException()
     {
@@ -260,7 +260,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultCharException()
     {
@@ -268,7 +268,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultCharLenghtException()
     {
@@ -276,7 +276,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultTextException()
     {
@@ -284,7 +284,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultStringException()
     {
@@ -292,7 +292,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultIntegerException()
     {
@@ -300,7 +300,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultFloatException()
     {
@@ -308,7 +308,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultBoolException()
     {
@@ -316,7 +316,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultDateException()
     {
@@ -324,7 +324,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testValueDefaultDatetimesException()
     {
@@ -332,7 +332,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testCheckValueException()
     {
@@ -367,7 +367,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testDropException()
     {
@@ -375,7 +375,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testRenameException()
     {
@@ -383,7 +383,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      */
     public function testModifyException()
     {

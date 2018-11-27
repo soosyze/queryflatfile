@@ -18,7 +18,6 @@ namespace Queryflatfile\Driver;
  */
 class Json extends \Queryflatfile\Driver
 {
-
     /**
      * {@inheritDoc}
      */

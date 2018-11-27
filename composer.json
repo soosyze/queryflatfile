@@ -22,6 +22,7 @@
         "php-coveralls/php-coveralls": "^1.0 || ^2.0"
     },
     "suggest": {
+        "friendsofphp/php-cs-fixer": "Pour normaliser le code PHP.",
         "phpdocumentor/phpdocumentor": "Pour générer une documentation en ligne de commande.",
         "phpmetrics/phpmetrics": "Pour générer un rapport de l'état du code au format HTML."
     },

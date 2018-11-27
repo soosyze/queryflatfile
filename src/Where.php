@@ -59,15 +59,14 @@ class Where
      * Ajoute une condition simple pour la requête.
      * Si la valeur du champ est égal (non égale, supérieur à, ...)  par rapport à une valeur.
      *
-     * @param callable|string $column Sous condition ou une colonne.
-     * @param null|string $operator Type de condition.
-     * @param null|string $value Valeur de teste.
-     * @param string $bool Porte logique de la condition (and|or).
-     * @param bool $not Inverse la condition.
-     *
-     * @return $this
+     * @param callable|string $column   Sous condition ou une colonne.
+     * @param null|string     $operator Type de condition.
+     * @param null|string     $value    Valeur de teste.
+     * @param string          $bool     Porte logique de la condition (and|or).
+     * @param bool            $not      Inverse la condition.
      *
      * @throws OperatorNotFound
+     * @return $this
      */
     public function where(
         $column,
@@ -89,7 +88,8 @@ class Where
             $this->columns = array_merge($this->columns, $where->getColumns());
 
             return $this;
-        } elseif ($value === null) {
+        }
+        if ($value === null) {
             $value    = $operator;
             $operator = '=';
         }
@@ -100,7 +100,8 @@ class Where
         /* Si l'opérateur n'est pas autorisé. */
         if (!in_array($condition, $this->contidion)) {
             throw new OperatorNotFound('The condition ' . htmlspecialchars($condition) . ' is not exist.');
-        } elseif ($condition === '=') {
+        }
+        if ($condition === '=') {
             $condition = '===';
         } elseif (in_array($condition, [ 'like', 'ilike', 'not like', 'not ilike' ])) {
             /* Protection des caractères spéciaux des expressions rationnelles autre que celle imposée. */
@@ -136,8 +137,8 @@ class Where
      * Alias inverse de la fonction where().
      *
      * @param callable|string $column
-     * @param null|string $operator
-     * @param null|string $value
+     * @param null|string     $operator
+     * @param null|string     $value
      *
      * @return $this
      */
@@ -152,7 +153,7 @@ class Where
      * Alias avec la porte logique 'OR' de la fonction where().
      *
      * @param callable|string $column
-     * @param null|string $operator
+     * @param null|string     $operator
      * @param null|string
      *
      * @return $this
@@ -185,10 +186,10 @@ class Where
      * Si la valeur du champ est compris entre 2 valeurs.
      *
      * @param string $column Nom de la colonne.
-     * @param mixed $min Valeur minimum ou égale.
-     * @param mixed $max Valeur maximum ou égale.
-     * @param string $bool Porte logique de la condition (and|or).
-     * @param bool $not Inverse la condition.
+     * @param mixed  $min    Valeur minimum ou égale.
+     * @param mixed  $max    Valeur maximum ou égale.
+     * @param string $bool   Porte logique de la condition (and|or).
+     * @param bool   $not    Inverse la condition.
      *
      * @return $this
      */
@@ -211,8 +212,8 @@ class Where
      * Alias inverse de la fonction between().
      *
      * @param callable|string $column
-     * @param mixed $min
-     * @param mixed $max
+     * @param mixed           $min
+     * @param mixed           $max
      *
      * @return $this
      */
@@ -227,8 +228,8 @@ class Where
      * Alias avec la porte logique 'OR' de la fonction between().
      *
      * @param callable|string $column
-     * @param mixed $min
-     * @param mixed $max
+     * @param mixed           $min
+     * @param mixed           $max
      *
      * @return $this
      */
@@ -243,8 +244,8 @@ class Where
      * Alias inverse avec la porte logique 'OR' de la fonction between().
      *
      * @param callable|string $column
-     * @param mixed $min
-     * @param mixed $max
+     * @param mixed           $min
+     * @param mixed           $max
      *
      * @return $this
      */
@@ -260,9 +261,9 @@ class Where
      * Si la valeur du champs est contenu dans une liste.
      *
      * @param string $column Nom de la colonne.
-     * @param array $values Valeurs a tester.
-     * @param string $bool Porte logique de la condition (and|or).
-     * @param bool $not Inverse la condition.
+     * @param array  $values Valeurs a tester.
+     * @param string $bool   Porte logique de la condition (and|or).
+     * @param bool   $not    Inverse la condition.
      *
      * @return $this
      */
@@ -285,7 +286,7 @@ class Where
      * Alias inverse de la fonction in().
      *
      * @param string $column
-     * @param array $values
+     * @param array  $values
      *
      * @return $this
      */
@@ -300,7 +301,7 @@ class Where
      * Alias avec la porte logique 'OR' de la fonction in().
      *
      * @param string $column
-     * @param array $values
+     * @param array  $values
      *
      * @return $this
      */
@@ -315,7 +316,7 @@ class Where
      * Alias inverse avec la porte logique 'OR' de la fonction in().
      *
      * @param string $column
-     * @param array $values
+     * @param array  $values
      *
      * @return $this
      */
@@ -331,8 +332,8 @@ class Where
      * Si la valeur du champ est strictement égale à null.
      *
      * @param string $column Nom de la colonne.
-     * @param string $bool Porte logique de la condition (and|or).
-     * @param bool $not Inverse la condition.
+     * @param string $bool   Porte logique de la condition (and|or).
+     * @param bool   $not    Inverse la condition.
      *
      * @return $this
      */
@@ -399,10 +400,10 @@ class Where
     /**
      * Ajoute une condition avec une expression régulière à la requête.
      *
-     * @param string $column Nom de la colonne.
+     * @param string $column  Nom de la colonne.
      * @param string $pattern Expression régulière.
-     * @param string $bool Porte logique de la condition (and|or).
-     * @param bool $not Inverse la condition.
+     * @param string $bool    Porte logique de la condition (and|or).
+     * @param bool   $not     Inverse la condition.
      *
      * @return $this
      */
@@ -543,7 +544,7 @@ class Where
      * Retourne TRUE si la suite de condition enregistrée valide les champs du tableau
      * par rapport à un autre tableau.
      *
-     * @param array $row Tableau associatif de champ.
+     * @param array $row      Tableau associatif de champ.
      * @param array $rowTable Tableau associatif de champ à tester.
      *
      * @return bool
@@ -582,13 +583,12 @@ class Where
     /**
      * Retourne TRUE si la condition est validée.
      *
-     * @param mixed $columns Valeur à tester.
+     * @param mixed  $columns  Valeur à tester.
      * @param string $operator Condition à réaliser.
-     * @param mixed $value Valeur de comparaison.
-     *
-     * @return bool
+     * @param mixed  $value    Valeur de comparaison.
      *
      * @throws \Exception
+     * @return bool
      */
     public static function predicate($columns, $operator, $value)
     {
@@ -616,7 +616,7 @@ class Where
                 return in_array($columns, $value);
         }
         
-        throw new \Exception("The " . htmlspecialchars($operator) . " operator is not supported.");
+        throw new \Exception('The ' . htmlspecialchars($operator) . ' operator is not supported.');
     }
 
     /**
