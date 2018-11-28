@@ -855,6 +855,17 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->assertArraySubset($data, [ [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ] ]);
     }
 
+    /**
+     * @expectedException \Queryflatfile\Exception\Query\QueryException
+     */
+    public function testLimitException()
+    {
+        $this->request
+            ->from('user')
+            ->limit(-1)
+            ->fetchAll();
+    }
+
     public function testLimitOffset()
     {
         $data = $this->request
@@ -863,6 +874,17 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->fetchAll();
 
         $this->assertArraySubset($data, [ [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ] ]);
+    }
+
+    /**
+     * @expectedException \Queryflatfile\Exception\Query\QueryException
+     */
+    public function testOffsetException()
+    {
+        $this->request
+            ->from('user')
+            ->limit(1, -1)
+            ->fetchAll();
     }
 
     public function testLimitOffsetWhere()

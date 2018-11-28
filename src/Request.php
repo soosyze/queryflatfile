@@ -12,6 +12,7 @@ namespace Queryflatfile;
 
 use Queryflatfile\Exception\Query\BadFunctionException;
 use Queryflatfile\Exception\Query\ColumnsNotFoundException;
+use Queryflatfile\Exception\Query\QueryException;
 use Queryflatfile\Exception\Query\TableNotFoundException;
 
 /**
@@ -48,7 +49,7 @@ class Request
      *
      * @var int
      */
-    private $limit = null;
+    private $limit = 0;
 
     /**
      * Le décalage des résultats de la requête.
@@ -525,6 +526,7 @@ class Request
         $this->fetchPrepareWhere();
         $this->fetchPrepareOrderBy();
         $this->fetchPrepareUnion();
+        $this->fetchPrepareLimit();
 
         $return = [];
         /* Le pointeur en cas de limite de résultat. */
@@ -542,6 +544,7 @@ class Request
             $this->executeRightJoin($value[ 'table' ], $value[ 'where' ]);
         }
 
+        $limitHandel = $this->orderBy || $this->request['union'];
         foreach ($this->tableData as $row) {
             /* WHERE */
             if ($this->where && !$this->where->execute($row)) {
@@ -550,7 +553,7 @@ class Request
             $rowEval = $row;
 
             /* LIMITE */
-            if ($this->limit && !$this->orderBy) {
+            if ($this->limit && !$limitHandel) {
                 if ($i++ < $this->offset) {
                     continue;
                 }
@@ -594,10 +597,11 @@ class Request
         /* ORDER BY */
         if ($this->orderBy) {
             $return = $this->executeOrderBy($return, $this->orderBy);
-
-            if ($this->limit) {
-                $return = array_slice($return, $this->offset, $this->limit);
-            }
+        }
+        
+        /* LIMIT */
+        if ($this->limit && $limitHandel) {
+            $return = array_slice($return, $this->offset, $this->limit);
         }
 
         $this->init();
@@ -612,10 +616,7 @@ class Request
      */
     public function fetch()
     {
-        $this->limit = $this->orderBy !== []
-            ? null
-            : 1;
-        $fetch       = $this->fetchAll();
+        $fetch  = $this->limit(1)->fetchAll();
 
         return !empty($fetch[ 0 ])
             ? $fetch[ 0 ]
@@ -659,10 +660,9 @@ class Request
             'rightJoin'        => [],
             'setUpdate'        => [],
             'union'            => [],
-            'unionAll'         => [],
             'values'           => [],
         ];
-        $this->limit     = null;
+        $this->limit     = 0;
         $this->offset    = 0;
         $this->delete    = false;
         $this->orderBy   = [];
@@ -994,6 +994,16 @@ class Request
         } else {
             /* Si aucunes colonnes selectionnées. */
             $this->request[ 'columns' ] = [];
+        }
+    }
+    
+    private function fetchPrepareLimit()
+    {
+        if (!\is_int($this->limit) || $this->limit < 0) {
+            throw new QueryException('The limit must be a non-zero positive integer.');
+        }
+        if (!\is_int($this->offset) || $this->offset < 0) {
+            throw new QueryException('The offset must be a non-zero positive integer.');
         }
     }
 
