@@ -70,7 +70,6 @@ class Request
         'rightJoin'        => [],
         'setUpdate'        => [],
         'union'            => [],
-        'unionAll'         => [],
         'values'           => [],
     ];
 
@@ -155,33 +154,33 @@ class Request
         }
         if ($this->table) {
             $output .= "FROM $this->table ";
-            $output .= 'FROM ' . $this->table . ' ';
         }
         foreach ($this->request[ 'leftJoin' ] as $value) {
-            $output .= 'LEFT JOIN ' . $value[ 'table' ] . ' ON ';
+            $output .= "LEFT JOIN {$value[ 'table' ]} ON ";
         }
         if ($this->where) {
             $output .= 'WHERE ';
         }
+        foreach ($this->request[ 'union' ] as $union) {
+            $output .= $union['type'] === 'simple'
+                ? 'UNION '
+                : 'UNION ALL';
+            $output .="({$union[ 'request' ]}) ";
+        }
         if ($this->orderBy) {
             foreach ($this->orderBy as $table => $order) {
-                $output .= 'ORDER BY ' . $table . ' ' . $order . ' ';
+                $output .= "ORDER BY $table $order ";
             }
         }
         if ($this->limit) {
-            $output .= 'LIMIT ' . $this->limit . ' ';
+            $output .= "LIMIT $this->limit ";
         }
-        if ($this->offset != 0) {
-            $output .= 'OFFSET ' . $this->offset . ' ';
+        if ($this->offset) {
+            $output .= "OFFSET $this->offset ";
         }
-        foreach ($this->request[ 'union' ] as $union) {
-            $output .= 'UNION (' . $union[ 'request' ] . ')';
-        }
-        foreach ($this->request[ 'unionAll' ] as $union) {
-            $output .= 'UNION ALL (' . $union . ')';
-        }
+        $output = substr($output, 0, -1) . ';';
 
-        return $output;
+        return htmlspecialchars($output);
     }
 
     /**
@@ -532,7 +531,7 @@ class Request
         /* Le pointeur en cas de limite de résultat. */
         $i      = 0;
 
-        /* 
+        /*
          * Exécution des jointures.
          * La réunion et l'intersection des ensembles sont soumis à la loi interne * et donc commutative.
          */
@@ -550,7 +549,6 @@ class Request
             if ($this->where && !$this->where->execute($row)) {
                 continue;
             }
-            $rowEval = $row;
 
             /* LIMITE */
             if ($this->limit && !$limitHandel) {
@@ -564,14 +562,13 @@ class Request
 
             /* SELECT */
             if ($this->lists !== null) {
-                $return[] = $rowEval[ $this->lists ];
+                $return[] = $row[ $this->lists ];
             } elseif ($this->request[ 'columns' ]) {
                 $column   = array_flip($this->request[ 'columns' ]);
-                $return[] = array_intersect_key($rowEval, $column);
+                $return[] = array_intersect_key($row, $column);
             } else {
-                $return[] = $rowEval;
+                $return[] = $row;
             }
-            unset($rowEval);
         }
 
         /* UNION */
@@ -980,7 +977,7 @@ class Request
     private function fetchPrepareFrom()
     {
         if ($this->table === '') {
-            throw new TableNotFoundException('La table est absente : ' . $this);
+            throw new TableNotFoundException("Table $this->table is missing.");
         }
     }
 
