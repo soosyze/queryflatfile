@@ -37,7 +37,7 @@ Queryflatfile est un framework de base de données NoSQL écrit en PHP qui stock
 
 | Version PHP                | QueryFlatFile 1.x    |
 |----------------------------|----------------------|
-| < 5.3                      | ✗ Non supporté       |
+| <= 5.3                     | ✗ Non supporté       |
 | 5.4 / 5.5 / 5.6            | ✓ Supporté           |
 | 7.0 / 7.1 / 7.2 / 7.3.0RC3 | ✓ Supporté           |
 

@@ -530,7 +530,10 @@ class Request
         /* Le pointeur en cas de limite de résultat. */
         $i      = 0;
 
-        /* Exécution des jointures. */
+        /* 
+         * Exécution des jointures.
+         * La réunion et l'intersection des ensembles sont soumis à la loi interne * et donc commutative.
+         */
         foreach ($this->request[ 'leftJoin' ] as $value) {
             $this->executeLeftJoin($value[ 'table' ], $value[ 'where' ]);
         }
@@ -1059,7 +1062,7 @@ class Request
      */
     private function diffColumns(array $columns)
     {
-        $all = $this->request[ 'allColumnsSchema' ];
+        $all  = $this->request[ 'allColumnsSchema' ];
         $diff = array_diff_key(array_flip($columns), $all);
 
         if ($diff) {

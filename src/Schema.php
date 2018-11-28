@@ -51,7 +51,7 @@ class Schema
      * @var string
      */
     protected $file;
-    
+
     /**
      * Schéma des tables.
      *
@@ -67,7 +67,7 @@ class Schema
      * @param DriverInterface $driver Interface de manipulation de données.
      */
     public function __construct(
-        $host = null,
+    $host = null,
         $name = 'schema',
         DriverInterface $driver = null
     ) {
@@ -84,16 +84,16 @@ class Schema
      * @param DriverInterface|null $driver Interface de manipulation de données.
      */
     public function setConfig(
-        $host,
+    $host,
         $name = 'schema',
         DriverInterface $driver = null
     ) {
         $this->driver = is_null($driver)
             ? new Driver\Json()
             : $driver;
-        $this->path = $host;
-        $this->name = $name;
-        $this->file = $host . DIRECTORY_SEPARATOR . $name . '.' . $this->driver->getExtension();
+        $this->path   = $host;
+        $this->name   = $name;
+        $this->file   = $host . DIRECTORY_SEPARATOR . $name . '.' . $this->driver->getExtension();
 
         return $this;
     }
@@ -113,7 +113,7 @@ class Schema
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException("Table $table is not exist.");
         }
-        
+
         $schema = $this->getSchema();
 
         if (!isset($schema[ $table ][ 'increments' ])) {
@@ -121,9 +121,9 @@ class Schema
         }
 
         $schema[ $table ][ 'increments' ] = $increments;
-        $output = $this->save($this->path, $this->name, $schema);
+        $output                           = $this->save($this->path, $this->name, $schema);
         $this->reloadSchema();
-        
+
         return $output;
     }
 
@@ -204,8 +204,8 @@ class Schema
         if ($this->hasTable($table)) {
             throw new Exception("Table $table exist.");
         }
-        
-        $schema = $this->getSchema();
+
+        $schema           = $this->getSchema();
         $schema[ $table ] = [
             'table'      => $table,
             'path'       => $this->path,
@@ -214,7 +214,7 @@ class Schema
         ];
 
         if (!is_null($callback)) {
-            $builder    = new TableBuilder();
+            $builder                          = new TableBuilder();
             call_user_func_array($callback, [ &$builder ]);
             $schema[ $table ][ 'fields' ]     = $builder->build();
             $schema[ $table ][ 'increments' ] = $builder->getIncrement();
@@ -291,7 +291,7 @@ class Schema
                 }
                 $fields[ $key ] = $value;
                 foreach ($dataTable as &$data) {
-                    $data[$key] = self::getValueDefault($key, $value);
+                    $data[ $key ] = self::getValueDefault($key, $value);
                 }
             } elseif ($value[ 'opt' ] === 'rename') {
                 $tmp                      = $fields[ $value[ 'name' ] ];
@@ -299,8 +299,8 @@ class Schema
                 $fields[ $value[ 'to' ] ] = $tmp;
 
                 foreach ($dataTable as $key => &$data) {
-                    $tmp                                 = $data[$value[ 'name' ] ];
-                    unset($data[$value[ 'name' ] ]);
+                    $tmp                                 = $data[ $value[ 'name' ] ];
+                    unset($data[ $value[ 'name' ] ]);
                     $dataTable[ $key ][ $value[ 'to' ] ] = $tmp;
                 }
             } elseif ($value[ 'opt' ] === 'modify') {
@@ -308,13 +308,13 @@ class Schema
                 $fields[ $key ] = $value;
 
                 foreach ($dataTable as &$data) {
-                    $data[$key] = self::getValueDefault($key, $value);
+                    $data[ $key ] = self::getValueDefault($key, $value);
                 }
             } elseif ($value[ 'opt' ] === 'drop') {
                 unset($fields[ $value[ 'name' ] ]);
 
                 foreach ($dataTable as $key => $data) {
-                    unset($dataTable[$key][$value[ 'name' ]]);
+                    unset($dataTable[ $key ][ $value[ 'name' ] ]);
                 }
             }
         }
@@ -382,7 +382,7 @@ class Schema
     {
         $sch = $this->getSchema();
 
-        return isset($sch[ $table ]['fields'][ $column ]) && $this->driver->has($this->path, $table);
+        return isset($sch[ $table ][ 'fields' ][ $column ]) && $this->driver->has($this->path, $table);
     }
 
     /**
@@ -404,11 +404,11 @@ class Schema
         $deleteSchema = true;
         if ($schema[ $table ][ 'increments' ] !== null) {
             $schema[ $table ][ 'increments' ] = 0;
-            $deleteSchema = $this->save($this->path, $this->name, $schema);
+            $deleteSchema                     = $this->save($this->path, $this->name, $schema);
             $this->reloadSchema();
         }
-        $deleteData   = $this->save($this->path, $table, []);
-        
+        $deleteData = $this->save($this->path, $table, []);
+
         return $deleteSchema && $deleteData;
     }
 
@@ -513,7 +513,7 @@ class Schema
     {
         return $this->driver->delete($path, $file);
     }
-    
+
     /**
      * Recharge le schéma en cas de modification des tables.
      */

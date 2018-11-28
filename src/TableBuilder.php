@@ -34,7 +34,7 @@ class TableBuilder
      * @var array
      */
     private $increment = null;
-    
+
     /**
      * Enregistre un champ de type `boolean`, true ou false.
      * http://php.net/manual/fr/language.types.boolean.php
@@ -131,7 +131,7 @@ class TableBuilder
         }
 
         $this->builder[ $name ][ 'type' ] = 'increments';
-        $this->increment = 0;
+        $this->increment                  = 0;
 
         return $this;
     }
@@ -167,7 +167,7 @@ class TableBuilder
         if (!is_numeric($length) || $length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
-        $this->builder[ $name ] = ['type' => 'string', 'length' => (int) $length ];
+        $this->builder[ $name ] = [ 'type' => 'string', 'length' => (int) $length ];
 
         return $this;
     }
@@ -247,8 +247,8 @@ class TableBuilder
         $current = $this->checkPreviousBuild('value default');
         $name    = key($this->builder);
         $type    = $current[ 'type' ];
-        
-        if ($type ===  'increments') {
+
+        if ($type === 'increments') {
             throw new TableBuilderException('An incremental type column can not have a default value.');
         }
 
@@ -342,7 +342,7 @@ class TableBuilder
     public function build()
     {
         return array_filter($this->builder, function ($var) {
-            return !isset($var['opt']);
+            return !isset($var[ 'opt' ]);
         });
     }
 
@@ -375,7 +375,7 @@ class TableBuilder
      */
     public function dropColumn($name)
     {
-        $this->builder[] = ['opt'=>'drop', 'name'=>$name];
+        $this->builder[] = [ 'opt' => 'drop', 'name' => $name ];
 
         return $this;
     }
@@ -390,8 +390,8 @@ class TableBuilder
      */
     public function renameColumn($from, $to)
     {
-        $this->builder[] = ['opt'=>'rename', 'name'=>$from, 'to'=>$to];
-        
+        $this->builder[] = [ 'opt' => 'rename', 'name' => $from, 'to' => $to ];
+
         return $this;
     }
 
@@ -403,10 +403,10 @@ class TableBuilder
     public function modify()
     {
         $this->checkPreviousBuild('modify');
-        $key = key($this->builder);
-        $this->builder[ $key ]['opt']  = 'modify';
-        $this->builder[ $key ]['name'] = $key;
-        
+        $key                             = key($this->builder);
+        $this->builder[ $key ][ 'opt' ]  = 'modify';
+        $this->builder[ $key ][ 'name' ] = $key;
+
         return $this;
     }
 
@@ -422,14 +422,14 @@ class TableBuilder
      */
     protected function checkPreviousBuild($opt)
     {
-        $str = 'No column selected for ' . $opt . '.';
+        $str     = 'No column selected for ' . $opt . '.';
         if (!($current = end($this->builder))) {
             throw new ColumnsNotFoundException($str);
         }
-        if (isset($current['opt'])) {
+        if (isset($current[ 'opt' ])) {
             throw new ColumnsNotFoundException($str);
         }
-        
+
         return $current;
     }
 }

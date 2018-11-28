@@ -69,7 +69,7 @@ class Where
      * @return $this
      */
     public function where(
-        $column,
+    $column,
         $operator = null,
         $value = null,
         $bool = 'and',
@@ -261,21 +261,21 @@ class Where
      * Si la valeur du champs est contenu dans une liste.
      *
      * @param string $column Nom de la colonne.
-     * @param array  $values Valeurs a tester.
+     * @param array  $value  Valeurs à tester.
      * @param string $bool   Porte logique de la condition (and|or).
      * @param bool   $not    Inverse la condition.
      *
      * @return $this
      */
-    public function in($column, array $values, $bool = 'and', $not = false)
+    public function in($column, array $value, $bool = 'and', $not = false)
     {
         $this->where[]   = [
-            'type'   => __FUNCTION__,
+            'type'      => __FUNCTION__,
             'condition' => 'in',
-            'column' => $column,
-            'value' => $values,
-            'bool'   => $bool,
-            'not'    => $not
+            'column'    => $column,
+            'value'     => $value,
+            'bool'      => $bool,
+            'not'       => $not
         ];
         $this->columns[] = $column;
 
@@ -286,13 +286,13 @@ class Where
      * Alias inverse de la fonction in().
      *
      * @param string $column
-     * @param array  $values
+     * @param array  $value
      *
      * @return $this
      */
-    public function notIn($column, array $values)
+    public function notIn($column, array $value)
     {
-        $this->in($column, $values, 'and', true);
+        $this->in($column, $value, 'and', true);
 
         return $this;
     }
@@ -301,13 +301,13 @@ class Where
      * Alias avec la porte logique 'OR' de la fonction in().
      *
      * @param string $column
-     * @param array  $values
+     * @param array  $value
      *
      * @return $this
      */
-    public function orIn($column, array $values)
+    public function orIn($column, array $value)
     {
-        $this->in($column, $values, 'or');
+        $this->in($column, $value, 'or');
 
         return $this;
     }
@@ -316,13 +316,13 @@ class Where
      * Alias inverse avec la porte logique 'OR' de la fonction in().
      *
      * @param string $column
-     * @param array  $values
+     * @param array  $value
      *
      * @return $this
      */
-    public function orNotIn($column, array $values)
+    public function orNotIn($column, array $value)
     {
-        $this->in($column, $values, 'or', true);
+        $this->in($column, $value, 'or', true);
 
         return $this;
     }
@@ -412,7 +412,7 @@ class Where
         $this->where[]   = [
             'type'   => __FUNCTION__,
             'column' => $column,
-            'values' => $pattern,
+            'value'  => $pattern,
             'bool'   => $bool,
             'not'    => $not
         ];
@@ -515,8 +515,8 @@ class Where
                     break;
                 case 'regex':
                     $predicate = !empty($value[ 'not' ])
-                        ? !preg_match($value[ 'values' ], $row[ $columns ])
-                        : preg_match($value[ 'values' ], $row[ $columns ]);
+                        ? !preg_match($value[ 'value' ], $row[ $columns ])
+                        : preg_match($value[ 'value' ], $row[ $columns ]);
                     $predicate &= self::predicate($row[ $columns ], '!==', null);
 
                     break;
@@ -615,7 +615,7 @@ class Where
             case 'in':
                 return in_array($columns, $value);
         }
-        
+
         throw new \Exception("The $operator operator is not supported.");
     }
 

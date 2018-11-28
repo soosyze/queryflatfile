@@ -112,7 +112,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->values([ 4, 2 ])
             ->values([ 5, 2 ])
             ->execute();
-
+        
         $this->assertFileExists('tests/data/user.' . $this->bdd->getExtension());
     }
 
@@ -1101,7 +1101,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('labelle', 'Admin')
             ->fetch();
     }
-
+    
     public function testUnion()
     {
         $union = $this->request
