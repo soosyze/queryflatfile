@@ -12,6 +12,7 @@ namespace Queryflatfile;
 
 use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
 use Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Queryflatfile\Exception\TableBuilder\TableBuilderException;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.
@@ -62,7 +63,7 @@ class TableBuilder
     public function char($name, $length = 1)
     {
         if (!is_numeric($length) || $length < 0) {
-            throw new \Exception('The length passed in parameter is not of numeric type.');
+            throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
         $this->builder[ $name ] = [ 'type' => 'char', 'length' => (int) $length ];
 
@@ -126,7 +127,7 @@ class TableBuilder
     public function increments($name)
     {
         if ($this->increment !== null) {
-            throw new \Exception('Only one incremental column is allowed per table.');
+            throw new TableBuilderException('Only one incremental column is allowed per table.');
         }
 
         $this->builder[ $name ][ 'type' ] = 'increments';
@@ -164,7 +165,7 @@ class TableBuilder
     public function string($name, $length = 255)
     {
         if (!is_numeric($length) || $length < 0) {
-            throw new \Exception('The length passed in parameter is not of numeric type.');
+            throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
         $this->builder[ $name ] = ['type' => 'string', 'length' => (int) $length ];
 
@@ -224,7 +225,7 @@ class TableBuilder
     {
         $current = $this->checkPreviousBuild('unsigned');
         if ($current[ 'type' ] !== 'integer') {
-            throw new ColumnsValueException('Impossiblie of unsigned type ' . $current[ 'type' ] . ' (only integer).');
+            throw new ColumnsValueException("Impossiblie of unsigned type {$current[ 'type' ]} only integer).");
         }
 
         $this->builder[ key($this->builder) ][ 'unsigned' ] = true;
@@ -248,7 +249,7 @@ class TableBuilder
         $type    = $current[ 'type' ];
         
         if ($type ===  'increments') {
-            throw new \Exception('An incremental type column can not have a default value.');
+            throw new TableBuilderException('An incremental type column can not have a default value.');
         }
 
         $this->builder[ $name ][ 'default' ] = self::checkValue($name, $type, $value, $current);
@@ -270,7 +271,7 @@ class TableBuilder
      */
     public static function checkValue($name, $type, $value, array $arg = [])
     {
-        $error = htmlspecialchars('The default value (' . $value . ') for column ' . $name . ' does not correspond to type ' . $type . '.');
+        $error = 'The default value (' . $value . ') for column ' . $name . ' does not correspond to type ' . $type . '.';
 
         switch (strtolower($type)) {
             case 'string':
@@ -327,7 +328,7 @@ class TableBuilder
 
                 throw new ColumnsValueException($error);
             default:
-                throw new ColumnsValueException('Type ' . htmlspecialchars($type) . ' not supported');
+                throw new ColumnsValueException("Type $type not supported");
         }
 
         return $value;
@@ -421,7 +422,7 @@ class TableBuilder
      */
     protected function checkPreviousBuild($opt)
     {
-        $str = htmlspecialchars('No column selected for ' . $opt . '.');
+        $str = 'No column selected for ' . $opt . '.';
         if (!($current = end($this->builder))) {
             throw new ColumnsNotFoundException($str);
         }

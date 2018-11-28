@@ -99,7 +99,7 @@ class Where
 
         /* Si l'opérateur n'est pas autorisé. */
         if (!in_array($condition, $this->contidion)) {
-            throw new OperatorNotFound('The condition ' . htmlspecialchars($condition) . ' is not exist.');
+            throw new OperatorNotFound("The condition $condition is not exist.");
         }
         if ($condition === '=') {
             $condition = '===';
@@ -616,7 +616,7 @@ class Where
                 return in_array($columns, $value);
         }
         
-        throw new \Exception('The ' . htmlspecialchars($operator) . ' operator is not supported.');
+        throw new \Exception("The $operator operator is not supported.");
     }
 
     /**

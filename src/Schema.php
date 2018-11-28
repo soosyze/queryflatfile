@@ -11,6 +11,7 @@
 namespace Queryflatfile;
 
 use Queryflatfile\DriverInterface;
+use Queryflatfile\Exception\Exception;
 use Queryflatfile\Exception\Query\ColumnsValueException;
 use Queryflatfile\Exception\Query\TableNotFoundException;
 use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
@@ -110,13 +111,13 @@ class Schema
     public function setIncrements($table, $increments)
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException('Table ' . htmlspecialchars($table) . ' is not exist.');
+            throw new TableNotFoundException("Table $table is not exist.");
         }
         
         $schema = $this->getSchema();
 
         if (!isset($schema[ $table ][ 'increments' ])) {
-            throw new \Exception('Table ' . htmlspecialchars($table) . ' does not have an incremental value.');
+            throw new Exception("Table $table does not have an incremental value.");
         }
 
         $schema[ $table ][ 'increments' ] = $increments;
@@ -154,7 +155,7 @@ class Schema
     public function getSchemaTable($table)
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException('The ' . htmlspecialchars($table) . ' table is missing in the schema.');
+            throw new TableNotFoundException("The $table table is missing in the schema.");
         }
 
         return $this->getSchema()[ $table ];
@@ -195,13 +196,13 @@ class Schema
      * @param string        $table    Nom de la table.
      * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
      *
-     * @throws \Exception
+     * @throws Exception
      * @return $this
      */
     public function createTable($table, callable $callback = null)
     {
         if ($this->hasTable($table)) {
-            throw new \Exception('Table ' . htmlspecialchars($table) . ' exist.');
+            throw new Exception("Table $table exist.");
         }
         
         $schema = $this->getSchema();
@@ -260,7 +261,7 @@ class Schema
     public function alterTable($table, callable $callback)
     {
         if (!$this->hasTable($table)) {
-            throw new \Exception('Table ' . htmlspecialchars($table) . ' exist.');
+            throw new Exception("Table $table exist.");
         }
 
         $builder      = new TableBuilder();
@@ -273,20 +274,20 @@ class Schema
         foreach ($tableBuilder as $key => $value) {
             /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
             if (!isset($value[ 'opt' ]) && isset($fields[ $key ])) {
-                throw new \Exception(htmlspecialchars('Field ' . $key . ' already exists in table ' . $table . '.'));
+                throw new Exception("Field $key already exists in table $table.");
             }
             /* Si un champ est modifie il doit exister dans le schéma. */
             if (isset($value[ 'opt' ]) && $value[ 'opt' ] === 'modify' && !isset($fields[ $key ])) {
-                throw new ColumnsNotFoundException(htmlspecialchars($key . ' field does not exists in table ' . $table . '.'));
+                throw new ColumnsNotFoundException("$key field does not exists in table $table.");
             }
             /* Si il s'agit d'une opération sur un champ il doit exister dans le schéma. */
             if (isset($value[ 'opt' ]) && !isset($fields[ $value[ 'name' ] ])) {
-                throw new ColumnsNotFoundException($key . ' field does not exists in table ' . $table . '.');
+                throw new ColumnsNotFoundException("$key field does not exists in table $table.");
             }
 
             if (!isset($value[ 'opt' ])) {
                 if ($value[ 'type' ] === 'increments') {
-                    throw new ColumnsValueException('Table ' . htmlspecialchars($table) . ' can not have multiple incremental values');
+                    throw new ColumnsValueException("Table $table can not have multiple incremental values.");
                 }
                 $fields[ $key ] = $value;
                 foreach ($dataTable as &$data) {
@@ -338,7 +339,7 @@ class Schema
     public static function getValueDefault($field, $arg)
     {
         if (!isset($arg[ 'nullable' ]) && !isset($arg[ 'default' ])) {
-            throw new ColumnsValueException(htmlspecialchars($field) . ' not nullable or not default.');
+            throw new ColumnsValueException("$field not nullable or not default.");
         }
         if (isset($arg[ 'default' ])) {
             if ($arg[ 'type' ] === 'date' && $arg[ 'default' ] === 'current_date') {
@@ -395,7 +396,7 @@ class Schema
     public function truncateTable($table)
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException('Table ' . htmlspecialchars($table) . ' is not exist.');
+            throw new TableNotFoundException("Table $table is not exist.");
         }
 
         $schema = $this->getSchema();
@@ -422,7 +423,7 @@ class Schema
     public function dropTable($table)
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException('Table ' . htmlspecialchars($table) . ' is not exist.');
+            throw new TableNotFoundException("Table $table is not exist.");
         }
 
         $schema = $this->getSchema();

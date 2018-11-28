@@ -79,7 +79,7 @@ abstract class Driver implements DriverInterface
     protected function isExist($file)
     {
         if (!file_exists($file)) {
-            throw new Exception\Driver\FileNotFoundException('The ' . htmlspecialchars($file) . ' file is missing.');
+            throw new Exception\Driver\FileNotFoundException("The $file file is missing.");
         }
     }
 
@@ -95,7 +95,7 @@ abstract class Driver implements DriverInterface
     protected function isWrite($file)
     {
         if (!is_writable($file)) {
-            throw new Exception\Driver\FileNotWritableException('The ' . htmlspecialchars($file) . ' file is not writable.');
+            throw new Exception\Driver\FileNotWritableException("The $file file is not writable.");
         }
     }
 
@@ -111,7 +111,7 @@ abstract class Driver implements DriverInterface
     protected function isRead($file)
     {
         if (!is_readable($file)) {
-            throw new Exception\Driver\FileNotReadableException('The ' . htmlspecialchars($file) . ' file is not readable.');
+            throw new Exception\Driver\FileNotReadableException("The $file file is not readable.");
         }
     }
 }

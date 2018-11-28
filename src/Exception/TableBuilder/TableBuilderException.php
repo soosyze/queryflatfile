@@ -15,6 +15,6 @@ namespace Queryflatfile\Exception\TableBuilder;
  *
  * @author Mathieu NOËL
  */
-class TableBuilderException extends \Exception
+class TableBuilderException extends \Queryflatfile\Exception\Exception
 {
 }

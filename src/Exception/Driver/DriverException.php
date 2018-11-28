@@ -15,6 +15,6 @@ namespace Queryflatfile\Exception\Driver;
  *
  * @author Mathieu NOËL
  */
-class DriverException extends \Exception
+class DriverException extends \Queryflatfile\Exception\Exception
 {
 }

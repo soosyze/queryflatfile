@@ -15,6 +15,6 @@ namespace Queryflatfile\Exception\Query;
  *
  * @author Mathieu NOËL
  */
-class QueryException extends \Exception
+class QueryException extends \Queryflatfile\Exception\Exception
 {
 }
