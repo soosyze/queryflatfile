@@ -62,7 +62,7 @@ class TableBuilder
      */
     public function char($name, $length = 1)
     {
-        if (!is_numeric($length) || $length < 0) {
+        if (!\is_numeric($length) || $length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
         $this->builder[ $name ] = [ 'type' => 'char', 'length' => (int) $length ];
@@ -164,7 +164,7 @@ class TableBuilder
      */
     public function string($name, $length = 255)
     {
-        if (!is_numeric($length) || $length < 0) {
+        if (!\is_numeric($length) || $length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
         $this->builder[ $name ] = [ 'type' => 'string', 'length' => (int) $length ];
@@ -276,7 +276,7 @@ class TableBuilder
         switch (strtolower($type)) {
             case 'string':
             case 'char':
-                if (!is_string($value)) {
+                if (!\is_string($value)) {
                     throw new ColumnsValueException($error);
                 }
                 if (!isset($arg[ 'length' ]) || strlen($value) > $arg[ 'length' ]) {
@@ -285,26 +285,26 @@ class TableBuilder
 
                 break;
             case 'text':
-                if (!is_string($value)) {
+                if (!\is_string($value)) {
                     throw new ColumnsValueException($error);
                 }
 
                 break;
             case 'integer':
             case 'increments':
-                if (!is_numeric($value)) {
+                if (!\is_numeric($value)) {
                     throw new ColumnsValueException($error);
                 }
 
                 return (int) $value;
             case 'float':
-                if (!is_numeric($value)) {
+                if (!\is_numeric($value)) {
                     throw new ColumnsValueException($error);
                 }
 
                 return (float) $value;
             case 'boolean':
-                if (!is_bool($value)) {
+                if (!\is_bool($value)) {
                     throw new ColumnsValueException($error);
                 }
 

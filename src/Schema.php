@@ -71,7 +71,7 @@ class Schema
         $name = 'schema',
         DriverInterface $driver = null
     ) {
-        if (!is_null($host)) {
+        if (!\is_null($host)) {
             $this->setConfig($host, $name, $driver);
         }
     }
@@ -88,7 +88,7 @@ class Schema
         $name = 'schema',
         DriverInterface $driver = null
     ) {
-        $this->driver = is_null($driver)
+        $this->driver = \is_null($driver)
             ? new Driver\Json()
             : $driver;
         $this->path   = $host;
@@ -213,7 +213,7 @@ class Schema
             'increments' => null
         ];
 
-        if (!is_null($callback)) {
+        if (!\is_null($callback)) {
             $builder                          = new TableBuilder();
             call_user_func_array($callback, [ &$builder ]);
             $schema[ $table ][ 'fields' ]     = $builder->build();

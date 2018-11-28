@@ -273,7 +273,7 @@ class Request
 
         foreach ($columns as $column) {
             /* Dans le cas ou les colonnes sont normales. */
-            if (!is_array($column)) {
+            if (!\is_array($column)) {
                 $this->request[ 'columns' ][] = $column;
 
                 continue;

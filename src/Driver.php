@@ -94,7 +94,7 @@ abstract class Driver implements DriverInterface
      */
     protected function isWrite($file)
     {
-        if (!is_writable($file)) {
+        if (!\is_writable($file)) {
             throw new Exception\Driver\FileNotWritableException("The $file file is not writable.");
         }
     }
@@ -110,7 +110,7 @@ abstract class Driver implements DriverInterface
      */
     protected function isRead($file)
     {
-        if (!is_readable($file)) {
+        if (!\is_readable($file)) {
             throw new Exception\Driver\FileNotReadableException("The $file file is not readable.");
         }
     }

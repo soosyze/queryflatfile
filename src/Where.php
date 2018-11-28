@@ -475,7 +475,7 @@ class Where
     {
         $output = [];
         foreach ($this->where as $value) {
-            if (!is_array($value[ 'column' ])) {
+            if (!\is_array($value[ 'column' ])) {
                 $output[] = $this->getColumn($value[ 'column' ]);
 
                 continue;
@@ -630,7 +630,7 @@ class Where
      */
     protected function isColumn($value)
     {
-        return is_string($value) && strstr($value, '.');
+        return \is_string($value) && strstr($value, '.');
     }
 
     /**
