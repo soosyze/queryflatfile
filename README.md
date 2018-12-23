@@ -1,11 +1,11 @@
 # Queryflatfile
 
-[![Build Status](https://travis-ci.org/soosyze/queryflatfile.svg?branch=master)](https://travis-ci.org/soosyze/queryflatfile)
-[![Coverage Status](https://coveralls.io/repos/github/soosyze/queryflatfile/badge.svg?branch=master)](https://coveralls.io/github/soosyze/queryflatfile?branch=master)
-![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)
-![Packagist](https://img.shields.io/packagist/v/soosyze/queryflatfile.svg)
-![PHP from Packagist](https://img.shields.io/packagist/php-v/soosyze/queryflatfile.svg)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/soosyze/queryflatfile.svg)
+[![Build Status](https://travis-ci.org/soosyze/queryflatfile.svg?branch=master)](https://travis-ci.org/soosyze/queryflatfile "Travis")
+[![Coverage Status](https://coveralls.io/repos/github/soosyze/queryflatfile/badge.svg?branch=master)](https://coveralls.io/github/soosyze/queryflatfile?branch=master "Coveralls")
+[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/soosyze/queryflatfile/blob/master/LICENSE "LICENSE")
+[![Packagist](https://img.shields.io/packagist/v/soosyze/queryflatfile.svg)](https://packagist.org/packages/soosyze/queryflatfile "Packagist")
+[![PHP from Packagist](https://img.shields.io/packagist/php-v/soosyze/queryflatfile.svg)](/README.md#version-php "PHP version 5.4 minimum")
+[![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/soosyze/queryflatfile.svg)](https://github.com/soosyze/queryflatfile/archive/master.zip "Download")
 
 Queryflatfile est un framework de base de données NoSQL écrit en PHP qui stocke les données par défaut au format JSON (flat file). L'objectif est de pouvoir manipuler des données contenues dans des fichiers de la même façon dont ont manipule les données avec le langage SQL.
 
