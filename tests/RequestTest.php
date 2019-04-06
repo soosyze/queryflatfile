@@ -640,19 +640,29 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testWhereLike()
     {
         $data1 = $this->request->from('user')->where('name', 'like', 'DUP%')->fetchAll();
-        $data2 = $this->request->from('user')->where('name', 'like', '%OND')->fetchAll();
-        $data3 = $this->request->from('user')->where('name', 'like', '%TI%')->fetchAll();
+        $data2 = $this->request->from('user')->where('name', 'like', '%TI%')->fetchAll();
+
+        $data3 = $this->request->from('user')->where('name', 'like', 'OND')->fetchAll();
+        $data4 = $this->request->from('user')->where('name', 'like', 'OND%')->fetchAll();
+        $data5 = $this->request->from('user')->where('name', 'like', '%OND')->fetchAll();
+        $data6 = $this->request->from('user')->where('name', 'like', '%OND%')->fetchAll();
 
         $this->assertArraySubset($data1, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
         $this->assertArraySubset($data2, [
+            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
+        ]);
+        $this->assertArraySubset($data3, []);
+        $this->assertArraySubset($data4, []);
+        $this->assertArraySubset($data5, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
-        $this->assertArraySubset($data3, [
-            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
+        $this->assertArraySubset($data6, [
+            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
     }
 

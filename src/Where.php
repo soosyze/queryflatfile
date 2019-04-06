@@ -107,12 +107,12 @@ class Where
             /* Protection des caractères spéciaux des expressions rationnelles autre que celle imposée. */
             $value   = preg_quote($value);
             /* Le paterne commun au 4 conditions. */
-            $pattern = '/' . strtr($value, '%', '.*');
+            $pattern = '/^' . strtr($value, ['%' => '.*']);
 
             /* Pour rendre la regex inssencible à la case. */
             $pattern .= $condition === 'like' || $condition === 'not like'
-                ? '/'
-                : '/i';
+                ? '$/'
+                : '$/i';
 
             /* Pour inverser le comportement du like. */
             $not = $condition === 'not like' || $condition === 'not ilike';
