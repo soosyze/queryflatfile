@@ -28,7 +28,7 @@ class Json extends \Queryflatfile\Driver
         $file = $this->getFile($path, $fileName);
 
         if (!file_exists($path)) {
-            mkdir($path, 0775);
+            mkdir($path, 0775, true);
         }
         if (!file_exists($file)) {
             $fichier = fopen($file, 'w+');

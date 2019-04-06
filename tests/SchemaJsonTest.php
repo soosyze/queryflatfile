@@ -63,7 +63,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             [
             'test'      => [
                 'table'      => 'test',
-                'path'       => 'tests/data2',
                 'fields'     => [
                     'id'        => [
                         'type' => 'increments'
@@ -95,7 +94,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $this->bdd->getSchemaTable('test'),
             [
             'table'      => 'test',
-            'path'       => 'tests/data2',
             'fields'     => [
                 'id'        => [
                     'type' => 'increments'

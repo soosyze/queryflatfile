@@ -24,13 +24,21 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     protected $request2;
 
     /**
+     *
+     * @var string 
+     */
+    protected $root = '';
+
+    /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
     protected function setUp()
     {
+        $this->root = __DIR__ . '/';
         $this->bdd = new Schema();
         $this->bdd->setConfig('tests/data', 'schema', new \Queryflatfile\Driver\Json());
+        $this->bdd->setPathRoot($this->root);
 
         $this->request  = new Request($this->bdd);
         $this->request2 = new Request($this->bdd);
@@ -60,9 +68,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
                 ->string('labelle');
         });
 
-        $this->assertFileExists('tests/data/user.' . $this->bdd->getExtension());
-        $this->assertFileExists('tests/data/user_role.' . $this->bdd->getExtension());
-        $this->assertFileExists('tests/data/role.' . $this->bdd->getExtension());
+        $this->assertFileExists($this->root . 'tests/data/user.' . $this->bdd->getExtension());
+        $this->assertFileExists($this->root . 'tests/data/user_role.' . $this->bdd->getExtension());
+        $this->assertFileExists($this->root . 'tests/data/role.' . $this->bdd->getExtension());
     }
 
     /**
@@ -77,7 +85,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $this->bdd->createTableIfNotExists('user');
 
-        $this->assertFileExists('tests/data/user.' . $this->bdd->getExtension());
+        $this->assertFileExists($this->root . 'tests/data/user.' . $this->bdd->getExtension());
     }
 
     public function testInsertInto()
@@ -113,7 +121,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->values([ 5, 2 ])
             ->execute();
         
-        $this->assertFileExists('tests/data/user.' . $this->bdd->getExtension());
+        $this->assertFileExists($this->root . 'tests/data/user.' . $this->bdd->getExtension());
     }
 
     public function testCreateTableIfNotExistsData()
@@ -121,7 +129,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->bdd->createTableIfNotExists('user', function () {
         });
 
-        $this->assertFileExists('tests/data/user.' . $this->bdd->getExtension());
+        $this->assertFileExists($this->root . 'tests/data/user.' . $this->bdd->getExtension());
     }
 
     /**

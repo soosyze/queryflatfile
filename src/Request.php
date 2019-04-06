@@ -235,7 +235,7 @@ class Request
     {
         $sch = $this->schema->getSchemaTable($name);
 
-        return $this->schema->read($sch[ 'path' ], $sch[ 'table' ]);
+        return $this->schema->read($this->schema->getPath(), $sch[ 'table' ]);
     }
 
     /**
@@ -505,10 +505,9 @@ class Request
             throw new BadFunctionException('Only the insert, update and delete functions can be executed.');
         }
 
-        $path = $this->tableSchema[ 'path' ];
         $file = $this->tableSchema[ 'table' ];
 
-        $this->schema->save($path, $file, $this->tableData);
+        $this->schema->save($this->schema->getPath(), $file, $this->tableData);
         $this->init();
     }
 

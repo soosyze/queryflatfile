@@ -39,6 +39,13 @@ class Schema
     protected $path;
 
     /**
+     * La racine pour le répertoire de stockage.
+     *
+     * @var string 
+     */
+    protected $root = '';
+
+    /**
      * Nom du schéma.
      *
      * @var string
@@ -99,6 +106,30 @@ class Schema
     }
 
     /**
+     * Retourne le chemin relatif au répertoire de stockage.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Ajoute la racine du répertoire de stockage.
+     *
+     * @param string $root
+     *
+     * @return $this
+     */
+    public function setPathRoot( $root = '' )
+    {
+        $this->root = $root;
+
+        return $this;
+    }
+
+    /**
      * Modifie la valeur incrémentale d'une table.
      *
      * @param string $table      Nom de la table.
@@ -134,7 +165,7 @@ class Schema
      */
     public function getSchema()
     {
-        if (!file_exists($this->file)) {
+        if (!file_exists($this->root . $this->file)) {
             $this->create($this->path, $this->name);
         }
         if (!$this->schema) {
@@ -176,15 +207,15 @@ class Schema
         }
 
         /* Supprime le fichier de schéma. */
-        unlink($this->file);
+        unlink($this->root . $this->file);
 
         /*
          * Dans le cas ou le répertoire utilisé contient d'autre fichier
          * (Si le répertoire contient que les 2 élements '.' et '..')
          * alors nous le supprimons.
          */
-        if (count(scandir($this->path)) == 2) {
-            rmdir($this->path);
+        if (count(scandir($this->root . $this->path)) == 2) {
+            rmdir($this->root . $this->path);
         }
 
         return $this;
@@ -208,7 +239,6 @@ class Schema
         $schema           = $this->getSchema();
         $schema[ $table ] = [
             'table'      => $table,
-            'path'       => $this->path,
             'fields'     => null,
             'increments' => null
         ];
@@ -240,7 +270,7 @@ class Schema
         /* Créer la table si elle n'existe pas dans le schéma. */
         if (!$this->hasTable($table)) {
             $this->createTable($table, $callback);
-        } elseif (!$this->driver->has($this->path, $table)) {
+        } elseif (!$this->driver->has($this->root . $this->path, $table)) {
             /* Si elle existe dans le schéma et que le fichier est absent alors on le créer. */
             $this->create($this->path, $table);
         }
@@ -367,7 +397,7 @@ class Schema
     {
         $sch = $this->getSchema();
 
-        return isset($sch[ $table ]) && $this->driver->has($this->path, $table);
+        return isset($sch[ $table ]) && $this->driver->has($this->root . $this->path, $table);
     }
 
     /**
@@ -382,7 +412,7 @@ class Schema
     {
         $sch = $this->getSchema();
 
-        return isset($sch[ $table ][ 'fields' ][ $column ]) && $this->driver->has($this->path, $table);
+        return isset($sch[ $table ][ 'fields' ][ $column ]) && $this->driver->has($this->root . $this->path, $table);
     }
 
     /**
@@ -470,7 +500,7 @@ class Schema
      */
     public function read($path, $file)
     {
-        return $this->driver->read($path, $file);
+        return $this->driver->read($this->root . $path, $file);
     }
 
     /**
@@ -484,7 +514,7 @@ class Schema
      */
     public function save($path, $file, array $data)
     {
-        return $this->driver->save($path, $file, $data);
+        return $this->driver->save($this->root . $path, $file, $data);
     }
 
     /**
@@ -498,7 +528,7 @@ class Schema
      */
     protected function create($path, $file, array $data = [])
     {
-        return $this->driver->create($path, $file, $data);
+        return $this->driver->create($this->root . $path, $file, $data);
     }
 
     /**
@@ -511,7 +541,7 @@ class Schema
      */
     protected function delete($path, $file)
     {
-        return $this->driver->delete($path, $file);
+        return $this->driver->delete($this->root . $path, $file);
     }
 
     /**
