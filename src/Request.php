@@ -892,6 +892,7 @@ class Request
             }
             unset($this->tableData[ $key ]);
         }
+        $this->tableData = array_values($this->tableData);
     }
 
     /**
