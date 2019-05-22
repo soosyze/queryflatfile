@@ -280,71 +280,33 @@ class Schema
      *
      * @throws TableNotFoundException
      * @throws Exception
+     *
      * @return $this
      */
     public function alterTable($table, callable $callback)
     {
         if (!$this->hasTable($table)) {
-            throw new Exception("Table $table exist.");
+            throw new Exception("Table $table table is missing in the schema.");
         }
 
-        $builder      = new TableBuilder();
-        call_user_func_array($callback, [ &$builder ]);
-        $tableBuilder = $builder->buildFull();
-        $schema       = $this->getSchema();
+        $tableBuilder = self::tableBuilder($callback)->buildFull();
         $dataTable    = $this->read($this->path, $table);
-        $fields       = $schema[ $table ][ 'fields' ];
+        $fields       = $this->schema[ $table ][ 'fields' ];
 
-        foreach ($tableBuilder as $key => $value) {
-            /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
-            if (!isset($value[ 'opt' ]) && isset($fields[ $key ])) {
-                throw new Exception("Field $key already exists in table $table.");
-            }
-            /* Si un champ est modifie il doit exister dans le schéma. */
-            if (isset($value[ 'opt' ]) && $value[ 'opt' ] === 'modify' && !isset($fields[ $key ])) {
-                throw new ColumnsNotFoundException("$key field does not exists in table $table.");
-            }
-            /* Si il s'agit d'une opération sur un champ il doit exister dans le schéma. */
-            if (isset($value[ 'opt' ]) && !isset($fields[ $value[ 'name' ] ])) {
-                throw new ColumnsNotFoundException("$key field does not exists in table $table.");
-            }
-
-            if (!isset($value[ 'opt' ])) {
-                if ($value[ 'type' ] === 'increments') {
-                    throw new ColumnsValueException("Table $table can not have multiple incremental values.");
-                }
-                $fields[ $key ] = $value;
-                foreach ($dataTable as &$data) {
-                    $data[ $key ] = self::getValueDefault($key, $value);
-                }
-            } elseif ($value[ 'opt' ] === 'rename') {
-                $tmp                      = $fields[ $value[ 'name' ] ];
-                unset($fields[ $value[ 'name' ] ]);
-                $fields[ $value[ 'to' ] ] = $tmp;
-
-                foreach ($dataTable as $key => &$data) {
-                    $tmp                                 = $data[ $value[ 'name' ] ];
-                    unset($data[ $value[ 'name' ] ]);
-                    $dataTable[ $key ][ $value[ 'to' ] ] = $tmp;
-                }
-            } elseif ($value[ 'opt' ] === 'modify') {
-                unset($value[ 'name' ], $value[ 'opt' ]);
-                $fields[ $key ] = $value;
-
-                foreach ($dataTable as &$data) {
-                    $data[ $key ] = self::getValueDefault($key, $value);
-                }
-            } elseif ($value[ 'opt' ] === 'drop') {
-                unset($fields[ $value[ 'name' ] ]);
-
-                foreach ($dataTable as $key => $data) {
-                    unset($dataTable[ $key ][ $value[ 'name' ] ]);
-                }
+        foreach ($tableBuilder as $name => $param) {
+            self::filterField($table, $param, $fields, $name);
+            if (!isset($param[ 'opt' ])) {
+                self::add($fields, $dataTable, $name, $param);
+            } elseif ($param[ 'opt' ] === 'rename') {
+                self::rename($fields, $dataTable, $name, $param[ 'to' ]);
+            } elseif ($param[ 'opt' ] === 'modify') {
+                self::modify($fields, $dataTable, $name, $param);
+            } elseif ($param[ 'opt' ] === 'drop') {
+                self::drop($fields, $dataTable, $name);
             }
         }
-
-        $schema[ $table ][ 'fields' ] = $fields;
-        $this->save($this->path, $this->name, $schema);
+        $this->schema[ $table ][ 'fields' ] = $fields;
+        $this->save($this->path, $this->name, $this->schema);
         $this->save($this->path, $table, $dataTable);
         $this->reloadSchema();
 
@@ -362,9 +324,6 @@ class Schema
      */
     public static function getValueDefault($field, $arg)
     {
-        if (!isset($arg[ 'nullable' ]) && !isset($arg[ 'default' ])) {
-            throw new ColumnsValueException("$field not nullable or not default.");
-        }
         if (isset($arg[ 'default' ])) {
             if ($arg[ 'type' ] === 'date' && $arg[ 'default' ] === 'current_date') {
                 return date('Y-m-d', time());
@@ -376,8 +335,11 @@ class Schema
             /* Si les variables magiques ne sont pas utilisé alors la vrais valeur par defaut est retourné. */
             return $arg[ 'default' ];
         }
-        /* Si il n'y a pas default il est donc nullable. */
-        return null;
+        if (isset($arg[ 'nullable' ])) {
+            return null;
+        }
+
+        throw new ColumnsValueException("$field not nullable or not default.");
     }
 
     /**
@@ -540,9 +502,121 @@ class Schema
 
     /**
      * Recharge le schéma en cas de modification des tables.
+     * Ajoute un champ dans les paramètre de la table et ses données.
+     *
+     * @param array  $fields    Les champs de la table.
+     * @param array  $dataTable Les données de la table.
+     * @param string $name      Nom du champ.
+     * @param type   $value     Nouveaux paramètres.
      */
     private function reloadSchema()
+    protected static function add(array &$fields, array &$dataTable, $name, array $value)
     {
         $this->schema = $this->read($this->path, $this->name);
+        $fields[ $name ] = $value;
+        foreach ($dataTable as &$data) {
+            $data[ $name ] = self::getValueDefault($name, $value);
+        }
+    }
+
+    /**
+     * Modifie un champ dans les paramètre de la table et ses données.
+     *
+     * @param array  $fields    Les champs de la table.
+     * @param array  $dataTable Les données de la table.
+     * @param string $name      Nom du champ.
+     * @param array  $value     Nouveaux paramètres.
+     */
+    protected static function modify(array &$fields, array &$dataTable, $name, array $value)
+    {
+        unset($value[ 'opt' ]);
+        $fields[ $name ] = $value;
+        foreach ($dataTable as &$data) {
+            $data[ $name ] = self::getValueDefault($name, $value);
+        }
+    }
+
+    /**
+     * Renomme un champ dans les paramètre de la table et ses données.
+     *
+     * @param array  $fields    Les champs de la table.
+     * @param array  $dataTable Les données de la table.
+     * @param string $name      Nom du champ.
+     * @param string $to        Nouveau nom du champ.
+     */
+    protected static function rename(array &$fields, array &$dataTable, $name, $to)
+    {
+        $tmp           = $fields[ $name ];
+        unset($fields[ $name ]);
+        $fields[ $to ] = $tmp;
+        foreach ($dataTable as &$data) {
+            $tmp         = $data[ $name ];
+            unset($data[ $name ]);
+            $data[ $to ] = $tmp;
+        }
+    }
+
+    /**
+     * Supprime un champ dans les paramètre de la table et ses données.
+     *
+     * @param array  $fields    Les champs de la table.
+     * @param array  $dataTable Les données de la table.
+     * @param string $name      Nom du champ.
+     */
+    protected static function drop(array &$fields, array &$dataTable, $name)
+    {
+        unset($fields[ $name ]);
+        foreach (array_keys($dataTable) as $key) {
+            unset($dataTable[ $key ][ $name ]);
+        }
+    }
+
+    /**
+     * Vérifie si les opérations du champ sont conformes.
+     *
+     * @param string $table  Nom de la table.
+     * @param array  $value  Paramètres du champ.
+     * @param array  $fields Paramètres du champ en base.
+     * @param string $name   Nom du champ.
+     *
+     * @throws Exception
+     * @throws ColumnsNotFoundException
+     */
+    protected static function filterField($table, array $value, array $fields, $name)
+    {
+        /* Si un champ est ajouté. */
+        if (!isset($value[ 'opt' ])) {
+            if ($value[ 'type' ] === 'increments') {
+                throw new ColumnsValueException("The $table table can not have multiple incremental values.");
+            }
+            /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
+            if (isset($fields[ $name ])) {
+                throw new Exception("$name field does not exists in $table table.");
+            }
+        } else {
+            /* Si un champ est modifie il doit exister dans le schéma. */
+            if ($value[ 'opt' ] === 'modify' && !isset($fields[ $name ])) {
+                throw new ColumnsNotFoundException("$name field does not exists in $table table.");
+            }
+            /* Si il s'agit d'une opération sur un champ il doit exister dans le schéma. */
+            if (!isset($fields[ $name ])) {
+                throw new ColumnsNotFoundException("$name field does not exists in $table table.");
+            }
+        }
+    }
+
+    /**
+     * Passe en premier paramètre d'une fonction anonyme un objet TableBuilder et le retourne.
+     *
+     * @param callable $callback Fonction anonyme.
+     *
+     * @return TableBuilder
+     */
+    protected static function tableBuilder(callable $callback)
+    {
+        $builder = new TableBuilder();
+        call_user_func_array($callback, [ &$builder ]);
+
+        return $builder;
     }
 }

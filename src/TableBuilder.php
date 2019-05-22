@@ -375,7 +375,7 @@ class TableBuilder
      */
     public function dropColumn($name)
     {
-        $this->builder[] = [ 'opt' => 'drop', 'name' => $name ];
+        $this->builder[$name] = [ 'opt' => 'drop' ];
 
         return $this;
     }
@@ -390,7 +390,7 @@ class TableBuilder
      */
     public function renameColumn($from, $to)
     {
-        $this->builder[] = [ 'opt' => 'rename', 'name' => $from, 'to' => $to ];
+        $this->builder[$from] = [ 'opt' => 'rename', 'to' => $to ];
 
         return $this;
     }
@@ -405,7 +405,6 @@ class TableBuilder
         $this->checkPreviousBuild('modify');
         $key                             = key($this->builder);
         $this->builder[ $key ][ 'opt' ]  = 'modify';
-        $this->builder[ $key ][ 'name' ] = $key;
 
         return $this;
     }
