@@ -104,36 +104,19 @@ class Where extends WhereHandler
      */
     public function execute(array $row)
     {
+        $output = true;
         foreach ($this->where as $key => $value) {
-            $columns = $value[ 'column' ];
-            switch ($value[ 'type' ]) {
-                case 'where':
-                case 'isNull':
-                case 'in':
-                    $predicate = self::predicate($row[ $columns ], $value[ 'condition' ], $value[ 'value' ]);
-
-                    break;
-                case 'whereCallback':
-                    $predicate = $value[ 'value' ]->execute($row);
-
-                    break;
-                case 'between':
-                    $predicate = self::predicate($row[ $columns ], '>=', $value[ 'min' ]) && self::predicate($row[ $columns ], '<=', $value[ 'max' ]);
-
-                    break;
-                case 'regex':
-                    $predicate = !empty($value[ 'not' ])
-                        ? !preg_match($value[ 'value' ], $row[ $columns ])
-                        : preg_match($value[ 'value' ], $row[ $columns ]);
-                    $predicate &= self::predicate($row[ $columns ], '!==', null);
-
-                    break;
-            }
-
-            if ($value[ 'type' ] !== 'regex') {
-                $predicate = !empty($value[ 'not' ])
+            /* Si la clause est standard ou une sous clause. */
+            $predicate = $value[ 'type' ] !== 'whereCallback'
+                ? self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ])
+                : $value[ 'value' ]->execute($row);
+            /* Si la clause est inversé. */
+            $predicate = $value[ 'not' ]
                     ? !$predicate
                     : $predicate;
+            /* Les retours des types regex et like doivent être non null. */
+            if ($value[ 'type' ] === 'regex' || $value[ 'type' ] === 'like') {
+                $predicate &= $row[ $value[ 'column' ] ] !== null;
             }
 
             if ($key == 0) {
@@ -159,15 +142,15 @@ class Where extends WhereHandler
      */
     public function executeJoin(array $row, array $rowTable)
     {
+        $output = true;
         foreach ($this->where as $key => $value) {
-            $columns = $value[ 'column' ];
             switch ($value[ 'type' ]) {
                 case 'where':
                 case 'isNull':
                     $val       = $this->isColumn($value[ 'value' ])
                         ? $rowTable[ substr(strrchr($value[ 'value' ], '.'), 1) ]
                         : $value[ 'value' ];
-                    $predicate = self::predicate($row[ $columns ], $value[ 'condition' ], $val);
+                    $predicate = self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $val);
 
                     break;
                 case 'whereCallback':
@@ -222,6 +205,10 @@ class Where extends WhereHandler
                 return $columns >= $value;
             case 'in':
                 return in_array($columns, $value);
+            case 'regex':
+                return preg_match($value, $columns);
+            case 'between':
+                return $columns >= $value[ 'min' ] && $columns <= $value[ 'max' ];
         }
 
         throw new \Exception("The $operator operator is not supported.");
