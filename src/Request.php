@@ -282,12 +282,8 @@ class Request extends RequestHandler
          * Exécution des jointures.
          * La réunion et l'intersection des ensembles sont soumis à la loi interne * et donc commutative.
          */
-        foreach ($this->request[ 'leftJoin' ] as $value) {
-            $this->executeLeftJoin($value[ 'table' ], $value[ 'where' ]);
-        }
-
-        foreach ($this->request[ 'rightJoin' ] as $value) {
-            $this->executeRightJoin($value[ 'table' ], $value[ 'where' ]);
+        foreach ($this->joins as $value) {
+            $this->executeJoins($value[ 'type' ], $value[ 'table' ], $value[ 'where' ]);
         }
 
         $limitHandel = $this->orderBy || $this->union;
@@ -426,69 +422,32 @@ class Request extends RequestHandler
         return array_values($output);
     }
 
-    /**
-     * Exécute le calcule d'une jointure droite entre 2 ensembles.
-     *
-     * @param string $table Nom de la table à joindre.
-     * @param Where  $where Condition de la jointure.
-     *
-     * @return $this
-     */
-    protected function executeRightJoin($table, Where $where)
+    protected function executeJoins($type, $table, Where $where)
     {
         $result       = [];
-        $tableJoin    = $this->getTableData($table);
         $rowTableNull = $this->getRowTableNull($table);
+        $left = $type === 'left';
 
-        foreach ($tableJoin as $rowJoin) {
-            /* Si les lignes se sont jointes. */
-            $addRow = false;
-            /* Join les tables. */
-            foreach ($this->tableData as $row) {
-                /* Vérifie les conditions. */
-                if ($where->executeJoin($row, $rowJoin)) {
-                    /* Join les lignes si la condition est bonne. */
-                    $result[] = array_merge($row, $rowJoin);
-                    $addRow   = true;
-                }
-            }
-
-            /*
-             * Si aucun résultat n'est trouvé alors la ligne est remplie
-             * avec les colonnes de la table jointe avec des valeurs null.
-             */
-            if (!$addRow) {
-                $result[] = array_merge($rowTableNull, $rowJoin);
-            }
+        if ($left) {
+            $tableData = $this->tableData;
+            $tableJoin = $this->getTableData($table);
+        } else {
+            $tableData = $this->getTableData($table);
+            $tableJoin = $this->tableData;
         }
-        $this->tableData = $result;
 
-        return $this;
-    }
-
-    /**
-     * Exécute le calcule d'une jointure gauche entre 2 ensembles.
-     *
-     * @param string $table Nom de la table à joindre.
-     * @param Where  $where Condition de la jointure.
-     *
-     * @return $this
-     */
-    protected function executeLeftJoin($table, Where $where)
-    {
-        $result       = [];
-        $tableJoin    = $this->getTableData($table);
-        $rowTableNull = $this->getRowTableNull($table);
-
-        foreach ($this->tableData as $row) {
+        foreach ($tableData as $row) {
             /* Si les lignes se sont jointes. */
             $addRow = false;
             /* Join les tables. */
             foreach ($tableJoin as $rowJoin) {
                 /* Vérifie les conditions. */
-                if ($where->executeJoin($row, $rowJoin)) {
+                if ($left && $where->executeJoin($row, $rowJoin)) {
                     /* Join les lignes si la condition est bonne. */
-                    $result[] = array_merge($rowJoin, $row);
+                    $result[] = $rowJoin + $row;
+                    $addRow   = true;
+                } elseif (!$left && $where->executeJoin($rowJoin, $row)) {
+                    $result[] = $rowJoin + $row;
                     $addRow   = true;
                 }
             }
@@ -693,12 +652,7 @@ class Request extends RequestHandler
     {
         $schema = $this->tableSchema[ 'fields' ];
 
-        foreach ($this->request[ 'leftJoin' ] as $value) {
-            $schemaTable = $this->schema->getSchemaTable($value[ 'table' ]);
-            $schema      = array_merge($schema, $schemaTable[ 'fields' ]);
-        }
-
-        foreach ($this->request[ 'rightJoin' ] as $value) {
+        foreach ($this->joins as $value) {
             $schemaTable = $this->schema->getSchemaTable($value[ 'table' ]);
             $schema      = array_merge($schema, $schemaTable[ 'fields' ]);
         }
@@ -749,12 +703,7 @@ class Request extends RequestHandler
     {
         $columns = [];
         /* Merge toutes les colonnes des conditions de chaque jointure. */
-        foreach ($this->request[ 'leftJoin' ] as $value) {
-            $columns = array_merge($columns, $value[ 'where' ]->getColumns());
-        }
-
-        /* Merge toutes les colonnes des conditions de chaque jointure. */
-        foreach ($this->request[ 'rightJoin' ] as $value) {
+        foreach ($this->joins as $value) {
             $columns = array_merge($columns, $value[ 'where' ]->getColumns());
         }
 
