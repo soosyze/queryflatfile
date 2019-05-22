@@ -202,8 +202,8 @@ class Schema
         $schema = $this->getSchema();
 
         /* Supprime les fichiers des tables. */
-        foreach ($schema as $table) {
-            $this->delete($this->path, $table[ 'table' ]);
+        foreach (array_keys($schema) as $table) {
+            $this->delete($this->path, $table);
         }
 
         /* Supprime le fichier de schéma. */
@@ -236,13 +236,7 @@ class Schema
             throw new Exception("Table $table exist.");
         }
 
-        $schema           = $this->getSchema();
-        $schema[ $table ] = [
-            'table'      => $table,
-            'fields'     => null,
-            'increments' => null
-        ];
-
+        $this->schema[ $table ] = [ 'fields' => null, 'increments' => null ];
         if (!\is_null($callback)) {
             $builder                          = new TableBuilder();
             call_user_func_array($callback, [ &$builder ]);
