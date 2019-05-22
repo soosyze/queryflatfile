@@ -18,17 +18,60 @@ namespace Queryflatfile;
 class Where extends WhereHandler
 {
     /**
+     * Retourne les paramètre des clauses en format pseudo SQL.
      *
+     * @return string
      */
+    public function __toString()
     {
+        $output = '';
+        foreach ($this->where as $where) {
+            $not = $where[ 'not' ]
+                ? 'NOT'
+                : '';
+            switch ($where[ 'type' ]) {
+                case 'where':
+                    $value = \is_int($where[ 'value' ]) ? $where[ 'value' ] : "'{$where[ 'value' ]}'";
+                    $output .= "{$where[ 'column' ]} $not " . strtoupper($where[ 'condition' ]) . " $value ";
+                
+                    break;
+                case 'like':
+                    $output .= "{$where[ 'column' ]} $not LIKE '{$where[ 'value' ]}' ";
 
+                    break;
+                case 'isNull':
+                    $output .= "{$where[ 'column' ]} IS $not NULL ";
 
+                    break;
+                case 'in':
+                    $output .= "{$where[ 'column' ]} $not IN " . implode(', ', $where[ 'value' ]) . ' ';
 
+                    break;
+                case 'whereCallback':
+                    $output .= "$not ({$where[ 'value' ]}) ";
 
+                    break;
+                case 'between':
+                    $output .= "{$where[ 'column' ]} $not BETWEEN {$where['value'][ 'min' ]} AND {$where['value'][ 'max' ]} ";
 
+                    break;
+                case 'regex':
+                    $output .= "{$where[ 'column' ]} $not REGEX {$where[ 'value' ]} ";
 
+                    break;
+            }
 
+            $output .= $where[ 'bool' ] === self::EXP_AND
+                ? ' AND '
+                : ' OR ';
+        }
+        /* Cherche si la dernière occurence est AND ou OR. */
+        $nb = substr(strrchr($output, 'AND'), 0) === 'AND '
+            ? -4
+            : -3;
 
+        /* Supprime la dernière occurence et renvoie la chaine. */
+        return htmlspecialchars(substr($output, 0, $nb));
     }
 
     /**

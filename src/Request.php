@@ -104,30 +104,32 @@ class Request extends RequestHandler
     public function __toString()
     {
         $output = '';
-        if ($this->request[ 'columns' ]) {
-            $output .= 'SELECT ' . implode(', ', $this->request[ 'columns' ]) . ' ';
+        if ($this->columns) {
+            $output .= 'SELECT ' . implode(', ', $this->columns) . ' ';
         } else {
             $output .= 'SELECT * ';
         }
-        if ($this->table) {
-            $output .= "FROM $this->table ";
+        if ($this->from) {
+            $output .= "FROM $this->from ";
         }
-        foreach ($this->request[ 'leftJoin' ] as $value) {
-            $output .= "LEFT JOIN {$value[ 'table' ]} ON ";
+        foreach ($this->joins as $value) {
+            $output .= strtoupper($value[ 'type' ]) . " JOIN {$value[ 'table' ]} ON {$value[ 'where' ]}";
         }
         if ($this->where) {
-            $output .= 'WHERE ';
+            $output .= 'WHERE ' . (string) $this->where;
         }
-        foreach ($this->request[ 'union' ] as $union) {
-            $output .= $union['type'] === 'simple'
-                ? 'UNION '
+        foreach ($this->union as $union) {
+            $output .= $union[ 'type' ] === self::UNION_SIMPLE
+                ? 'UNION'
                 : 'UNION ALL';
-            $output .="({$union[ 'request' ]}) ";
+            $output .= " ({$union[ 'request' ]}) ";
         }
         if ($this->orderBy) {
+            $output .= 'ORDER BY ';
             foreach ($this->orderBy as $table => $order) {
-                $output .= "ORDER BY $table $order ";
+                $output .= " $table " . strtoupper($order) . ',';
             }
+            $output = substr($output, 0, -1) . ' ';
         }
         if ($this->limit) {
             $output .= "LIMIT $this->limit ";
