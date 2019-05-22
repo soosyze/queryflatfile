@@ -7,3 +7,5 @@
 .travis.yml export-ignore
 phpdoc.dist.xml export-ignore
 phpunit.xml export-ignore
+phpunit.xml.dist export-ignore
+USAGE.md export-ignore

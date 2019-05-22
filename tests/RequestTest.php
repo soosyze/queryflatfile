@@ -36,7 +36,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $this->root = __DIR__ . '/';
         $this->bdd = new Schema();
-        $this->bdd->setConfig('tests/data', 'schema', new \Queryflatfile\Driver\Json());
+        $this->bdd->setConfig('data', 'schema', new \Queryflatfile\Driver\Json());
         $this->bdd->setPathRoot($this->root);
 
         $this->request  = new Request($this->bdd);
@@ -67,9 +67,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
                 ->string('labelle');
         });
 
-        $this->assertFileExists($this->root . 'tests/data/user.' . $this->bdd->getExtension());
-        $this->assertFileExists($this->root . 'tests/data/user_role.' . $this->bdd->getExtension());
-        $this->assertFileExists($this->root . 'tests/data/role.' . $this->bdd->getExtension());
+        self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
+        self::assertFileExists($this->root . 'data/user_role.' . $this->bdd->getExtension());
+        self::assertFileExists($this->root . 'data/role.' . $this->bdd->getExtension());
     }
 
     /**
@@ -84,7 +84,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $this->bdd->createTableIfNotExists('user');
 
-        $this->assertFileExists($this->root . 'tests/data/user.' . $this->bdd->getExtension());
+        self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
     }
 
     public function testInsertInto()
@@ -120,7 +120,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->values([ 5, 2 ])
             ->execute();
         
-        $this->assertFileExists($this->root . 'tests/data/user.' . $this->bdd->getExtension());
+        self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
     }
 
     public function testCreateTableIfNotExistsData()
@@ -128,7 +128,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->bdd->createTableIfNotExists('user', function () {
         });
 
-        $this->assertFileExists($this->root . 'tests/data/user.' . $this->bdd->getExtension());
+        self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
     }
 
     /**
@@ -162,8 +162,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data1 = $this->request->select([ 'firstname' ])->from('user')->fetch();
         $data2 = $this->request->select('firstname')->from('user')->fetch();
 
-        $this->assertArraySubset($data1, [ 'firstname' => 'Mathieu' ]);
-        $this->assertArraySubset($data2, [ 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data1, [ 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data2, [ 'firstname' => 'Mathieu' ]);
     }
 
     public function testLists()
@@ -174,9 +174,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
         $assert = [ 'Mathieu', 'Jean', 'Manon', 'Marie', 'Pierre', 'Eva', null ];
 
-        $this->assertArraySubset($data1, $assert);
-        $this->assertArraySubset($data2, $assert);
-        $this->assertArraySubset($data3, $assert);
+        self::assertArraySubset($data1, $assert);
+        self::assertArraySubset($data2, $assert);
+        self::assertArraySubset($data3, $assert);
     }
 
     /**
@@ -216,8 +216,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data1 = $this->request->select()->from('user')->fetch();
         $data2 = $this->request->from('user')->fetch();
 
-        $this->assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        $this->assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
     }
 
     /**
@@ -255,11 +255,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '==', '1')
             ->fetch();
 
-        $this->assertArraySubset($data1, []);
-        $this->assertArraySubset($data2, []);
-        $this->assertArraySubset($data3, [ 'name' => 'DUPOND' ]);
-        $this->assertArraySubset($data4, [ 'name' => 'DUPOND' ]);
-        $this->assertArraySubset($data5, [ 'name' => 'DUPOND' ]);
+        self::assertArraySubset($data1, []);
+        self::assertArraySubset($data2, []);
+        self::assertArraySubset($data3, [ 'name' => 'DUPOND' ]);
+        self::assertArraySubset($data4, [ 'name' => 'DUPOND' ]);
+        self::assertArraySubset($data5, [ 'name' => 'DUPOND' ]);
     }
 
     /**
@@ -280,7 +280,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('firstname', 'Jean')
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'name' => 'DUPOND' ]);
+        self::assertArraySubset($data, [ 'name' => 'DUPOND' ]);
     }
 
     public function testWhereNotEqualsNoType()
@@ -315,10 +315,10 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
 
         /* whereNotEquals sans prendre en compte le type */
-        $this->assertArraySubset($data1, $result_notType);
-        $this->assertArraySubset($data2, $result_notType);
-        $this->assertArraySubset($data3, $result_notType);
-        $this->assertArraySubset($data4, $result_notType);
+        self::assertArraySubset($data1, $result_notType);
+        self::assertArraySubset($data2, $result_notType);
+        self::assertArraySubset($data3, $result_notType);
+        self::assertArraySubset($data4, $result_notType);
     }
 
     public function testWhereNotEqualsType()
@@ -334,7 +334,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '!==', 1)
             ->fetchAll();
 
-        $this->assertArraySubset($dataType1, [
+        self::assertArraySubset($dataType1, [
             [ 'firstname' => 'Mathieu' ],
             [ 'firstname' => 'Jean' ],
             [ 'firstname' => 'Manon' ],
@@ -343,7 +343,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [ 'firstname' => 'Eva' ],
             [ 'firstname' => null ]
         ]);
-        $this->assertArraySubset($dataType2, [
+        self::assertArraySubset($dataType2, [
             [ 'firstname' => 'Mathieu' ],
             [ 'firstname' => 'Manon' ],
             [ 'firstname' => 'Marie' ],
@@ -360,7 +360,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->notWhere('id', '>', 1)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'firstname' => 'Jean' ]
         ]);
@@ -373,7 +373,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '<', 1)
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
     }
 
     public function testWhereLessOrEquals()
@@ -383,7 +383,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '<=', 1)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]
         ]);
@@ -396,7 +396,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '>', 5)
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]);
+        self::assertArraySubset($data, [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]);
     }
 
     public function testWhereGreaterOrEquals()
@@ -406,7 +406,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '>=', 5)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
             [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
         ]);
@@ -430,7 +430,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->between('id', 1, 2)
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]);
+        self::assertArraySubset($data, [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]);
     }
 
     public function testWhereNotBetween()
@@ -440,7 +440,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->notBetween('id', 1, 2)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
@@ -457,7 +457,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orBetween('id', 5, 6)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -473,7 +473,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orNotBetween('id', 5, 6)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -500,7 +500,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->in('id', [ 0, 1 ])
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]
         ]);
@@ -513,7 +513,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->notIn('id', [ 0, 1 ])
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
@@ -530,7 +530,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orIn('id', [ 5, 6 ])
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -546,7 +546,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orNotIn('id', [ 5, 6 ])
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -573,7 +573,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->isNull('firstname')
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]);
+        self::assertArraySubset($data, [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]);
     }
 
     public function testWhereIsNotNull()
@@ -583,7 +583,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->isNotNull('firstname')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -601,7 +601,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orIsNull('name')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
             [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
         ]);
@@ -615,7 +615,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orIsNotNull('name')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -646,20 +646,20 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data5 = $this->request->from('user')->where('name', 'like', '%OND')->fetchAll();
         $data6 = $this->request->from('user')->where('name', 'like', '%OND%')->fetchAll();
 
-        $this->assertArraySubset($data1, [
+        self::assertArraySubset($data1, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
-        $this->assertArraySubset($data2, [
+        self::assertArraySubset($data2, [
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
         ]);
-        $this->assertArraySubset($data3, []);
-        $this->assertArraySubset($data4, []);
-        $this->assertArraySubset($data5, [
+        self::assertArraySubset($data3, []);
+        self::assertArraySubset($data4, []);
+        self::assertArraySubset($data5, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
-        $this->assertArraySubset($data6, [
+        self::assertArraySubset($data6, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
@@ -671,15 +671,15 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data2 = $this->request->from('user')->where('name', 'ilike', '%OnD')->fetchAll();
         $data3 = $this->request->from('user')->where('name', 'ilike', '%ti%')->fetchAll();
 
-        $this->assertArraySubset($data1, [
+        self::assertArraySubset($data1, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
-        $this->assertArraySubset($data2, [
+        self::assertArraySubset($data2, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
-        $this->assertArraySubset($data3, [
+        self::assertArraySubset($data3, [
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
         ]);
     }
@@ -690,9 +690,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data2 = $this->request->from('user')->where('name', 'not like', '%OND')->fetch();
         $data3 = $this->request->from('user')->where('name', 'not like', '%E%')->fetchAll();
 
-        $this->assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        $this->assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        $this->assertArraySubset($data3, [
+        self::assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data3, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
@@ -705,9 +705,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data2 = $this->request->from('user')->where('name', 'not ilike', '%D')->fetch();
         $data3 = $this->request->from('user')->where('name', 'not ilike', '%E%')->fetchAll();
 
-        $this->assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        $this->assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        $this->assertArraySubset($data3, [
+        self::assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data3, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
@@ -721,7 +721,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->regex('name', '/^D/')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
@@ -734,7 +734,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->notRegex('name', '/^D/')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -750,7 +750,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orNotRegex('firstname', '/^M/')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ]
@@ -765,7 +765,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orRegex('name', '/^N/')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ] ]);
@@ -790,7 +790,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('firstname', 'Pierre')
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]);
+        self::assertArraySubset($data, [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]);
     }
 
     public function testOrWhere()
@@ -801,7 +801,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orWhere('firstname', 'Mathieu')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
@@ -816,7 +816,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orNotWhere('firstname', 'Mathieu')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
@@ -837,7 +837,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             })
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ]
         ]);
@@ -854,7 +854,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             })
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
@@ -869,7 +869,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->limit(1)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [ [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ] ]);
+        self::assertArraySubset($data, [ [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ] ]);
     }
 
     /**
@@ -890,7 +890,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->limit(1, 1)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [ [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ] ]);
+        self::assertArraySubset($data, [ [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ] ]);
     }
 
     /**
@@ -912,7 +912,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->limit(1, 1)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [ [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ] ]);
+        self::assertArraySubset($data, [ [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ] ]);
     }
 
     public function testOrderByAsc()
@@ -922,7 +922,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('firstname')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'firstname' => null ],
             [ 'firstname' => 'Eva' ],
             [ 'firstname' => 'Jean' ],
@@ -940,7 +940,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('firstname', 'desc')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'firstname' => 'Pierre' ],
             [ 'firstname' => 'Mathieu' ],
             [ 'firstname' => 'Marie' ],
@@ -959,7 +959,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('name', 'desc')
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'name' => 'ROBERT' ]);
+        self::assertArraySubset($data, [ 'name' => 'ROBERT' ]);
     }
     
     public function testOrderByDescLimitOffset()
@@ -971,7 +971,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->limit(2, 1)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'name' => 'MEYER' ],
             [ 'name' => 'DUPOND' ]
         ]);
@@ -985,7 +985,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('firstname')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'name' => 'ROBERT', 'firstname' => null ],
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -1004,7 +1004,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('firstname', 'desc')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'name' => 'ROBERT', 'firstname' => null ],
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -1023,7 +1023,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->rightJoin('user', 'id_user', '=', 'user.id')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
@@ -1043,7 +1043,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->leftJoin('role', 'id_role', '=', 'role.id_role')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
@@ -1064,7 +1064,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('labelle', 'Admin')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
         ]);
@@ -1081,7 +1081,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('labelle', 'Admin')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
         ]);
@@ -1100,7 +1100,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('labelle', 'Admin')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
         ]);
@@ -1116,7 +1116,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             })
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
@@ -1154,7 +1154,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'name' => 'NOEL' ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MARTIN' ],
@@ -1177,7 +1177,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -1218,7 +1218,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->unionAll($union)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'name' => 'NOEL' ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MARTIN' ],
@@ -1247,7 +1247,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->unionAll($union)
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -1293,7 +1293,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union)
             ->lists();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             'NOEL',
             'DUPOND',
             'MARTIN',
@@ -1325,7 +1325,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '=', 0)
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
     }
 
     public function testUpdateDataFull()
@@ -1338,7 +1338,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '=', 0)
             ->fetch();
 
-        $this->assertArraySubset($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
+        self::assertArraySubset($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
     }
 
     public function testDeleteData()
@@ -1352,7 +1352,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->fetchAll();
 
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($data, [
             [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ],
             [ 'id' => 5, 'name' => 'PETIT', 'firstname' => 'Eva' ],
             [ 'id' => 6, 'name' => 'PETIT', 'firstname' => null ]
@@ -1363,13 +1363,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $this->bdd->dropTable('user_role');
 
-        $this->assertFileNotExists('test/data/user_role.json');
+        self::assertFileNotExists( __DIR__ . '/data/user_role.json');
     }
 
     public function testDropSchema()
     {
         $this->bdd->dropSchema();
-        $this->assertFileNotExists('test/data/schema.json');
+        self::assertFileNotExists(__DIR__ . '/data/schema.json');
     }
 
     /**

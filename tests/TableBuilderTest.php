@@ -32,7 +32,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->increments('id');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'increments' ]
         ]);
     }
@@ -51,7 +51,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $this->object->char('id')
             ->char('id2', 2);
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id'  => [ 'type' => 'char', 'length' => 1 ],
             'id2' => [ 'type' => 'char', 'length' => 2 ]
         ]);
@@ -69,7 +69,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->text('id');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'text' ]
         ]);
     }
@@ -79,7 +79,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $this->object->string('id')
             ->string('id2', 256);
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id'  => [ 'type' => 'string', 'length' => 255 ],
             'id2' => [ 'type' => 'string', 'length' => 256 ],
         ]);
@@ -97,7 +97,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->integer('id');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'integer' ]
         ]);
     }
@@ -106,7 +106,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->float('id');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'float' ]
         ]);
     }
@@ -115,7 +115,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->boolean('id');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'boolean' ]
         ]);
     }
@@ -124,7 +124,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->date('id');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'date' ]
         ]);
     }
@@ -133,7 +133,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->datetime('id');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'datetime' ]
         ]);
     }
@@ -151,7 +151,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
             ->date('7')->nullable()
             ->datetime('8')->nullable();
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             '0' => [ 'type' => 'increments', 'nullable' => true ],
             '1' => [ 'type' => 'char', 'length' => 1, 'nullable' => true ],
             '2' => [ 'type' => 'text', 'nullable' => true ],
@@ -176,7 +176,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->integer('id')->unsigned();
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'integer', 'unsigned' => true ]
         ]);
     }
@@ -201,7 +201,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->increments('id')->comment('identifiant');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             'id' => [ 'type' => 'increments', '_comment' => 'identifiant' ]
         ]);
     }
@@ -228,7 +228,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
             ->datetime('8')->valueDefault('2017-11-26 22:00:00')
             ->datetime('8.1')->valueDefault('current_datetime');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             '0'   => [ 'type' => 'increments' ],
             '1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
             '2'   => [ 'type' => 'text', 'default' => 'test' ],
@@ -343,7 +343,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->dropColumn('0');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             [ 'opt' => 'drop', 'name' => '0' ]
         ]);
     }
@@ -352,7 +352,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->renameColumn('0', '1');
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             [ 'opt' => 'rename', 'name' => '0', 'to' => '1' ]
         ]);
     }
@@ -361,7 +361,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->char('0')->modify();
 
-        $this->assertArraySubset($this->object->build(), [
+        self::assertArraySubset($this->object->build(), [
             '0' => [ 'type' => 'char', 'length' => 1, 'opt' => 'modify' ]
         ]);
     }

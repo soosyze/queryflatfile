@@ -25,7 +25,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     protected function setUp()
     {
         $this->bdd     = new Schema();
-        $this->bdd->setConfig('tests/data2', 'schema', new \Queryflatfile\Driver\Json());
+        $this->bdd->setConfig('data2', 'schema', new \Queryflatfile\Driver\Json());
         $this->request = new Request($this->bdd);
     }
 
@@ -53,77 +53,49 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
         $this->bdd->createTable('test_void');
 
-        $this->assertFileExists('tests/data2/test.' . $this->bdd->getExtension());
+        self::assertFileExists('data2/test.' . $this->bdd->getExtension());
     }
 
     public function testGetSchema()
     {
-        $this->assertArraySubset(
-            $this->bdd->getSchema(),
-            [
+        self::assertArraySubset($this->bdd->getSchema(), [
             'test'      => [
-                'table'      => 'test',
                 'fields'     => [
-                    'id'        => [
-                        'type' => 'increments'
-                    ],
-                    'name'      => [
-                        'type'   => 'string',
-                        'length' => 255
-                    ],
-                    'firstname' => [
-                        'type'   => 'string',
-                        'length' => 255
-                    ]
+                    'id'        => [ 'type' => 'increments' ],
+                    'name'      => [ 'type' => 'string', 'length' => 255 ],
+                    'firstname' => [ 'type' => 'string', 'length' => 255 ]
                 ],
                 'increments' => 3
             ],
-            'test_void' => [
-                'table'      => 'test_void',
-                'path'       => 'tests/data2',
-                'fields'     => null,
-                'increments' => null
-            ]
-        ]
-        );
+            'test_void' => [ 'fields' => null, 'increments' => null ]
+        ]);
     }
 
     public function testGetSchemaTable()
     {
-        $this->assertArraySubset(
-            $this->bdd->getSchemaTable('test'),
-            [
-            'table'      => 'test',
+        self::assertArraySubset(
+            $this->bdd->getSchemaTable('test'), [
             'fields'     => [
-                'id'        => [
-                    'type' => 'increments'
-                ],
-                'name'      => [
-                    'type'   => 'string',
-                    'length' => 255
-                ],
-                'firstname' => [
-                    'type'   => 'string',
-                    'length' => 255
-                ]
+                'id'        => [ 'type' => 'increments' ],
+                'name'      => [ 'type' => 'string', 'length' => 255 ],
+                'firstname' => [ 'type' => 'string', 'length' => 255 ]
             ],
             'increments' => 3
-        ]
-        );
+        ]);
     }
 
     public function testHasTable()
     {
-        $this->assertTrue($this->bdd->hasTable('test'));
-        $this->assertFalse($this->bdd->hasTable('error'));
+        self::assertTrue($this->bdd->hasTable('test'));
+        self::assertFalse($this->bdd->hasTable('error'));
     }
 
     public function testHasColumns()
     {
-        $this->assertTrue($this->bdd->hasColumn('test', 'id'));
-        $this->assertFalse($this->bdd->hasColumn('test', 'error'));
-        $this->assertFalse($this->bdd->hasColumn('error', 'id'));
-        $this->assertFalse($this->bdd->hasColumn('error', 'error'));
+        self::assertTrue($this->bdd->hasColumn('test', 'id'));
+        self::assertFalse($this->bdd->hasColumn('test', 'error'));
+        self::assertFalse($this->bdd->hasColumn('error', 'id'));
+        self::assertFalse($this->bdd->hasColumn('error', 'error'));
     }
 
     /**
@@ -147,31 +119,15 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         $this->bdd->alterTable('test', function (TableBuilder $table) {
             $table->string('addTest')->nullable();
         });
+        $data = $this->bdd->read('data2', 'test');
 
-        $data = $this->bdd->read('tests/data2', 'test');
-
-        $this->assertArraySubset(
-            $this->bdd->getSchemaTable('test')[ 'fields' ],
-            [
-            'id'        => [
-                'type' => 'increments'
-            ],
-            'name'      => [
-                'type'   => 'string',
-                'length' => 255
-            ],
-            'firstname' => [
-                'type'   => 'string',
-                'length' => 255
-            ],
-            'addTest'   => [
-                'type'     => 'string',
-                'length'   => 255,
-                'nullable' => true
-            ]
-        ]
-        );
-        $this->assertArraySubset($data, [
+        self::assertArraySubset($this->bdd->getSchemaTable('test')[ 'fields' ], [
+            'id'        => [ 'type' => 'increments' ],
+            'name'      => [ 'type' => 'string', 'length' => 255 ],
+            'firstname' => [ 'type' => 'string', 'length' => 255 ],
+            'addTest'   => [ 'type' => 'string', 'length' => 255, 'nullable' => true ]
+        ]);
+        self::assertArraySubset($data, [
             [ 'id' => 1, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'addTest' => null ],
             [ 'id' => 2, 'name' => 'DUPOND', 'firstname' => 'Jean', 'addTest' => null ],
             [ 'id' => 3, 'name' => 'MARTIN', 'firstname' => 'Manon', 'addTest' => null ]
@@ -184,28 +140,13 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->renameColumn('name', '_name');
         });
 
-        $this->assertArraySubset(
-            $this->bdd->getSchemaTable('test')[ 'fields' ],
-            [
-            'id'        => [
-                'type' => 'increments'
-            ],
-            '_name'     => [
-                'type'   => 'string',
-                'length' => 255
-            ],
-            'firstname' => [
-                'type'   => 'string',
-                'length' => 255
-            ],
-            'addTest'   => [
-                'type'     => 'string',
-                'length'   => 255,
-                'nullable' => true
-            ]
-        ]
-        );
-        $this->assertArraySubset($this->bdd->read('tests/data2', 'test'), [
+        self::assertArraySubset($this->bdd->getSchemaTable('test')[ 'fields' ], [
+            'id'        => [ 'type' => 'increments' ],
+            '_name'     => [ 'type' => 'string', 'length' => 255 ],
+            'firstname' => [ 'type' => 'string', 'length' => 255 ],
+            'addTest'   => [ 'type' => 'string', 'length' => 255, 'nullable' => true ]
+        ]);
+        self::assertArraySubset($this->bdd->read('data2', 'test'), [
             [ 'id' => 1, '_name' => 'NOEL', 'firstname' => 'Mathieu', 'addTest' => null ],
             [ 'id' => 2, '_name' => 'DUPOND', 'firstname' => 'Jean', 'addTest' => null ],
             [ 'id' => 3, '_name' => 'MARTIN', 'firstname' => 'Manon', 'addTest' => null ]
@@ -218,29 +159,13 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->integer('firstname')->valueDefault(1)->modify();
         });
 
-        $this->assertArraySubset(
-            $this->bdd->getSchemaTable('test')[ 'fields' ],
-            [
-            'id'        => [
-                'type' => 'increments'
-            ],
-            '_name'     => [
-                'type'   => 'string',
-                'length' => 255
-            ],
-            'firstname' => [
-                'type'    => 'integer',
-                'default' => 1
-            ],
-            'addTest'   => [
-                'type'     => 'string',
-                'length'   => 255,
-                'nullable' => true
-            ]
-        ]
-        );
-
-        $this->assertArraySubset($this->bdd->read('tests/data2', 'test'), [
+        self::assertArraySubset($this->bdd->getSchemaTable('test')[ 'fields' ], [
+            'id'        => [ 'type' => 'increments' ],
+            '_name'     => [ 'type' => 'string', 'length' => 255 ],
+            'firstname' => [ 'type' => 'integer', 'default' => 1 ],
+            'addTest'   => [ 'type' => 'string', 'length' => 255, 'nullable' => true ]
+        ]);
+        self::assertArraySubset($this->bdd->read('data2', 'test'), [
             [ 'id' => 1, '_name' => 'NOEL', 'firstname' => 1, 'addTest' => null ],
             [ 'id' => 2, '_name' => 'DUPOND', 'firstname' => 1, 'addTest' => null ],
             [ 'id' => 3, '_name' => 'MARTIN', 'firstname' => 1, 'addTest' => null ]
@@ -253,25 +178,12 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->dropColumn('firstname');
         });
 
-        $this->assertArraySubset(
-            $this->bdd->getSchemaTable('test')[ 'fields' ],
-            [
-            'id'      => [
-                'type' => 'increments'
-            ],
-            '_name'   => [
-                'type'   => 'string',
-                'length' => 255
-            ],
-            'addTest' => [
-                'type'     => 'string',
-                'length'   => 255,
-                'nullable' => true
-            ]
-        ]
-        );
-
-        $this->assertArraySubset($this->bdd->read('tests/data2', 'test'), [
+        self::assertArraySubset($this->bdd->getSchemaTable('test')[ 'fields' ], [
+            'id'      => [ 'type' => 'increments' ],
+            '_name'   => [ 'type' => 'string', 'length' => 255 ],
+            'addTest' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ]
+        ]);
+        self::assertArraySubset($this->bdd->read('data2', 'test'), [
             [ 'id' => 1, '_name' => 'NOEL', 'addTest' => null ],
             [ 'id' => 2, '_name' => 'DUPOND', 'addTest' => null ],
             [ 'id' => 3, '_name' => 'MARTIN', 'addTest' => null ]
@@ -341,30 +253,16 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     {
         $output = $this->bdd->truncateTable('test');
 
-        $this->assertArraySubset(
-            $this->bdd->getSchemaTable('test'),
-            [
-            'table'      => 'test',
-            'path'       => 'tests/data2',
+        self::assertArraySubset($this->bdd->getSchemaTable('test'), [
             'fields'     => [
-                'id'      => [
-                    'type' => 'increments'
-                ],
-                'addTest' => [
-                    'type'     => 'string',
-                    'length'   => 255,
-                    'nullable' => true
-                ],
-                '_name'   => [
-                    'type'   => 'string',
-                    'length' => 255
-                ]
-            ],
+                'id'      => [ 'type' => 'increments' ],
+                'addTest' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
+                '_name'   => [ 'type' => 'string', 'length' => 255 ]
+            ], 
             'increments' => 0
-        ]
-        );
-        $this->assertArraySubset($this->bdd->read('tests/data2', 'test'), []);
-        $this->assertTrue($output);
+        ]);
+        self::assertArraySubset($this->bdd->read('data2', 'test'), []);
+        self::assertTrue($output);
     }
 
     /**
@@ -379,8 +277,8 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     {
         $output = $this->bdd->dropTable('test');
 
-        $this->assertTrue($output);
-        $this->assertFileNotExists('test/data2/test.json');
+        self::assertTrue($output);
+        self::assertFileNotExists(__DIR__ . '/data2/test.json');
     }
 
     /**
@@ -395,12 +293,12 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     {
         $output = $this->bdd->dropTableIfExists('test');
 
-        $this->assertFalse($output);
+        self::assertFalse($output);
     }
 
     public function testDropSchema()
     {
         $this->bdd->dropSchema();
-        $this->assertFileNotExists('test/data2/schema.json');
+        self::assertFileNotExists( __DIR__ . '/data2/schema.json');
     }
 }

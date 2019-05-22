@@ -18,8 +18,7 @@
         "php": ">=5.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.* || 7.*",
-        "php-coveralls/php-coveralls": "^1.0 || ^2.0"
+        "phpunit/phpunit": "4.* || 7.*"
     },
     "suggest": {
         "friendsofphp/php-cs-fixer": "Pour normaliser le code PHP.",

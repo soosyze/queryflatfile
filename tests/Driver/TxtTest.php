@@ -32,22 +32,22 @@ class TxtTest extends \PHPUnit\Framework\TestCase
     {
         $output = $this->driver->create('tests/txt', 'driver_test', [ 'key_test' => 'value_test' ]);
 
-        $this->assertTrue($output);
-        $this->assertFileExists('tests/txt/driver_test.txt');
+        self::assertTrue($output);
+        self::assertFileExists('tests/txt/driver_test.txt');
     }
 
     public function testNoCreate()
     {
         $output = $this->driver->create('tests/txt', 'driver_test', [ 'key_test' => 'value_test' ]);
 
-        $this->assertFalse($output);
+        self::assertFalse($output);
     }
 
     public function testRead()
     {
         $json = $this->driver->read('tests/txt', 'driver_test');
 
-        $this->assertArraySubset($json, [ 'key_test' => 'value_test' ]);
+        self::assertArraySubset($json, [ 'key_test' => 'value_test' ]);
     }
 
     /**
@@ -67,8 +67,8 @@ class TxtTest extends \PHPUnit\Framework\TestCase
 
         $newTxt = $this->driver->read('tests/txt', 'driver_test');
 
-        $this->assertTrue($output);
-        $this->assertArraySubset($newTxt, $txt);
+        self::assertTrue($output);
+        self::assertArraySubset($newTxt, $txt);
     }
 
     /**
@@ -84,15 +84,15 @@ class TxtTest extends \PHPUnit\Framework\TestCase
         $has    = $this->driver->has('tests/txt', 'driver_test');
         $notHas = $this->driver->has('tests/txt', 'driver_test_not_found');
 
-        $this->assertTrue($has);
-        $this->assertFalse($notHas);
+        self::assertTrue($has);
+        self::assertFalse($notHas);
     }
 
     public function testDelete()
     {
         $output = $this->driver->delete('tests/txt', 'driver_test');
 
-        $this->assertTrue($output);
-        $this->assertFileNotExists('tests/txt/driver_test.txt');
+        self::assertTrue($output);
+        self::assertFileNotExists('tests/txt/driver_test.txt');
     }
 }

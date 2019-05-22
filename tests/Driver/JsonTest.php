@@ -37,22 +37,22 @@ class JsonTest extends \PHPUnit\Framework\TestCase
     {
         $output = $this->driver->create('tests/json', 'driver_test', [ 'key_test' => 'value_test' ]);
 
-        $this->assertTrue($output);
-        $this->assertFileExists('tests/json/driver_test.json');
+        self::assertTrue($output);
+        self::assertFileExists('tests/json/driver_test.json');
     }
 
     public function testNoCreate()
     {
         $output = $this->driver->create('tests/json', 'driver_test', [ 'key_test' => 'value_test' ]);
 
-        $this->assertFalse($output);
+        self::assertFalse($output);
     }
 
     public function testRead()
     {
         $json = $this->driver->read('tests/json', 'driver_test');
 
-        $this->assertArraySubset($json, [ 'key_test' => 'value_test' ]);
+        self::assertArraySubset($json, [ 'key_test' => 'value_test' ]);
     }
 
     /**
@@ -72,8 +72,8 @@ class JsonTest extends \PHPUnit\Framework\TestCase
 
         $newJson = $this->driver->read('tests/json', 'driver_test');
 
-        $this->assertTrue($output);
-        $this->assertArraySubset($newJson, $json);
+        self::assertTrue($output);
+        self::assertArraySubset($newJson, $json);
     }
 
     /**
@@ -89,15 +89,15 @@ class JsonTest extends \PHPUnit\Framework\TestCase
         $has    = $this->driver->has('tests/json', 'driver_test');
         $notHas = $this->driver->has('tests/json', 'driver_test_not_found');
 
-        $this->assertTrue($has);
-        $this->assertFalse($notHas);
+        self::assertTrue($has);
+        self::assertFalse($notHas);
     }
 
     public function testDelete()
     {
         $output = $this->driver->delete('tests/json', 'driver_test');
 
-        $this->assertTrue($output);
-        $this->assertFileNotExists('tests/json/driver_test.json');
+        self::assertTrue($output);
+        self::assertFileNotExists('tests/json/driver_test.json');
     }
 }
