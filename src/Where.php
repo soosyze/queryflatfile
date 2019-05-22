@@ -179,6 +179,7 @@ class Where extends WhereHandler
      * @param mixed  $value    Valeur de comparaison.
      *
      * @throws \Exception
+     *
      * @return bool
      */
     public static function predicate($columns, $operator, $value)

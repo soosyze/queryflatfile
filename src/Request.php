@@ -238,10 +238,10 @@ class Request extends RequestHandler
      */
     public function execute()
     {
-        $this->fetchPrepareFrom();
+        $this->filterFrom();
         $this->loadAllColumnsSchema();
-        $this->fetchPrepareSelect();
-        $this->fetchPrepareWhere();
+        $this->filterSelect();
+        $this->filterWhere();
 
         if ($this->execute === 'insert') {
             $this->executeInsert();
@@ -264,13 +264,13 @@ class Request extends RequestHandler
      */
     public function fetchAll()
     {
-        $this->fetchPrepareFrom();
+        $this->filterFrom();
         $this->loadAllColumnsSchema();
-        $this->fetchPrepareSelect();
-        $this->fetchPrepareWhere();
-        $this->fetchPrepareOrderBy();
-        $this->fetchPrepareUnion();
-        $this->fetchPrepareLimit();
+        $this->filterSelect();
+        $this->filterWhere();
+        $this->filterUnion();
+        $this->filterOrderBy();
+        $this->filterLimit();
 
         $return = [];
         /* Le pointeur en cas de limite de résultat. */
@@ -336,7 +336,7 @@ class Request extends RequestHandler
         if ($this->orderBy) {
             $return = $this->executeOrderBy($return, $this->orderBy);
         }
-        
+
         /* LIMIT */
         if ($this->limit && $limitHandel) {
             $return = array_slice($return, $this->offset, $this->limit);
@@ -354,7 +354,7 @@ class Request extends RequestHandler
      */
     public function fetch()
     {
-        $fetch  = $this->limit(1)->fetchAll();
+        $fetch = $this->limit(1)->fetchAll();
 
         return !empty($fetch[ 0 ])
             ? $fetch[ 0 ]
@@ -405,7 +405,7 @@ class Request extends RequestHandler
      *
      * @return array Tableau multidimensionnel avec des entrées uniques.
      */
-    public static function arrayUniqueMultidimensional(array $input)
+    protected static function arrayUniqueMultidimensional(array $input)
     {
         /* Sérialise les données du tableaux. */
         $serialized = array_map('serialize', $input);
@@ -486,7 +486,7 @@ class Request extends RequestHandler
                 ? 0
                 : 1);
         }
-
+        unset($value);
         usort($data, function ($a, $b) use ($keys, $keyLength) {
             $sorted = 0;
             $ix     = 0;
@@ -610,7 +610,7 @@ class Request extends RequestHandler
     private function obIx(array $obj, $ix)
     {
         $size = 0;
-        foreach ($obj as $key => $value) {
+        foreach (array_keys($obj) as $key) {
             if ($size == $ix) {
                 return $key;
             }
@@ -663,7 +663,7 @@ class Request extends RequestHandler
      *
      * @throws TableNotFoundException
      */
-    private function fetchPrepareFrom()
+    private function filterFrom()
     {
         if (empty($this->from) || !\is_string($this->from)) {
             throw new TableNotFoundException("Table {$this->from} is missing.");
@@ -673,7 +673,7 @@ class Request extends RequestHandler
     /**
      * Vérifie pour tous les champs sélectionnées, leur l'existence à partir du schéma.
      */
-    private function fetchPrepareSelect()
+    private function filterSelect()
     {
         if ($this->columns) {
             $this->diffColumns($this->columns);
@@ -682,8 +682,8 @@ class Request extends RequestHandler
             $this->columns = [];
         }
     }
-    
-    private function fetchPrepareLimit()
+
+    private function filterLimit()
     {
         if (!\is_int($this->limit) || $this->limit < self::ALL) {
             throw new QueryException('The limit must be a non-zero positive integer.');
@@ -697,7 +697,7 @@ class Request extends RequestHandler
      * Vérifie pour toutes les jointures (LEFT JOIN, RIGHT JOIN) et les clauses conditionnées (WHERE),
      * l'existence des champs à partir du schéma.
      */
-    private function fetchPrepareWhere()
+    private function filterWhere()
     {
         $columns = [];
         /* Merge toutes les colonnes des conditions de chaque jointure. */
@@ -709,7 +709,7 @@ class Request extends RequestHandler
         if ($this->where) {
             $columns = array_merge($columns, $this->where->getColumns());
         }
-
+        
         if ($columns) {
             $this->diffColumns($columns);
         }
@@ -718,7 +718,7 @@ class Request extends RequestHandler
     /**
      * Vérifie pour tous les ORDER BY l'existence des champs à partir du schéma.
      */
-    private function fetchPrepareOrderBy()
+    private function filterOrderBy()
     {
         if ($this->orderBy) {
             $columns = array_keys($this->orderBy);
@@ -731,7 +731,7 @@ class Request extends RequestHandler
      *
      * @throws ColumnsNotFoundException
      */
-    private function fetchPrepareUnion()
+    private function filterUnion()
     {
         $count = count($this->getSelect());
         foreach ($this->union as $request) {

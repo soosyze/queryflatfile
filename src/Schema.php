@@ -41,7 +41,7 @@ class Schema
     /**
      * La racine pour le répertoire de stockage.
      *
-     * @var string 
+     * @var string
      */
     protected $root = '';
 
@@ -91,7 +91,7 @@ class Schema
      * @param DriverInterface|null $driver Interface de manipulation de données.
      */
     public function setConfig(
-    $host,
+        $host,
         $name = 'schema',
         DriverInterface $driver = null
     ) {
@@ -122,7 +122,7 @@ class Schema
      *
      * @return $this
      */
-    public function setPathRoot( $root = '' )
+    public function setPathRoot($root = '')
     {
         $this->root = $root;
 
@@ -137,7 +137,8 @@ class Schema
      *
      * @throws TableNotFoundException
      * @throws Exception
-     * @return bool                   Si le schéma d'incrémentaion est bien enregistré.
+     *
+     * @return bool Si le schéma d'incrémentaion est bien enregistré.
      */
     public function setIncrements($table, $increments)
     {
@@ -181,7 +182,8 @@ class Schema
      * @param string $table Nom de la table.
      *
      * @throws TableNotFoundException
-     * @return array                  Schéma de la table.
+     *
+     * @return array Schéma de la table.
      */
     public function getSchemaTable($table)
     {
@@ -228,6 +230,7 @@ class Schema
      * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
      *
      * @throws Exception
+     *
      * @return $this
      */
     public function createTable($table, callable $callback = null)
@@ -351,9 +354,7 @@ class Schema
      */
     public function hasTable($table)
     {
-        $sch = $this->getSchema();
-
-        return isset($sch[ $table ]) && $this->driver->has($this->root . $this->path, $table);
+        return isset($this->getSchema()[ $table ]) && $this->driver->has($this->root . $this->path, $table);
     }
 
     /**
@@ -366,9 +367,7 @@ class Schema
      */
     public function hasColumn($table, $column)
     {
-        $sch = $this->getSchema();
-
-        return isset($sch[ $table ][ 'fields' ][ $column ]) && $this->driver->has($this->root . $this->path, $table);
+        return isset($this->getSchema()[ $table ][ 'fields' ][ $column ]) && $this->driver->has($this->root . $this->path, $table);
     }
 
     /**
@@ -377,6 +376,7 @@ class Schema
      * @param String $table Nom de la table.
      *
      * @throws TableNotFoundException
+     *
      * @return bool
      */
     public function truncateTable($table)
@@ -404,7 +404,8 @@ class Schema
      * @param string $table Nom de la table.
      *
      * @throws TableNotFoundException
-     * @return bool                   Si la suppression du schema et des données se son bien passé.
+     *
+     * @return bool Si la suppression du schema et des données se son bien passé.
      */
     public function dropTable($table)
     {
@@ -472,7 +473,7 @@ class Schema
     {
         return $this->driver->save($this->root . $path, $file, $data);
     }
-
+  
     /**
      * Utilisation du driver pour créer un fichier.
      *
@@ -501,7 +502,6 @@ class Schema
     }
 
     /**
-     * Recharge le schéma en cas de modification des tables.
      * Ajoute un champ dans les paramètre de la table et ses données.
      *
      * @param array  $fields    Les champs de la table.

@@ -24,8 +24,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     protected $request2;
 
     /**
-     *
-     * @var string 
+     * @var string
      */
     protected $root = '';
 
