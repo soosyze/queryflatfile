@@ -206,16 +206,6 @@ class Request extends RequestHandler
     }
 
     /**
-     * Retourne les clauses de la requête exécutées.
-     *
-     * @return string Chaine de caractère à évaluer.
-     */
-    public function getWhere()
-    {
-        return $this->where->execute();
-    }
-
-    /**
      * Enregistre le nom de la source des données principale de la requête.
      *
      * @param string $from Nom de la table.
