@@ -42,43 +42,14 @@ use Queryflatfile\Exception\Query\TableNotFoundException;
  * @method Request notRegex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orNotRegex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
  */
-class Request
+class Request extends RequestHandler
 {
     /**
-     * Le nombre de résultat de la requête.
-     *
-     * @var int
-     */
-    private $limit = 0;
-
-    /**
-     * Le décalage des résultats de la requête.
-     *
-     * @var int
-     */
-    private $offset = 0;
-
-    /**
-     * La configuration de la requête.
+     * Toutes les configurations du schéma des champs utilisés.
      *
      * @var array
      */
-    private $request = [
-        'allColumnsSchema' => [],
-        'columns'          => [],
-        'leftJoin'         => [],
-        'rightJoin'        => [],
-        'setUpdate'        => [],
-        'union'            => [],
-        'values'           => [],
-    ];
-
-    /**
-     * Le nom de la table courante.
-     *
-     * @var string
-     */
-    private $table = '';
+    private $allColumnsSchema;
 
     /**
      * Les données de la table.
@@ -102,25 +73,11 @@ class Request
     private $where = null;
 
     /**
-     * Les colonnes à trier.
-     *
-     * @var array
-     */
-    private $orderBy = [];
-
-    /**
      * Le schéma de base de données.
      *
      * @var Schema
      */
     private $schema = null;
-
-    /**
-     * Le type d'exécution (delete|update|insert).
-     *
-     * @var string
-     */
-    private $execute = null;
 
     /**
      * Retourne la requête sous forme de liste.
@@ -245,7 +202,7 @@ class Request
      */
     public function getSelect()
     {
-        return $this->request[ 'columns' ];
+        return $this->columns;
     }
 
     /**
@@ -259,228 +216,19 @@ class Request
     }
 
     /**
-     * Enregistre les champs sélectionnées par la requête.
-     * En cas d'absence de selection, la requêtes retournera toutes les champs.
-     *
-     * @param array $columns Liste ou tableau des noms des colonnes.
-     *
-     * @return $this
-     */
-    public function select()
-    {
-        $columns = func_get_args();
-
-        foreach ($columns as $column) {
-            /* Dans le cas ou les colonnes sont normales. */
-            if (!\is_array($column)) {
-                $this->request[ 'columns' ][] = $column;
-
-                continue;
-            }
-            /* Dans le cas ou les colonnes sont dans un tableau. */
-            foreach ($column as $fields) {
-                $this->request[ 'columns' ][] = $fields;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Enregistre le nom de la source des données principale de la requête.
      *
-     * @param string $table Nom de la table.
+     * @param string $from Nom de la table.
      *
      * @return $this
      */
-    public function from($table)
+    public function from($from)
     {
-        $this->table       = $table;
-        $this->tableData   = $this->getTableData($table);
-        $this->tableSchema = $this->schema->getSchemaTable($table);
+        parent::from($from);
+        $this->tableSchema = $this->schema->getSchemaTable($from);
+        $this->tableData   = $this->getTableData($from);
 
         return $this;
-    }
-
-    /**
-     * Enregistre une jointure gauche.
-     *
-     * @param string         $table    Nom de la table à joindre.
-     * @param string|Closure $column   Nom de la colonne d'une des tables précédentes
-     *                                 ou une closure pour affiner les conditions.
-     * @param string|null    $operator Opérateur logique ou null pour une closure.
-     * @param string|null    $value    Valeur
-     *                                 ou une colonne de la table jointe (au format nom_table.colonne)
-     *                                 ou null pour une closure.
-     *
-     * @return $this
-     */
-    public function leftJoin($table, $column, $operator = null, $value = null)
-    {
-        if ($column instanceof \Closure) {
-            $where = new Where();
-            call_user_func_array($column, [ &$where ]);
-        } else {
-            $where = ( new Where())
-                ->where($column, $operator, $value);
-        }
-
-        $this->request[ 'leftJoin' ][ $table ][ 'table' ] = $table;
-        $this->request[ 'leftJoin' ][ $table ][ 'where' ] = $where;
-
-        return $this;
-    }
-
-    /**
-     * Enregistre une jointure droite.
-     *
-     * @param string         $table    Nom de la table à joindre
-     * @param string|Closure $column   Nom de la colonne d'une des tables précédentes
-     *                                 ou une closure pour affiner les conditions.
-     * @param string|null    $operator Opérateur logique ou null pour une closure.
-     * @param string|null    $value    Valeur
-     *                                 ou une colonne de la table jointe (au format nom_table.colonne)
-     *                                 ou null pour une closure.
-     *
-     * @return $this
-     */
-    public function rightJoin($table, $column, $operator = null, $value = null)
-    {
-        if ($column instanceof \Closure) {
-            $where = new Where();
-            call_user_func_array($column, [ &$where ]);
-        } else {
-            $where = ( new Where())
-                ->where($column, $operator, $value);
-        }
-
-        $this->request[ 'rightJoin' ][ $table ][ 'table' ] = $table;
-        $this->request[ 'rightJoin' ][ $table ][ 'where' ] = $where;
-
-        return $this;
-    }
-
-    /**
-     * Enregistre une limitation et un décalage au retour de la requête.
-     *
-     * @param int $limit  Nombre de résultat maximum à retourner.
-     * @param int $offset Décalage sur le jeu de résultat.
-     *
-     * @return $this
-     */
-    public function limit($limit, $offset = 0)
-    {
-        $this->limit  = $limit;
-        $this->offset = $offset;
-
-        return $this;
-    }
-
-    /**
-     * Enregistre un trie des résultats de la requête.
-     *
-     * @param string $columns Colonnes à trier.
-     * @param string $order   Ordre du trie (asc|desc).
-     *
-     * @return $this
-     */
-    public function orderBy($columns, $order = 'asc')
-    {
-        $this->orderBy[ $columns ] = $order;
-
-        return $this;
-    }
-
-    /**
-     * Enregistre l'action d'insertion de données.
-     * Cette fonction doit-être suivie la fonction values().
-     *
-     * @param string $table   Nom de la table.
-     * @param array  $columns Liste des champs par ordre d'insertion dans
-     *                        la fonction values().
-     *
-     * @return $this
-     */
-    public function insertInto($table, array $columns = null)
-    {
-        $this->execute = 'insert';
-        $this->from($table)->select($columns);
-
-        return $this;
-    }
-
-    /**
-     * Cette fonction doit suivre la fonction insertInto().
-     * Les valeurs doivent suivre le même ordre que les clés précédemment enregistrées.
-     *
-     * @param array $columns Valeurs des champs.
-     *
-     * @return $this
-     */
-    public function values(array $columns)
-    {
-        $this->request[ 'values' ][] = $columns;
-
-        return $this;
-    }
-
-    /**
-     * Enregistre l'action de modification de données.
-     *
-     * @param string $table   Nom de la table.
-     * @param array  $columns key=>value des données à modifier.
-     *
-     * @return $this
-     */
-    public function update($table, array $columns = null)
-    {
-        $this->execute                = 'update';
-        $this->from($table);
-        $this->request[ 'setUpdate' ] = $columns;
-        $this->request[ 'columns' ]   = array_keys($columns);
-
-        return $this;
-    }
-
-    /**
-     * Enregistre l'action de suppression de données.
-     *
-     * @return $this
-     */
-    public function delete()
-    {
-        $this->execute = 'delete';
-
-        return $this;
-    }
-
-    /**
-     * Enregistre une union 'simple' entre 2 ensembles.
-     * Le résultat de l'union ne possède pas de doublon de ligne.
-     *
-     * @param \Queryflatfile\Request $request Seconde requête.
-     * @param string                 $type    (simple|all) Type d'union.
-     *
-     * @return $this
-     */
-    public function union(Request $request, $type = 'simple')
-    {
-        $this->request[ 'union' ][] = [ 'request' => $request, 'type' => $type ];
-
-        return $this;
-    }
-
-    /**
-     * Enregistre une union all entre 2 ensembles.
-     * Les doublons de lignes figure dans le resultat de l'union.
-     *
-     * @param \Queryflatfile\Request $request
-     *
-     * @return $this
-     */
-    public function unionAll(Request $request)
-    {
-        return $this->union($request, 'all');
     }
 
     /**
@@ -542,7 +290,7 @@ class Request
             $this->executeRightJoin($value[ 'table' ], $value[ 'where' ]);
         }
 
-        $limitHandel = $this->orderBy || $this->request['union'];
+        $limitHandel = $this->orderBy || $this->union;
         foreach ($this->tableData as $row) {
             /* WHERE */
             if ($this->where && !$this->where->execute($row)) {
@@ -562,8 +310,8 @@ class Request
             /* SELECT */
             if ($this->lists !== null) {
                 $return[] = $row[ $this->lists ];
-            } elseif ($this->request[ 'columns' ]) {
-                $column   = array_flip($this->request[ 'columns' ]);
+            } elseif ($this->columns) {
+                $column   = array_flip($this->columns);
                 $return[] = array_intersect_key($row, $column);
             } else {
                 $return[] = $row;
@@ -571,7 +319,7 @@ class Request
         }
 
         /* UNION */
-        foreach ($this->request[ 'union' ] as $union) {
+        foreach ($this->union as $union) {
             /* Si le retour est demandé en liste. */
             $fetch = $this->lists !== null
                 ? $union[ 'request' ]->lists()
@@ -585,8 +333,8 @@ class Request
             $return = array_merge($return, $fetch);
 
             /* UNION */
-            if ($union[ 'type' ] !== 'all') {
-                $return = $this->arrayUniqueMultidimensional($return);
+            if ($union[ 'type' ] !== self::UNION_ALL) {
+                $return = self::arrayUniqueMultidimensional($return);
             }
         }
 
@@ -632,8 +380,8 @@ class Request
     {
         if ($name !== null) {
             $this->lists = $name;
-        } elseif ($this->request[ 'columns' ]) {
-            $this->lists = $this->request[ 'columns' ][ 0 ];
+        } elseif ($this->columns) {
+            $this->lists = $this->columns[ 0 ];
         } else {
             throw new ColumnsNotFoundException('No key selected for the list.');
         }
@@ -642,28 +390,16 @@ class Request
     }
 
     /**
-     * Initialise les paramètre de la requête.
+     * {@inheritdoc}
      */
     public function init()
     {
-        $this->where     = null;
-        $this->tableData = null;
-        $this->table     = '';
-        $this->request   = [
-            'allColumnsSchema' => [],
-            'columns'          => [],
-            'leftJoin'         => [],
-            'rightJoin'        => [],
-            'setUpdate'        => [],
-            'union'            => [],
-            'values'           => [],
-        ];
-        $this->limit     = 0;
-        $this->offset    = 0;
-        $this->delete    = false;
-        $this->orderBy   = [];
-        $this->execute   = null;
-        $this->lists     = null;
+        parent::init();
+        $this->allColumnsSchema = [];
+        $this->execute          = null;
+        $this->lists            = null;
+        $this->tableData        = null;
+        $this->where            = null;
 
         return $this;
     }
@@ -821,19 +557,19 @@ class Request
     protected function executeInsert()
     {
         /* Si l'une des colonnes est de type incrémental. */
-        $increments = $this->getIncrement();
-
+        $increments    = $this->getIncrement();
         /* Je charge les colonnes de mon schéma. */
         $schemaColumns = $this->tableSchema[ 'fields' ];
+        $count         = count($this->columns);
 
-        foreach ($this->request[ 'values' ] as $column) {
+        foreach ($this->values as $values) {
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
-            if (count($this->request[ 'columns' ]) != count($column)) {
-                throw new ColumnsNotFoundException('keys : ' . implode(',', $this->request[ 'columns' ]) . ' != ' . implode(',', $column));
+            if ($count != count($values)) {
+                throw new ColumnsNotFoundException('keys : ' . implode(',', $this->columns) . ' != ' . implode(',', $values));
             }
 
             /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
-            $row = array_combine($this->request[ 'columns' ], $column);
+            $row = array_combine($this->columns, $values);
 
             foreach ($schemaColumns as $field => $arg) {
                 /* Si mon champs existe dans le schema. */
@@ -863,7 +599,7 @@ class Request
         }
         /* Met à jour les valeurs incrémentales dans le schéma de la table. */
         if ($increments !== null) {
-            $this->schema->setIncrements($this->table, $increments);
+            $this->schema->setIncrements($this->from, $increments);
         }
     }
 
@@ -877,8 +613,9 @@ class Request
             if ($this->where && !$this->where->execute($row)) {
                 continue;
             }
-            $row = array_merge($row, $this->request[ 'setUpdate' ]);
+            $row = array_merge($row, $this->values);
         }
+        unset($row);
     }
 
     /**
@@ -966,7 +703,7 @@ class Request
             $schema      = array_merge($schema, $schemaTable[ 'fields' ]);
         }
 
-        $this->request[ 'allColumnsSchema' ] = $schema;
+        $this->allColumnsSchema = $schema;
     }
 
     /**
@@ -976,8 +713,8 @@ class Request
      */
     private function fetchPrepareFrom()
     {
-        if ($this->table === '') {
-            throw new TableNotFoundException("Table $this->table is missing.");
+        if (empty($this->from) || !\is_string($this->from)) {
+            throw new TableNotFoundException("Table {$this->from} is missing.");
         }
     }
 
@@ -986,17 +723,17 @@ class Request
      */
     private function fetchPrepareSelect()
     {
-        if ($this->request[ 'columns' ]) {
-            $this->diffColumns($this->request[ 'columns' ]);
+        if ($this->columns) {
+            $this->diffColumns($this->columns);
         } else {
             /* Si aucunes colonnes selectionnées. */
-            $this->request[ 'columns' ] = [];
+            $this->columns = [];
         }
     }
     
     private function fetchPrepareLimit()
     {
-        if (!\is_int($this->limit) || $this->limit < 0) {
+        if (!\is_int($this->limit) || $this->limit < self::ALL) {
             throw new QueryException('The limit must be a non-zero positive integer.');
         }
         if (!\is_int($this->offset) || $this->offset < 0) {
@@ -1049,8 +786,9 @@ class Request
      */
     private function fetchPrepareUnion()
     {
-        foreach ($this->request[ 'union' ] as $request) {
-            if (count($this->getSelect()) != count($request[ 'request' ]->getSelect())) {
+        $count = count($this->getSelect());
+        foreach ($this->union as $request) {
+            if ($count != count($request[ 'request' ]->getSelect())) {
                 throw new ColumnsNotFoundException('The number of fields in the selections are different : '
                 . implode(',', $this->getSelect())
                 . ' != '
@@ -1069,7 +807,7 @@ class Request
      */
     private function diffColumns(array $columns)
     {
-        $all  = $this->request[ 'allColumnsSchema' ];
+        $all  = $this->allColumnsSchema;
         $diff = array_diff_key(array_flip($columns), $all);
 
         if ($diff) {
