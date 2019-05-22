@@ -146,17 +146,13 @@ class Schema
             throw new TableNotFoundException("Table $table is not exist.");
         }
 
-        $schema = $this->getSchema();
-
-        if (!isset($schema[ $table ][ 'increments' ])) {
+        if (!isset($this->schema[ $table ][ 'increments' ])) {
             throw new Exception("Table $table does not have an incremental value.");
         }
 
-        $schema[ $table ][ 'increments' ] = $increments;
-        $output                           = $this->save($this->path, $this->name, $schema);
-        $this->reloadSchema();
+        $this->schema[ $table ][ 'increments' ] = $increments;
 
-        return $output;
+        return $this->save($this->path, $this->name, $this->schema);
     }
 
     /**
@@ -166,12 +162,13 @@ class Schema
      */
     public function getSchema()
     {
+        if ($this->schema) {
+            return $this->schema;
+        }
         if (!file_exists($this->root . $this->file)) {
             $this->create($this->path, $this->name);
         }
-        if (!$this->schema) {
-            $this->schema = $this->read($this->path, $this->name);
-        }
+        $this->schema = $this->read($this->path, $this->name);
 
         return $this->schema;
     }
@@ -241,15 +238,14 @@ class Schema
 
         $this->schema[ $table ] = [ 'fields' => null, 'increments' => null ];
         if (!\is_null($callback)) {
-            $builder                          = new TableBuilder();
-            call_user_func_array($callback, [ &$builder ]);
-            $schema[ $table ][ 'fields' ]     = $builder->build();
-            $schema[ $table ][ 'increments' ] = $builder->getIncrement();
+            $builder                = self::tableBuilder($callback);
+            $this->schema[ $table ] = [
+                'fields'     => $builder->build(),
+                'increments' => $builder->getIncrement()
+            ];
         }
-
-        $this->save($this->path, $this->name, $schema);
+        $this->save($this->path, $this->name, $this->schema);
         $this->create($this->path, $table);
-        $this->reloadSchema();
 
         return $this;
     }
@@ -311,7 +307,6 @@ class Schema
         $this->schema[ $table ][ 'fields' ] = $fields;
         $this->save($this->path, $this->name, $this->schema);
         $this->save($this->path, $table, $dataTable);
-        $this->reloadSchema();
 
         return $this;
     }
@@ -385,13 +380,10 @@ class Schema
             throw new TableNotFoundException("Table $table is not exist.");
         }
 
-        $schema = $this->getSchema();
-
         $deleteSchema = true;
-        if ($schema[ $table ][ 'increments' ] !== null) {
-            $schema[ $table ][ 'increments' ] = 0;
-            $deleteSchema                     = $this->save($this->path, $this->name, $schema);
-            $this->reloadSchema();
+        if ($this->schema[ $table ][ 'increments' ] !== null) {
+            $this->schema[ $table ][ 'increments' ] = 0;
+            $deleteSchema                           = $this->save($this->path, $this->name, $this->schema);
         }
         $deleteData = $this->save($this->path, $table, []);
 
@@ -413,12 +405,9 @@ class Schema
             throw new TableNotFoundException("Table $table is not exist.");
         }
 
-        $schema = $this->getSchema();
-
-        unset($schema[ $table ]);
+        unset($this->schema[ $table ]);
         $deleteData   = $this->delete($this->path, $table);
-        $deleteSchema = $this->save($this->path, $this->name, $schema);
-        $this->reloadSchema();
+        $deleteSchema = $this->save($this->path, $this->name, $this->schema);
 
         return $deleteSchema && $deleteData;
     }
@@ -509,10 +498,8 @@ class Schema
      * @param string $name      Nom du champ.
      * @param type   $value     Nouveaux paramètres.
      */
-    private function reloadSchema()
     protected static function add(array &$fields, array &$dataTable, $name, array $value)
     {
-        $this->schema = $this->read($this->path, $this->name);
         $fields[ $name ] = $value;
         foreach ($dataTable as &$data) {
             $data[ $name ] = self::getValueDefault($name, $value);
