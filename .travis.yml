@@ -1,6 +1,6 @@
 language: php
 sudo: required
-dist: xenial
+dist: precise
 
 php:
   - '5.4'
@@ -16,7 +16,7 @@ before_script:
   - if [[ "$TRAVIS_PHP_VERSION" != '7.3' ]]; then composer install -n ; fi
 
 script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '7.3' ]]; then vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover build/logs/clover.xml ; fi
+  - if [[ "$TRAVIS_PHP_VERSION" == '7.3' ]]; then vendor/bin/phpunit ; fi
   - if [[ "$TRAVIS_PHP_VERSION" != '7.3' ]]; then vendor/bin/phpunit --no-coverage; fi
   
 after_success:
