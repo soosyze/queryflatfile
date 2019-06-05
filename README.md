@@ -155,4 +155,4 @@ $request->execute();
 
 # Usage
 
-Pour avoir des exemples d'utilisations référez-vous à la [documentation d'utilisation](https://gihttps://github.com/soosyze/queryflatfile/blob/master/USAGE.md).
+Pour avoir des exemples d'utilisations référez-vous à la [documentation d'utilisation](https://github.com/soosyze/queryflatfile/blob/master/USAGE.md).

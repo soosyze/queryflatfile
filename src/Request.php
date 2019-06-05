@@ -638,14 +638,14 @@ class Request extends RequestHandler
      */
     private function loadAllColumnsSchema()
     {
-        $schema = $this->tableSchema[ 'fields' ];
+        $this->allColumnsSchema = $this->tableSchema[ 'fields' ];
 
         foreach ($this->joins as $value) {
-            $schemaTable = $this->schema->getSchemaTable($value[ 'table' ]);
-            $schema      = array_merge($schema, $schemaTable[ 'fields' ]);
+            $this->allColumnsSchema = array_merge(
+                $this->allColumnsSchema, 
+                $this->schema->getSchemaTable($value[ 'table' ])[ 'fields' ]
+            );
         }
-
-        $this->allColumnsSchema = $schema;
     }
 
     /**

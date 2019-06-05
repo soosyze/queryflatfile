@@ -159,9 +159,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function select()
     {
-        $columns = func_get_args();
-
-        foreach ($columns as $column) {
+        foreach (func_get_args() as $column) {
             /* Dans le cas ou les colonnes sont normales. */
             if (!\is_array($column)) {
                 $this->columns[] = $column;

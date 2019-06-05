@@ -421,9 +421,7 @@ class Schema
      */
     public function dropTableIfExists($table)
     {
-        return $this->hasTable($table)
-            ? $this->dropTable($table)
-            : false;
+        return $this->hasTable($table) && $this->dropTable($table);
     }
 
     /**
