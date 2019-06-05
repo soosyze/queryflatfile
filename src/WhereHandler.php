@@ -482,7 +482,7 @@ class WhereHandler
     protected function like($column, $operator, $value, $bool = self::EXP_AND)
     {
         /* Protection des caractères spéciaux des expressions rationnelles autre que celle imposée. */
-        $str     = preg_quote($value);
+        $str     = preg_quote($value, '/');
         /* Le paterne commun au 4 conditions. */
         $pattern = '/^' . strtr($str, [ '%' => '.*' ]);
 
