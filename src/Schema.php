@@ -156,6 +156,29 @@ class Schema
     }
 
     /**
+     * Retourne la valeur incrémentale d'une table.
+     *
+     * @param string $table Nom de la table.
+     *
+     * @throws TableNotFoundException
+     * @throws Exception
+     *
+     * @return int
+     */
+    public function getIncrement($table)
+    {
+        if (!$this->hasTable($table)) {
+            throw new TableNotFoundException("Table $table is not exist.");
+        }
+
+        if ($this->schema[ $table ][ 'increments' ] === null) {
+            throw new Exception("Table $table does not have an incremental value.");
+        }
+
+        return $this->schema[ $table ][ 'increments' ];
+    }
+
+    /**
      * Génère le schéma s'il n'existe pas en fonction du fichier de configuration.
      *
      * @return array Schéma de la base de données.

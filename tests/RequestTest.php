@@ -122,6 +122,28 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         
         self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
     }
+    
+    public function testGetIncrement()
+    {
+        self::assertEquals($this->bdd->getIncrement('user'), 6);
+        self::assertEquals($this->bdd->getIncrement('role'), 2);
+    }
+
+    /**
+     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
+     */
+    public function testGetIncrementNoFound()
+    {
+        self::assertEquals($this->bdd->getIncrement('error'), 1);
+    }
+    
+    /**
+     * @expectedException \Exception
+     */
+    public function testGetIncrementNoExist()
+    {
+        self::assertEquals($this->bdd->getIncrement('user_role'), 1);
+    }
 
     public function testCreateTableIfNotExistsData()
     {
