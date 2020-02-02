@@ -21,9 +21,9 @@
         "phpunit/phpunit": "4.* || 7.*"
     },
     "suggest": {
-        "friendsofphp/php-cs-fixer": "Pour normaliser le code PHP.",
-        "phpdocumentor/phpdocumentor": "Pour générer une documentation en ligne de commande.",
-        "phpmetrics/phpmetrics": "Pour générer un rapport de l'état du code au format HTML."
+        "friendsofphp/php-cs-fixer": "To normalize the PHP code.",
+        "phpdocumentor/phpdocumentor": "To generate documentation.",
+        "phpmetrics/phpmetrics": "To generate a code status report in HTML format."
     },
     "autoload": {
         "psr-4": {
