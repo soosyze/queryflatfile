@@ -10,61 +10,62 @@
 * :gb: [README in English](README.md)
 * :fr: [README en Français](README_fr.md)
 
-# Abaout
-Queryflatfile is a flat file database library written in PHP.
-Stores your data by default in `JSON` format, also supports` txt` and `msgPack` formats.
-Manipulate your data with a QueryBuilder similar to SQL syntax.
+# À propos
+
+Queryflatfile est une bibliothèque de base de données flat file écrit en PHP.
+Stock vos données par défaut au format `JSON`, supporte aussi les formats `txt` et `msgPack`.
+Manipulez vos données avec un QueryBuilder similaire à la syntaxe SQL.
 
 # Sommaire
-* [Requirements](/README.md#requirements)
+* [Exigences d'installation](/README.md#exigences-dinstallation)
 * [Installation](/README.md#installation)
-* [Simple example](/README.md#simple-exemple)
-* [Methods](/README.md#methods)
-* [Usage](https://github.com/soosyze/queryflatfile/blob/master/USAGE.md)
+* [Exemple simple](/README.md#exemple-simple)
+* [Méthodes](/README.md#méthodes)
+* [Utilisation](https://github.com/soosyze/queryflatfile/blob/master/USAGE.md)
 
-# Requirements
+# Exigences d'installation
 
-## PHP version
+## Version PHP
 
-Support more than [85% of current PHP versions](https://w3techs.com/technologies/details/pl-php)
+Support plus de [85% des versions PHP actuelles](https://w3techs.com/technologies/details/pl-php)
 
 | Version PHP                 | QueryFlatFile 1.x |
 |-----------------------------|-------------------|
-| <= 5.3                      | ✗ Unsupported     |
-| 5.4 / 5.5 / 5.6             | ✓ Supported       |
-| 7.0 / 7.1 / 7.2 / 7.3 / 7.4 | ✓ Supported       |
+| <= 5.3                      | ✗ Non supporté    |
+| 5.4 / 5.5 / 5.6             | ✓ Supporté        |
+| 7.0 / 7.1 / 7.2 / 7.3 / 7.4 | ✓ Supporté        |
 
-## Extensions
+## Extensions PHP
 
-- `json` for saving data in JSON format,
-- `msgpack` for recording data in binary.
+- `json` pour l'enregistrement des données au format JSON,
+- `msgpack` pour l'enregistrement des données en binaire.
 
-## Memory required
+## Mémoire requise
 
-The minimum amount of memory required depends on the amount of data you are going to process and the type of operations.
-To gain performance use the PHP 7.x versions and the `MsgPack` driver.
+ La quantité de mémoire minimum nécessaire dépend du volume de données que vous traiterez et du type d'opérations.
+Pour gagner en performance utiliser les versions PHP 7.x et le driver `MsgPack`.
 
-## Permission of files and directory
+## Permission des fichiers et répértoire
 
-Permission to write and read files in the directory that will store your data.
+La permission d'écrire et lire les fichiers dans le répertoire qui stockera vos données.
 
 # Installation
 
 ## Composer
 
-To install **QueryFlatFile** via Composer you must have the installer or the binary file [Composer](https://getcomposer.org/download/)
+Pour installer **QueryFlatFile** via Composer il est faut avoir l’installateur ou le fichier binaire [Composer](https://getcomposer.org/download/)
 
-Go to your project directory, open a command prompt and run the following command:
+Rendez-vous dans le répertoire de votre projet, ouvrez une invite de commandes et lancer la commande suivante :
 ```sh
-composer require soosyze/queryflatfile --no-dev
+composer require soosyze/queryflatfile
 ```
 
-Or, if you use the binary file,
+Ou, si vous utilisez le fichier binaire :
 ```sh
-php composer.phar require soosyze/queryflatfile --no-dev
+php composer.phar require soosyze/queryflatfile
 ```
 
-# Simple example
+# Exemple simple
 ```php
 require __DIR__ . '/vendor/autoload.php';
 
@@ -98,7 +99,7 @@ print_r($data);
 $bdd->dropTableIfExists('user');
 ```
 
-The above example will output:
+L'exemple ci-dessus va afficher :
 ```
 Array
 ( 
@@ -107,9 +108,10 @@ Array
 ) 
 ```
 
-# Methods
 
-**Schema**
+# Méthodes
+
+**Schéma**
 - `dropSchema()`,
 - `getSchema()`,
 - `getSchemaTable( $table )`,
@@ -117,7 +119,7 @@ Array
 - `hasTable( $table )`,
 - `setConfig( $host, $name = 'schema', DriverInterface $driver = null )`.
 
-**Handling tables**
+**Manipulation des tables**
 - `alterTable( $table, callable $callback )`,
 - `createTable( $table, callable $callback = null )`,
 - `createTableIfNotExists( $table, callable $callback = null )` :
@@ -134,7 +136,7 @@ Array
 - `dropTableIfExists( $table )`,
 - `truncateTable( $table )`.
 
-**Selection request**
+**Requête de sélection**
 - `select( mixed $var [, mixed $... ] )`,
 - `from( $table )`,
 - `leftJoin( $table, callable|string $column, $condition = null, $value = null )`,
@@ -144,17 +146,17 @@ Array
 - `orderBy( $columns, $order = 'asc' )`,
 - `limit( $limit, $offset = 0 )`.
 
-**Request for execution**
+**Requête d'exécution**
 - `insertInto( $table, array $columns )`,
 - `values( array $columns )`,
 - `update( $table, array $columns )`,
 - `delete()`.
 
-**Result (s) of the query**
-- `execute()` Performs the insertion, modification and deletion of data,
-- `fetch()` Returns the first result of the query,
-- `fetchAll()` Returns all the results of the query,
-- `lists( $name = null )` Returns a list of the column passed in parameter.
+**Résultat(s) de la requête**
+- `execute()` Exécute l'insertion, la modification et la suppression de données,
+- `fetch()` Renvoie le premier résultat de la requête,
+- `fetchAll()` Renvoie tous les résultats de la requête,
+- `lists( $name = null )` Renvoie une liste de la colonne passée en paramètre.
 
 **Where**
 - `where( callable|string $column, $condition = null, $value = null )`,
@@ -162,7 +164,7 @@ Array
 - `notWhere( callable|string $column, $condition = null, $value = null )`,
 - `orNotWhere( callable|string $column, $condition = null, $value = null )`.
 
-Supported conditions (===, ==, !=, <>, <, <=, >, >=, like, ilike, not like, not ilike)
+Conditions supportées (===, ==, !=, <>, <, <=, >, >=, like, ilike, not like, not ilike)
 
 **Where between**
 - `between( $column, $min, $max )`,
@@ -188,6 +190,6 @@ Supported conditions (===, ==, !=, <>, <, <=, >, >=, like, ilike, not like, not 
 - `notRegex( $column, $pattern )`,
 - `orNotRegex( $column, $pattern )`.
 
-# Usage
+# Utilisation
 
-For examples of uses, refer to the [user documentation](https://github.com/soosyze/queryflatfile/blob/master/USAGE.md).
+Pour avoir des exemples d'utilisations référez-vous à la [documentation d'utilisation](https://github.com/soosyze/queryflatfile/blob/master/USAGE.md).

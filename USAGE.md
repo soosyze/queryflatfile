@@ -1,5 +1,22 @@
-
 # Usage
+
+* [Usage](/USAGE.md#usage)
+  * [Initialisation](/USAGE.md#initialisation)
+  * [Create table](/USAGE.md#create-table)
+  * [Alter table](/USAGE.md#alter-table)
+  * [Inserts](/USAGE.md#inserts)
+  * [Select](/USAGE.md#select)
+  * [Where](/USAGE.md#where)
+  * [Where group](/USAGE.md#where-group)
+  * [Order, Limit & Offset](/USAGE.md#order-limit-offset)
+  * [Joins](/USAGE.md#joins)
+  * [Unions](/USAGE.md#unions)
+  * [Updates](/USAGE.md#updates)
+  * [Deletes](/USAGE.md#deletes)
+  * [Drop table](/USAGE.md#drop-table)
+  * [Drop database](/USAGE.md#drop-database)
+* [Exception](/USAGE.md#exception)
+* [Driver](/USAGE.md#driver)
 
 ## Initialisation
 
@@ -1162,5 +1179,8 @@ $this->isWrite( $file );
 $this->isRead( $file );
 ```
 
-Il existe une seconde implementation `QueryflatfileDirverTxt` que vous pouvez utiliser.
+Il existe une deux autres implementations :
+- `DirverTxt` enregistrent le données dans un fichier texte,
+- `DirverTxt` enregistrent le données en binaire grâce à l'extension `MsgPack`.
+
 Cette interface sérialise vos données et les enregistres sous le format texte.
