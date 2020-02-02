@@ -31,12 +31,12 @@ interface RequestInterface
      * La valeur pour le trie par ordre décroissant.
      */
     const DESC = 'desc';
-    
+
     /**
      * La valeur pour une union simple.
      */
     const UNION_SIMPLE = 'simple';
-    
+
     /**
      * La valeur pour une union totale.
      */

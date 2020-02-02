@@ -31,9 +31,11 @@ class Where extends WhereHandler
                 : '';
             switch ($where[ 'type' ]) {
                 case 'where':
-                    $value = \is_int($where[ 'value' ]) ? $where[ 'value' ] : "'{$where[ 'value' ]}'";
+                    $value  = \is_int($where[ 'value' ])
+                        ? $where[ 'value' ]
+                        : "'{$where[ 'value' ]}'";
                     $output .= "{$where[ 'column' ]} $not " . strtoupper($where[ 'condition' ]) . " $value ";
-                
+
                     break;
                 case 'like':
                     $output .= "{$where[ 'column' ]} $not LIKE '{$where[ 'value' ]}' ";
@@ -52,7 +54,7 @@ class Where extends WhereHandler
 
                     break;
                 case 'between':
-                    $output .= "{$where[ 'column' ]} $not BETWEEN {$where['value'][ 'min' ]} AND {$where['value'][ 'max' ]} ";
+                    $output .= "{$where[ 'column' ]} $not BETWEEN {$where[ 'value' ][ 'min' ]} AND {$where[ 'value' ][ 'max' ]} ";
 
                     break;
                 case 'regex':
@@ -112,8 +114,8 @@ class Where extends WhereHandler
                 : $value[ 'value' ]->execute($row);
             /* Si la clause est inversé. */
             $predicate = $value[ 'not' ]
-                    ? !$predicate
-                    : $predicate;
+                ? !$predicate
+                : $predicate;
             /* Les retours des types regex et like doivent être non null. */
             if ($value[ 'type' ] === 'regex' || $value[ 'type' ] === 'like') {
                 $predicate &= $row[ $value[ 'column' ] ] !== null;

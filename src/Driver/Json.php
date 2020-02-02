@@ -11,7 +11,6 @@
 namespace Queryflatfile\Driver;
 
 /**
- * Implémentation de Queryflatfile\DriverInterface par l'héritage de Queryflatfile\Driver
  * Manipule des données dans des fichiers de type JSON
  *
  * @author Mathieu NOËL
@@ -24,7 +23,6 @@ class Json extends \Queryflatfile\Driver
     public function create($path, $fileName, array $data = [])
     {
         $this->checkExtension();
-
         $file = $this->getFile($path, $fileName);
 
         if (!file_exists($path)) {
@@ -62,7 +60,6 @@ class Json extends \Queryflatfile\Driver
     public function save($path, $fileName, array $data)
     {
         $this->checkExtension();
-
         $file = $this->getFile($path, $fileName);
 
         $this->isExist($file);

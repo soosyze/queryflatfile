@@ -189,16 +189,6 @@ class Request extends RequestHandler
     }
 
     /**
-     * Retourne le nom des champs sélectionnées.
-     *
-     * @return array
-     */
-    public function getSelect()
-    {
-        return $this->columns;
-    }
-
-    /**
      * Enregistre le nom de la source des données principale de la requête.
      *
      * @param string $from Nom de la table.
@@ -407,15 +397,13 @@ class Request extends RequestHandler
     {
         $result       = [];
         $rowTableNull = $this->getRowTableNull($table);
-        $left = $type === 'left';
-
-        if ($left) {
-            $tableData = $this->tableData;
-            $tableJoin = $this->getTableData($table);
-        } else {
-            $tableData = $this->getTableData($table);
-            $tableJoin = $this->tableData;
-        }
+        $left         = $type === 'left';
+        $tableData    = $left
+            ? $this->tableData
+            : $this->getTableData($table);
+        $tableJoin    = $left
+            ? $this->getTableData($table)
+            : $this->tableData;
 
         foreach ($tableData as $row) {
             /* Si les lignes se sont jointes. */
@@ -423,11 +411,12 @@ class Request extends RequestHandler
             /* Join les tables. */
             foreach ($tableJoin as $rowJoin) {
                 /* Vérifie les conditions. */
-                if ($left && $where->executeJoin($row, $rowJoin)) {
+
+                if ($left
+                        ? $where->executeJoin($row, $rowJoin)
+                        : $where->executeJoin($rowJoin, $row)
+                ) {
                     /* Join les lignes si la condition est bonne. */
-                    $result[] = $rowJoin + $row;
-                    $addRow   = true;
-                } elseif (!$left && $where->executeJoin($rowJoin, $row)) {
                     $result[] = $rowJoin + $row;
                     $addRow   = true;
                 }
@@ -635,7 +624,7 @@ class Request extends RequestHandler
 
         foreach ($this->joins as $value) {
             $this->allColumnsSchema = array_merge(
-                $this->allColumnsSchema, 
+                $this->allColumnsSchema,
                 $this->schema->getSchemaTable($value[ 'table' ])[ 'fields' ]
             );
         }
@@ -692,7 +681,7 @@ class Request extends RequestHandler
         if ($this->where) {
             $columns = array_merge($columns, $this->where->getColumns());
         }
-        
+
         if ($columns) {
             $this->diffColumns($columns);
         }
@@ -716,13 +705,13 @@ class Request extends RequestHandler
      */
     private function filterUnion()
     {
-        $count = count($this->getSelect());
+        $count = count($this->columns);
         foreach ($this->union as $request) {
-            if ($count != count($request[ 'request' ]->getSelect())) {
+            if ($count != count($request[ 'request' ]->columns)) {
                 throw new ColumnsNotFoundException('The number of fields in the selections are different : '
-                . implode(',', $this->getSelect())
+                . implode(',', $this->columns)
                 . ' != '
-                . implode(',', $request[ 'request' ]->getSelect()));
+                . implode(',', $request[ 'request' ]->columns));
             }
         }
     }

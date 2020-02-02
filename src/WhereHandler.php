@@ -449,7 +449,7 @@ class WhereHandler
 
         return $this;
     }
-    
+
     /**
      * Ajoute une sous-condition pour la requête.
      *
@@ -470,7 +470,7 @@ class WhereHandler
         ];
         $this->columns = array_merge($this->columns, $where->getColumns());
     }
-    
+
     /**
      * Ajoute une condition like pour la requête.
      *

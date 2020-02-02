@@ -11,7 +11,6 @@
 namespace Queryflatfile\Driver;
 
 /**
- * Implémentation de Queryflatfile\DriverInterface par l'héritage de Queryflatfile\Driver
  * Manipule des données sérialisées dans des fichiers texte.
  *
  * @author  Mathieu NOËL

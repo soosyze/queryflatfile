@@ -483,7 +483,7 @@ class Schema
     {
         return $this->driver->save($this->root . $path, $file, $data);
     }
-  
+
     /**
      * Utilisation du driver pour créer un fichier.
      *

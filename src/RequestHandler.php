@@ -234,7 +234,7 @@ abstract class RequestHandler implements RequestInterface
 
         return $this;
     }
-    
+
     /**
      * Enregistre une jointure.
      *
