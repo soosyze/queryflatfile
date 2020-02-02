@@ -80,13 +80,6 @@ class Request extends RequestHandler
     private $schema = null;
 
     /**
-     * Retourne la requête sous forme de liste.
-     *
-     * @var bool
-     */
-    private $lists = null;
-
-    /**
      * Réalise une requête sur un schéma de données
      *
      * @param \Queryflatfile\Schema $sch
@@ -292,9 +285,7 @@ class Request extends RequestHandler
             }
 
             /* SELECT */
-            if ($this->lists !== null) {
-                $return[] = $row[ $this->lists ];
-            } elseif ($this->columns) {
+            if ($this->columns) {
                 $column   = array_flip($this->columns);
                 $return[] = array_intersect_key($row, $column);
             } else {
@@ -305,9 +296,7 @@ class Request extends RequestHandler
         /* UNION */
         foreach ($this->union as $union) {
             /* Si le retour est demandé en liste. */
-            $fetch = $this->lists !== null
-                ? $union[ 'request' ]->lists()
-                : $union[ 'request' ]->fetchAll();
+            $fetch = $union[ 'request' ]->fetchAll();
 
             /**
              * UNION ALL
@@ -362,15 +351,20 @@ class Request extends RequestHandler
      */
     public function lists($name = null)
     {
-        if ($name !== null) {
-            $this->lists = $name;
+        if ($name !== null && !in_array($name, $this->columns)) {
+            $this->columns[] = $name;
         } elseif ($this->columns) {
-            $this->lists = $this->columns[ 0 ];
+            $name = $this->columns[ 0 ];
         } else {
             throw new ColumnsNotFoundException('No key selected for the list.');
         }
 
-        return $this->fetchAll();
+        $data = $this->fetchAll();
+        foreach ($data as &$row) {
+            $row = $row[ $name ];
+        }
+
+        return $data;
     }
 
     /**
@@ -381,7 +375,6 @@ class Request extends RequestHandler
         parent::init();
         $this->allColumnsSchema = [];
         $this->execute          = null;
-        $this->lists            = null;
         $this->tableData        = null;
         $this->where            = null;
 

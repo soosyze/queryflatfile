@@ -1325,6 +1325,29 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
+    public function testUnionListOrder()
+    {
+        $union = $this->request
+            ->select('name')
+            ->from('user')
+            ->between('id', 1, 5);
+
+        $data = $this->request2
+            ->from('user')
+            ->union($union)
+            ->orderBy('name')
+            ->lists('name');
+
+        self::assertArraySubset($data, [
+            null,
+            'DUPOND',
+            'MARTIN',
+            'MEYER',
+            'NOEL',
+            'ROBERT'
+        ]);
+    }
+
     /**
      * @expectedException \Queryflatfile\Exception\Query\BadFunctionException
      */
