@@ -18,6 +18,23 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
      */
     protected $request;
 
+    public static function tearDownAfterClass()
+    {
+        if (!file_exists('data2')) {
+            return;
+        }
+        $dir = new \DirectoryIterator('data2');
+        foreach ($dir as $fileInfo) {
+            if ($fileInfo->isDot()) {
+                continue;
+            }
+            unlink($fileInfo->getRealPath());
+        }
+        if (file_exists('data2')) {
+            rmdir('data2');
+        }
+    }
+
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
@@ -27,14 +44,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         $this->bdd     = new Schema();
         $this->bdd->setConfig('data2', 'schema', new \Queryflatfile\Driver\Json());
         $this->request = new Request($this->bdd);
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown()
-    {
     }
 
     public function testCreateTable()
@@ -238,7 +247,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->dropColumn('error');
         });
     }
-    
+
     /**
      * @expectedException \Exception
      */
@@ -258,7 +267,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
                 'id'      => [ 'type' => 'increments' ],
                 'addTest' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
                 '_name'   => [ 'type' => 'string', 'length' => 255 ]
-            ], 
+            ],
             'increments' => 0
         ]);
         self::assertArraySubset($this->bdd->read('data2', 'test'), []);
@@ -299,6 +308,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testDropSchema()
     {
         $this->bdd->dropSchema();
-        self::assertFileNotExists( __DIR__ . '/data2/schema.json');
+        self::assertFileNotExists(__DIR__ . '/data2/schema.json');
     }
 }

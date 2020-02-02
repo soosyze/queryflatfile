@@ -26,7 +26,24 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     /**
      * @var string
      */
-    protected $root = '';
+    protected static $root = '';
+
+    public static function tearDownAfterClass()
+    {
+        if (!file_exists(self::$root)) {
+            return;
+        }
+        $dir = new \DirectoryIterator(self::$root);
+        foreach ($dir as $fileInfo) {
+            if ($fileInfo->isDot()) {
+                continue;
+            }
+            unlink($fileInfo->getRealPath());
+        }
+        if (file_exists(self::$root)) {
+            rmdir(self::$root);
+        }
+    }
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -34,21 +51,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
      */
     protected function setUp()
     {
-        $this->root = __DIR__ . '/';
+        self::$root = __DIR__ . '/data/';
         $this->bdd = new Schema();
         $this->bdd->setConfig('data', 'schema', new \Queryflatfile\Driver\Json());
-        $this->bdd->setPathRoot($this->root);
+        $this->bdd->setPathRoot(__DIR__ . '/');
 
         $this->request  = new Request($this->bdd);
         $this->request2 = new Request($this->bdd);
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown()
-    {
     }
 
     public function testCreateTable()
@@ -67,9 +76,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
                 ->string('labelle');
         });
 
-        self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
-        self::assertFileExists($this->root . 'data/user_role.' . $this->bdd->getExtension());
-        self::assertFileExists($this->root . 'data/role.' . $this->bdd->getExtension());
+        self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
+        self::assertFileExists(self::$root . 'user_role.' . $this->bdd->getExtension());
+        self::assertFileExists(self::$root . 'role.' . $this->bdd->getExtension());
     }
 
     /**
@@ -84,7 +93,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $this->bdd->createTableIfNotExists('user');
 
-        self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
+        self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
     }
 
     public function testInsertInto()
@@ -119,10 +128,10 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->values([ 4, 2 ])
             ->values([ 5, 2 ])
             ->execute();
-        
-        self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
+
+        self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
     }
-    
+
     public function testGetIncrement()
     {
         self::assertEquals($this->bdd->getIncrement('user'), 6);
@@ -136,7 +145,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         self::assertEquals($this->bdd->getIncrement('error'), 1);
     }
-    
+
     /**
      * @expectedException \Exception
      */
@@ -150,7 +159,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->bdd->createTableIfNotExists('user', function () {
         });
 
-        self::assertFileExists($this->root . 'data/user.' . $this->bdd->getExtension());
+        self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
     }
 
     /**
@@ -972,7 +981,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [ 'firstname' => null ]
         ]);
     }
-    
+
     public function testOrderByDescFetch()
     {
         $data = $this->request->select([ 'name' ])
@@ -983,7 +992,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
         self::assertArraySubset($data, [ 'name' => 'ROBERT' ]);
     }
-    
+
     public function testOrderByDescLimitOffset()
     {
         $data = $this->request->select([ 'name' ])
@@ -1032,7 +1041,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
-            [ 'name' => 'DUPOND', 'firstname' => 'Jean'],
+            [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'name' => null, 'firstname' => 'Marie' ]
         ]);
     }
@@ -1162,7 +1171,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('labelle', 'Admin')
             ->fetch();
     }
-    
+
     public function testUnion()
     {
         $union = $this->request
@@ -1408,7 +1417,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $this->bdd->dropTable('user_role');
 
-        self::assertFileNotExists( __DIR__ . '/data/user_role.json');
+        self::assertFileNotExists(__DIR__ . '/data/user_role.json');
     }
 
     public function testDropSchema()
