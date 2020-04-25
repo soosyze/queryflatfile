@@ -523,7 +523,11 @@ class Schema
     {
         $fields[ $name ] = $value;
         foreach ($dataTable as &$data) {
-            $data[ $name ] = self::getValueDefault($name, $value);
+            try {
+                $data[ $name ] = self::getValueDefault($name, $value);
+            } catch (\Exception $e) {
+                $data[ $name ] = '';
+            }
         }
     }
 
@@ -540,7 +544,11 @@ class Schema
         unset($value[ 'opt' ]);
         $fields[ $name ] = $value;
         foreach ($dataTable as &$data) {
-            $data[ $name ] = self::getValueDefault($name, $value);
+            try {
+                $data[ $name ] = self::getValueDefault($name, $value);
+            } catch (\Exception $e) {
+                continue;
+            }
         }
     }
 
