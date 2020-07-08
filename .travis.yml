@@ -13,17 +13,18 @@ matrix:
   - php: 7.2
   - php: 7.3
   - php: 7.4
+    env: ANALYSIS='true'
 
 before_script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '7.3' ]]; then composer require php-coveralls/php-coveralls:2.* -n ; fi
-  - if [[ "$TRAVIS_PHP_VERSION" != '7.3' ]]; then composer install -n ; fi
+  - if [[ "$ANALYSIS" == 'true' ]]; then composer require php-coveralls/php-coveralls:^2.2.0 ; fi
+  - composer install -n
 
 script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '7.3' ]]; then vendor/bin/phpunit ; fi
-  - if [[ "$TRAVIS_PHP_VERSION" != '7.3' ]]; then vendor/bin/phpunit --no-coverage; fi
+  - if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpunit --coverage-clover clover.xml ; fi
+  - if [[ "$ANALYSIS" != 'true' ]]; then vendor/bin/phpunit --no-coverage; fi
 
 after_success:
-  - if [[ "$TRAVIS_PHP_VERSION" == '7.3' ]]; then php vendor/bin/coveralls -v ; fi
+- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/php-coveralls --coverage_clover=clover.xml -v ; fi
 
 notifications:
   email: false
