@@ -30,7 +30,7 @@ class Json extends \Queryflatfile\Driver
         }
         if (!file_exists($file)) {
             $fichier = fopen($file, 'w+');
-            fwrite($fichier, json_encode($data));
+            fwrite($fichier, json_encode($data, JSON_UNESCAPED_UNICODE));
 
             return fclose($fichier);
         }
@@ -51,7 +51,7 @@ class Json extends \Queryflatfile\Driver
 
         $json = file_get_contents($file);
 
-        return json_decode($json, true);
+        return json_decode($json, true, 512, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -66,7 +66,7 @@ class Json extends \Queryflatfile\Driver
         $this->isWrite($file);
 
         $fp = fopen($file, 'w');
-        fwrite($fp, json_encode($data));
+        fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE));
 
         return fclose($fp);
     }
