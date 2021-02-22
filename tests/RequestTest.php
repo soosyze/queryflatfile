@@ -62,16 +62,16 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateTable()
     {
-        $this->bdd->createTable('user', function (TableBuilder $table) {
+        $this->bdd->createTable('user', static function (TableBuilder $table) {
             $table->increments('id')
                 ->string('name')->nullable()
                 ->string('firstname')->nullable();
         });
-        $this->bdd->createTable('user_role', function (TableBuilder $table) {
+        $this->bdd->createTable('user_role', static function (TableBuilder $table) {
             $table->integer('id_user')
                 ->integer('id_role');
         });
-        $this->bdd->createTable('role', function (TableBuilder $table) {
+        $this->bdd->createTable('role', static function (TableBuilder $table) {
             $table->increments('id_role')
                 ->string('labelle');
         });
@@ -156,7 +156,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateTableIfNotExistsData()
     {
-        $this->bdd->createTableIfNotExists('user', function () {
+        $this->bdd->createTableIfNotExists('user', static function () {
         });
 
         self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
@@ -862,7 +862,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request
             ->from('user')
             ->where('id', '>=', 2)
-            ->where(function ($query) {
+            ->where(static function ($query) {
                 $query->where('name', 'DUPOND')
                 ->orWhere('firstname', 'Eva');
             })
@@ -879,7 +879,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request
             ->from('user')
             ->where('name', 'DUPOND')
-            ->orWhere(function ($query) {
+            ->orWhere(static function ($query) {
                 $query->where('firstname', 'Eva')
                 ->orWhere('firstname', 'Mathieu');
             })
@@ -1105,7 +1105,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $data = $this->request->select('id', 'name', 'firstname')
             ->from('user')
-            ->leftJoin('user_role', function ($query) {
+            ->leftJoin('user_role', static function ($query) {
                 $query->where('id', '=', 'user_role.id_user');
             })
             ->leftJoin('role', 'id_role', '=', 'role.id_role')
@@ -1123,8 +1123,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request->select('id', 'name', 'firstname', 'labelle')
             ->from('user')
             ->leftJoin('user_role', 'id', '=', 'user_role.id_user')
-            ->leftJoin('role', function ($query) {
-                $query->where(function ($query) {
+            ->leftJoin('role', static function ($query) {
+                $query->where(static function ($query) {
                     $query->where('id_role', '=', 'role.id_role');
                 });
             })
@@ -1142,7 +1142,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request->select('id', 'name', 'firstname', 'labelle')
             ->from('role')
             ->rightJoin('user_role', 'id_role', '=', 'user_role.id_role')
-            ->rightJoin('user', function ($query) {
+            ->rightJoin('user', static function ($query) {
                 $query->where('id_user', '=', 'user.id');
             })
             ->fetchAll();

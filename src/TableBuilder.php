@@ -341,7 +341,7 @@ class TableBuilder
      */
     public function build()
     {
-        return array_filter($this->builder, function ($var) {
+        return array_filter($this->builder, static function ($var) {
             return !isset($var[ 'opt' ]);
         });
     }
