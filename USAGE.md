@@ -1180,7 +1180,8 @@ $this->isRead( $file );
 ```
 
 Il existe une deux autres implementations :
-- `DirverTxt` enregistrent le données dans un fichier texte,
-- `DirverTxt` enregistrent le données en binaire grâce à l'extension `MsgPack`.
+- `Txt` enregistrent le données dans un fichier texte,
+- `MsgPack` enregistrent le données en binaire grâce à l'extension `MsgPack`,
+- `Igbinary` enregistrent le données en binaire grâce à l'extension `Igbinary`.
 
 Cette interface sérialise vos données et les enregistres sous le format texte.
