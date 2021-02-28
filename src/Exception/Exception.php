@@ -17,6 +17,7 @@ class Exception extends \Exception
 {
     /**
      * Les balises autorisées.
+     *
      * @var string
      */
     protected $balise = '<b><cite><code><em><i><span><sub><sup><strong><u>';

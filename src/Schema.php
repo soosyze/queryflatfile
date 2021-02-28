@@ -95,7 +95,7 @@ class Schema
         $name = 'schema',
         DriverInterface $driver = null
     ) {
-        $this->driver = \is_null($driver)
+        $this->driver = $driver === null
             ? new Driver\Json()
             : $driver;
         $this->path   = $host;
@@ -260,7 +260,7 @@ class Schema
         }
 
         $this->schema[ $table ] = [ 'fields' => null, 'increments' => null ];
-        if (!\is_null($callback)) {
+        if ($callback !== null) {
             $builder                = self::tableBuilder($callback);
             $this->schema[ $table ] = [
                 'fields'     => $builder->build(),

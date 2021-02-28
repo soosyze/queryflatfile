@@ -87,7 +87,7 @@ class MsgPack extends \Queryflatfile\Driver
     private function checkExtension()
     {
         if (!extension_loaded('msgpack')) {
-            throw new Exception\Driver\ExtensionNotLoadedException('The json extension is not loaded.');
+            throw new Exception\Driver\ExtensionNotLoadedException('The msgpack extension is not loaded.');
         }
     }
 }
