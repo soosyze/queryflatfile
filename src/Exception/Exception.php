@@ -3,8 +3,6 @@
 /**
  * Queryflatfile
  *
- * @package Queryflatfile\Exception
- * @author  Mathieu NOËL <mathieu@soosyze.com>
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
@@ -13,7 +11,7 @@ namespace Queryflatfile\Exception;
 /**
  * Exception générale.
  *
- * @author Mathieu NOËL
+ * @author Mathieu NOËL <mathieu@soosyze.com>
  */
 class Exception extends \Exception
 {

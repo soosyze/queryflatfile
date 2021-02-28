@@ -3,8 +3,6 @@
 /**
  * Queryflatfile
  *
- * @package Queryflatfile
- * @author  Mathieu NOËL <mathieu@soosyze.com>
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
@@ -17,7 +15,7 @@ use Queryflatfile\Exception\TableBuilder\TableBuilderException;
 /**
  * Pattern fluent pour la création et configuration des types de données.
  *
- * @author Mathieu NOËL
+ * @author Mathieu NOËL <mathieu@soosyze.com>
  */
 class TableBuilder
 {

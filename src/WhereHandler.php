@@ -1,9 +1,9 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Queryflatfile
+ *
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
 namespace Queryflatfile;
@@ -11,9 +11,9 @@ namespace Queryflatfile;
 use Queryflatfile\Exception\Query\OperatorNotFound;
 
 /**
- * Description of WhereHandler
+ * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
  *
- * @author mnoel
+ * @author Mathieu NOËL <mathieu@soosyze.com>
  */
 class WhereHandler
 {
