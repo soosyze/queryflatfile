@@ -41,6 +41,16 @@ interface RequestInterface
     const UNION_ALL = 'all';
 
     /**
+     * Valeur pour un join gauche.
+     */
+    const JOIN_LEFT = 'left';
+
+    /**
+     * Valeur pour un join droit.
+     */
+    const JOIN_RIGHT = 'right';
+
+    /**
      * Enregistre les champs sélectionnées par la requête.
      * En cas d'absence de selection, la requêtes retournera toutes les champs.
      *
