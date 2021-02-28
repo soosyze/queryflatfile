@@ -424,7 +424,7 @@ class Request extends RequestHandler
              * Si aucun resultat n'est trouvé alors la ligne est remplie
              * avec les colonnes de la table jointe avec des valeurs null.
              */
-            if (!$addRow) {
+            if ($addRow === false) {
                 $result[] = array_merge($rowTableNull, $row);
             }
         }

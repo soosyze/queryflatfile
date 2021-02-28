@@ -111,15 +111,15 @@ class Where extends WhereHandler
                 ? self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ])
                 : $value[ 'value' ]->execute($row);
             /* Si la clause est inversé. */
-            $predicate = $value[ 'not' ]
-                ? !$predicate
-                : $predicate;
+            if ($value[ 'not' ]) {
+                $predicate ^= 1;
+            }
             /* Les retours des types regex et like doivent être non null. */
             if ($value[ 'type' ] === 'regex' || $value[ 'type' ] === 'like') {
                 $predicate &= $row[ $value[ 'column' ] ] !== null;
             }
 
-            if ($key == 0) {
+            if ($key === 0) {
                 $output = $predicate;
             } elseif ($value[ 'bool' ] === self::EXP_AND) {
                 $output &= $predicate;
@@ -159,7 +159,7 @@ class Where extends WhereHandler
                     break;
             }
 
-            if ($key == 0) {
+            if ($key === 0) {
                 $output = $predicate;
             } elseif ($value[ 'bool' ] === self::EXP_AND) {
                 $output &= $predicate;
