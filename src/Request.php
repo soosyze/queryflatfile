@@ -3,8 +3,6 @@
 /**
  * Queryflatfile
  *
- * @package Queryflatfile
- * @author  Mathieu NOËL <mathieu@soosyze.com>
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
@@ -19,7 +17,7 @@ use Queryflatfile\Exception\Query\TableNotFoundException;
  * Réalise des requêtes à partir d'un schéma de données passé en paramètre.
  * Les requêtes se construisent avec le pattern fluent.
  *
- * @author Mathieu NOËL
+ * @author Mathieu NOËL <mathieu@soosyze.com>
  *
  * @method Request where( callable|string $column, null|string $operator = null, null|string $value = null, string $bool = 'and', boolean $not = false ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request notWhere( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where

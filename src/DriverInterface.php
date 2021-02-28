@@ -3,8 +3,6 @@
 /**
  * Queryflatfile
  *
- * @package Queryflatfile
- * @author  Mathieu NOËL <mathieu@soosyze.com>
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
@@ -13,7 +11,7 @@ namespace Queryflatfile;
 /**
  * Interface de manipulation de fichier de données.
  *
- * @author Mathieu NOËL
+ * @author Mathieu NOËL <mathieu@soosyze.com>
  */
 interface DriverInterface
 {

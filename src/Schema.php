@@ -4,7 +4,7 @@
  * Queryflatfile
  *
  * @package Queryflatfile
- * @author  Mathieu NOËL <mathieu@soosyze.com>
+
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
@@ -20,7 +20,7 @@ use Queryflatfile\TableBuilder;
 /**
  * Pattern fluent pour la gestion d'un schéma de données.
  *
- * @author Mathieu NOËL
+ * @author Mathieu NOËL <mathieu@soosyze.com>
  */
 class Schema
 {

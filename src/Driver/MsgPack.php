@@ -3,8 +3,6 @@
 /**
  * Queryflatfile
  *
- * @package Queryflatfile
- * @author  Mathieu NOËL <mathieu@soosyze.com>
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
@@ -15,7 +13,7 @@ namespace Queryflatfile\Driver;
  *
  * @see https://msgpack.org/
  *
- * @author  Mathieu NOËL
+ * @author Mathieu NOËL <mathieu@soosyze.com>
  */
 class MsgPack extends \Queryflatfile\Driver
 {
