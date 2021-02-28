@@ -8,8 +8,14 @@
          convertWarningsToExceptions="true"
          stopOnFailure="false">
     <testsuites>
-        <testsuite name="queryflatfile">
+        <testsuite name="all">
             <directory>tests</directory>
+        </testsuite>
+        <testsuite name="standard">
+            <directory>tests</directory>
+            <!-- Nécessite l'installation des paquets php msgpack et igbinary pour être testés. -->
+            <exclude>tests/Driver/MsgPackTest.php</exclude>
+            <exclude>tests/Driver/IgbinaryTest.php</exclude>
         </testsuite>
     </testsuites>
     <filter>

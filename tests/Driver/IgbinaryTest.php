@@ -2,9 +2,9 @@
 
 namespace Queryflatfile\Test;
 
-class JsonTest extends \PHPUnit\Framework\TestCase
+class IgbinaryTest extends \PHPUnit\Framework\TestCase
 {
-    const TEST_DIR = 'tests/json';
+    const TEST_DIR = 'tests/igbinary';
 
     const TEST_FILE_NAME = 'driver_test';
 
@@ -22,12 +22,12 @@ class JsonTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        if (!extension_loaded('json')) {
+        if (!extension_loaded('igbinary')) {
             $this->markTestSkipped(
-                'The json extension is not available.'
+                'The igbinary extension is not available.'
             );
         }
-        $this->driver = new \Queryflatfile\Driver\Json();
+        $this->driver = new \Queryflatfile\Driver\Igbinary();
     }
 
     public function testCreate()
@@ -39,7 +39,7 @@ class JsonTest extends \PHPUnit\Framework\TestCase
         );
 
         self::assertTrue($output);
-        self::assertFileExists(self::TEST_DIR . '/driver_test.json');
+        self::assertFileExists(self::TEST_DIR . '/driver_test.ig');
     }
 
     public function testNoCreate()
@@ -103,6 +103,6 @@ class JsonTest extends \PHPUnit\Framework\TestCase
         $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::TEST_DIR . '/driver_test.json');
+        self::assertFileNotExists(self::TEST_DIR . '/driver_test.ig');
     }
 }
