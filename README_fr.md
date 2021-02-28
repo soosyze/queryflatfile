@@ -29,11 +29,11 @@ Manipulez vos données avec un QueryBuilder similaire à la syntaxe SQL.
 
 Support plus de [85% des versions PHP actuelles](https://w3techs.com/technologies/details/pl-php)
 
-| Version PHP                 | QueryFlatFile 1.x |
-|-----------------------------|-------------------|
-| <= 5.3                      | ✗ Non supporté    |
-| 5.4 / 5.5 / 5.6             | ✓ Supporté        |
-| 7.0 / 7.1 / 7.2 / 7.3 / 7.4 | ✓ Supporté        |
+| Version PHP                 | QueryFlatFile 1.4.x |
+|-----------------------------|---------------------|
+| <= 5.4                      | ✗ Non supporté      |
+| 5.5 / 5.6                   | ✓ Supporté          |
+| 7.0 / 7.1 / 7.2 / 7.3 / 7.4 | ✓ Supporté          |
 
 ## Extensions PHP
 
@@ -104,10 +104,10 @@ $bdd->dropTableIfExists('user');
 L'exemple ci-dessus va afficher :
 ```
 Array
-( 
-    [id] => 2 
+(
+    [id] => 2
     [name] => DUPOND
-) 
+)
 ```
 
 

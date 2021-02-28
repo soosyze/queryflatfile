@@ -295,8 +295,8 @@ Résultat(s) de la requête :
 
 ### Lists
 
-La fonction `lists( $name = null );` contrairement à la fonction `fetch();` ou `fetchAll();` 
-renvoie les résultats du champ passé en paramètre ou du premier champ sélectionné dans 
+La fonction `lists( $name = null );` contrairement à la fonction `fetch();` ou `fetchAll();`
+renvoie les résultats du champ passé en paramètre ou du premier champ sélectionné dans
 un tableau simple (sans clé).
 
 Requête en PHP avec QueryFlatFile :
@@ -330,7 +330,7 @@ La fonction where standard peut-être utilisé avec les opérateurs suivants :
 * `<=` inférieur ou strictement égal à,
 * `>` supérieur à,
 * `>=` supérieur ou strictement égal à,
-* `like` correspond au modèle (condition sensible à la case), 
+* `like` correspond au modèle (condition sensible à la case),
 * `ilike` correspond au modèle (condition non sensible à la case),
 * `not like` ne correspond pas au modèle (condition sensible à la case),
 * `not ilike` ne correspond pas au modèle (condition non sensible à la case).
@@ -881,7 +881,7 @@ $request->select('id', 'name', 'firstname')
 
 Requête au format SQL :
 ```sql
-SELECT `name` FROM `user` WHERE `id` BETWEEN 1 AND 5 
+SELECT `name` FROM `user` WHERE `id` BETWEEN 1 AND 5
 UNION
 SELECT `name` FROM `user`;
 ```
@@ -913,7 +913,7 @@ Résultat(s) de la requête :
 
 Requête au format SQL :
 ```sql
-SELECT `name` FROM `user` WHERE `id` BETWEEN 1 AND 5 
+SELECT `name` FROM `user` WHERE `id` BETWEEN 1 AND 5
 UNION ALL
 SELECT `name` FROM `user`;
 ```
@@ -1045,26 +1045,26 @@ Exception
 ```php
 try{
     $request->select($fields)->from('user')->fetch();
-} 
+}
 catch(\Queryflatfile\Exception\Query\ColumnsNotFoundException $e) {
     // Exception levée si une des valeurs contenues dans $fields ne correspond à aucun champ
-} 
+}
 catch(\Queryflatfile\Exception\Query\TableNotFoundException $e) {
     // Exception levée si $table user n'existe pas
 }
 catch(\Queryflatfile\Exception\Query\QueryException $e) {
      // Exception levée dans les 2 cas grâce à l'héritage
-} 
+}
 ```
 
 # Driver
 
 Le driver permet l'abstraction de la manipulation des données.
-Pour simplifier, votre schéma qui manipule vos tables ne se préoccupe pas du format 
+Pour simplifier, votre schéma qui manipule vos tables ne se préoccupe pas du format
 des données.
 Il appelle successivement les méthodes prédéfini et le driver s'occupe de renvoyer des données.
 
-Ainsi en créant une class qui implémentant l'interface `Queryflatfile\DriverInterface` 
+Ainsi en créant une class qui implémentant l'interface `Queryflatfile\DriverInterface`
 vous pouvez personnaliser le type de fichier dans lequel vos données seront stockées.
 
 ```php
@@ -1080,28 +1080,28 @@ interface DriverInterface
     /**
      * Créer un fichier si celui-ci n'existe pas et enregistre des données.
      * (Les données DOIVENT conserver leur type)
-     * 
+     *
      * @param string $path le chemin du fichier
      * @param string $fileName le nom du fichier SANS l'extension
      * @param array $data les données sous forme de (clés=>valeur) à enregistrer
-     * 
+     *
      * @throws Exception\Driver\ExtensionNotLoadedException si l'extension n'est pas chargée
-     * 
+     *
      * @return boolean TRUE si tous ce passe bien sinon FALSE
      */
     public function create( $path, $fileName, array $data = [] );
 
     /**
-     * Lit un fichier et DOIT retourner son contenu sous forme de tableau associatif 
+     * Lit un fichier et DOIT retourner son contenu sous forme de tableau associatif
      * quelle que soit sa profondeur. (Les données DOIVENT conserver leur type)
-     * 
+     *
      * @param string $path le chemin du fichier
      * @param string $fileName le nom du fichier SANS l'extension
-     * 
+     *
      * @throws Exception\Driver\ExtensionNotLoadedException si l'extension n'est pas chargée
      * @throws Exception\Driver\FileNotFoundException si le fichier est introuvable
      * @throws Exception\Driver\FileNotReadableException si le fichier n'a pas les droits suffisant pour être lu
-     * 
+     *
      * @return array les données du fichier
      */
     public function read( $path, $fileName );
@@ -1109,35 +1109,35 @@ interface DriverInterface
     /**
      * Enregistre des données dans le fichier.
      * (Les données DOIVENT conserver leur type)
-     * 
+     *
      * @param string $path le chemin du fichier
      * @param string $fileName le nom du fichier SANS l'extension
      * @param array $data sous forme de (clés=>valeur) à enregistrer
-     * 
+     *
      * @throws Exception\Driver\ExtensionNotLoadedException si l'extension n'est pas chargée
      * @throws Exception\Driver\FileNotFoundException si le fichier est introuvable
      * @throws Exception\Driver\FileNotWritableException si le fichier n'a pas les droits suffisant pour être écrit
-     * 
+     *
      * @return boolean TRUE si tous ce passe bien sinon FALSE
      */
     public function save( $path, $fileName, array $data );
 
     /**
      * Supprime un fichier.
-     * 
+     *
      * @param string $path le chemin du fichier
      * @param string $fileName le nom du fichier SANS l'extension
-     * 
+     *
      * @return boolean TRUE si tous ce passe bien sinon FALSE
      */
     public function delete( $path, $fileName );
 
     /**
      * Si le fichier existe.
-     * 
+     *
      * @param string $path le chemin du fichier
      * @param string $fileName le nom du fichier SANS l'extension
-     * 
+     *
      * @return boolean
      */
     public function has( $path, $fileName );
@@ -1145,7 +1145,7 @@ interface DriverInterface
     /**
      * Renseigne le nom de l'extension de fichier utilisé par le driver
      * au reste des composant.
-     * 
+     *
      * @return string le nom de l'extension SANS le point en préfix.
      */
     public function getExtension();
