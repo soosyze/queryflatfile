@@ -2,11 +2,12 @@
 
 namespace Queryflatfile\Test;
 
-/**
- * @group driver
- */
 class TxtTest extends \PHPUnit\Framework\TestCase
 {
+    const TEST_DIR = 'tests/txt';
+
+    const TEST_FILE_NAME = 'driver_test';
+
     /**
      * @var DriverInterface
      */
@@ -14,15 +15,11 @@ class TxtTest extends \PHPUnit\Framework\TestCase
 
     public static function tearDownAfterClass()
     {
-        if (count(scandir('tests/txt')) == 2) {
-            rmdir('tests/txt');
+        if (count(scandir(self::TEST_DIR)) == 2) {
+            rmdir(self::TEST_DIR);
         }
     }
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
     protected function setUp()
     {
         $this->driver = new \Queryflatfile\Driver\Txt();
@@ -30,24 +27,32 @@ class TxtTest extends \PHPUnit\Framework\TestCase
 
     public function testCreate()
     {
-        $output = $this->driver->create('tests/txt', 'driver_test', [ 'key_test' => 'value_test' ]);
+        $output = $this->driver->create(
+            self::TEST_DIR,
+            self::TEST_FILE_NAME,
+            [ 'key_test' => 'value_test' ]
+        );
 
         self::assertTrue($output);
-        self::assertFileExists('tests/txt/driver_test.txt');
+        self::assertFileExists(self::TEST_DIR . '/driver_test.txt');
     }
 
     public function testNoCreate()
     {
-        $output = $this->driver->create('tests/txt', 'driver_test', [ 'key_test' => 'value_test' ]);
+        $output = $this->driver->create(
+            self::TEST_DIR,
+            self::TEST_FILE_NAME,
+            [ 'key_test' => 'value_test' ]
+        );
 
         self::assertFalse($output);
     }
 
     public function testRead()
     {
-        $json = $this->driver->read('tests/txt', 'driver_test');
+        $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
-        self::assertArraySubset($json, [ 'key_test' => 'value_test' ]);
+        self::assertArraySubset($data, [ 'key_test' => 'value_test' ]);
     }
 
     /**
@@ -55,20 +60,20 @@ class TxtTest extends \PHPUnit\Framework\TestCase
      */
     public function testReadException()
     {
-        $this->driver->read('tests/txt', 'driver_test_error');
+        $this->driver->read(self::TEST_DIR, 'driver_test_error');
     }
 
     public function testSave()
     {
-        $txt                 = $this->driver->read('tests/txt', 'driver_test');
-        $txt[ 'key_test_2' ] = 'value_test_2';
+        $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
-        $output = $this->driver->save('tests/txt', 'driver_test', $txt);
+        $data[ 'key_test_2' ] = 'value_test_2';
 
-        $newTxt = $this->driver->read('tests/txt', 'driver_test');
+        $output  = $this->driver->save(self::TEST_DIR, self::TEST_FILE_NAME, $data);
+        $newData = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertArraySubset($newTxt, $txt);
+        self::assertArraySubset($newData, $data);
     }
 
     /**
@@ -76,13 +81,13 @@ class TxtTest extends \PHPUnit\Framework\TestCase
      */
     public function testSaveException()
     {
-        $this->driver->save('tests/txt', 'driver_test_error', []);
+        $this->driver->save(self::TEST_DIR, 'driver_test_error', []);
     }
 
     public function testHas()
     {
-        $has    = $this->driver->has('tests/txt', 'driver_test');
-        $notHas = $this->driver->has('tests/txt', 'driver_test_not_found');
+        $has    = $this->driver->has(self::TEST_DIR, self::TEST_FILE_NAME);
+        $notHas = $this->driver->has(self::TEST_DIR, 'driver_test_not_found');
 
         self::assertTrue($has);
         self::assertFalse($notHas);
@@ -90,9 +95,9 @@ class TxtTest extends \PHPUnit\Framework\TestCase
 
     public function testDelete()
     {
-        $output = $this->driver->delete('tests/txt', 'driver_test');
+        $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists('tests/txt/driver_test.txt');
+        self::assertFileNotExists(self::TEST_DIR . '/driver_test.txt');
     }
 }

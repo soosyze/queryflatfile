@@ -2,9 +2,9 @@
 
 namespace Queryflatfile\Test;
 
-class JsonTest extends \PHPUnit\Framework\TestCase
+class MsgPackTest extends \PHPUnit\Framework\TestCase
 {
-    const TEST_DIR = 'tests/json';
+    const TEST_DIR = 'tests/msgpack';
 
     const TEST_FILE_NAME = 'driver_test';
 
@@ -22,12 +22,12 @@ class JsonTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        if (!extension_loaded('json')) {
+        if (!extension_loaded('msgpack')) {
             $this->markTestSkipped(
-                'The json extension is not available.'
+                'The msgpack extension is not available.'
             );
         }
-        $this->driver = new \Queryflatfile\Driver\Json();
+        $this->driver = new \Queryflatfile\Driver\MsgPack();
     }
 
     public function testCreate()
@@ -39,7 +39,7 @@ class JsonTest extends \PHPUnit\Framework\TestCase
         );
 
         self::assertTrue($output);
-        self::assertFileExists(self::TEST_DIR . '/driver_test.json');
+        self::assertFileExists(self::TEST_DIR . '/driver_test.msg');
     }
 
     public function testNoCreate()
@@ -75,10 +75,10 @@ class JsonTest extends \PHPUnit\Framework\TestCase
         $data[ 'key_test_2' ] = 'value_test_2';
 
         $output  = $this->driver->save(self::TEST_DIR, self::TEST_FILE_NAME, $data);
-        $newData = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
+        $newJson = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertArraySubset($newData, $data);
+        self::assertArraySubset($newJson, $data);
     }
 
     /**
@@ -103,6 +103,6 @@ class JsonTest extends \PHPUnit\Framework\TestCase
         $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::TEST_DIR . '/driver_test.json');
+        self::assertFileNotExists(self::TEST_DIR . '/driver_test.msg');
     }
 }
