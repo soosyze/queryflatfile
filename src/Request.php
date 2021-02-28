@@ -395,7 +395,7 @@ class Request extends RequestHandler
     {
         $result       = [];
         $rowTableNull = $this->getRowTableNull($table);
-        $left         = $type === 'left';
+        $left         = $type === self::JOIN_LEFT;
         $tableData    = $left
             ? $this->tableData
             : $this->getTableData($table);
@@ -450,7 +450,7 @@ class Request extends RequestHandler
         }
 
         foreach ($keys as &$value) {
-            $value = $value == 'desc' || $value == -1
+            $value = $value == self::DESC || $value == -1
                 ? -1
                 : ($value == 'skip' || $value === 0
                 ? 0

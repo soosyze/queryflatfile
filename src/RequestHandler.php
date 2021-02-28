@@ -116,7 +116,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function leftJoin($table, $column, $operator = null, $value = null)
     {
-        $this->join('left', $table, $column, $operator, $value);
+        $this->join(self::JOIN_LEFT, $table, $column, $operator, $value);
 
         return $this;
     }
@@ -147,7 +147,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function rightJoin($table, $column, $operator = null, $value = null)
     {
-        $this->join('right', $table, $column, $operator, $value);
+        $this->join(self::JOIN_RIGHT, $table, $column, $operator, $value);
 
         return $this;
     }
