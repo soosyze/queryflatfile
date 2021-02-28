@@ -11,8 +11,9 @@
 * :fr: [README en Français](README_fr.md)
 
 # About
+
 Queryflatfile is a flat file database library written in PHP.
-Stores your data by default in `JSON` format, also supports` txt` and `msgPack` formats.
+Stores your data by default in `JSON` format, also supports` txt`, `msgPack` and `igbinary` formats.
 Manipulate your data with a QueryBuilder similar to SQL syntax.
 
 # Sommaire
@@ -36,7 +37,9 @@ Support more than [85% of current PHP versions](https://w3techs.com/technologies
 
 ## Extensions
 
-- `json` for saving data in JSON format,
+- `txt` for recording data with PHP serialize,
+- `json` for recording data in JSON format,
+- `msgpack` for recording data in binary.
 - `msgpack` for recording data in binary.
 
 ## Memory required

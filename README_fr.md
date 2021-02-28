@@ -13,7 +13,7 @@
 # À propos
 
 Queryflatfile est une bibliothèque de base de données flat file écrit en PHP.
-Stock vos données par défaut au format `JSON`, supporte aussi les formats `txt` et `msgPack`.
+Stock vos données par défaut au format `JSON`, supporte aussi les formats `txt`, `msgPack` et `igbinary`.
 Manipulez vos données avec un QueryBuilder similaire à la syntaxe SQL.
 
 # Sommaire
@@ -37,8 +37,10 @@ Support plus de [85% des versions PHP actuelles](https://w3techs.com/technologie
 
 ## Extensions PHP
 
+- `txt` pour l'enregistrement des données sérialiser,
 - `json` pour l'enregistrement des données au format JSON,
-- `msgpack` pour l'enregistrement des données en binaire.
+- `msgpack` pour l'enregistrement des données en binaire,
+- `igbinary` pour l'enregistrement des données en binaire.
 
 ## Mémoire requise
 
