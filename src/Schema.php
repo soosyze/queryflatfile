@@ -100,7 +100,6 @@ class Schema
             : $driver;
         $this->path   = $host;
         $this->name   = $name;
-        $this->file   = $host . DIRECTORY_SEPARATOR . $name . '.' . $this->driver->getExtension();
 
         return $this;
     }
@@ -152,7 +151,7 @@ class Schema
 
         $this->schema[ $table ][ 'increments' ] = $increments;
 
-        return $this->save($this->path, $this->name, $this->schema);
+        return $this->save($this->name, $this->schema);
     }
 
     /**
@@ -188,10 +187,8 @@ class Schema
         if ($this->schema) {
             return $this->schema;
         }
-        if (!file_exists($this->root . $this->file)) {
-            $this->create($this->path, $this->name);
-        }
-        $this->schema = $this->read($this->path, $this->name);
+        $this->create($this->name);
+        $this->schema = $this->read($this->name);
 
         return $this->schema;
     }
@@ -225,11 +222,11 @@ class Schema
 
         /* Supprime les fichiers des tables. */
         foreach (array_keys($schema) as $table) {
-            $this->delete($this->path, $table);
+            $this->delete($table);
         }
 
         /* Supprime le fichier de schéma. */
-        unlink($this->root . $this->file);
+        $this->delete($this->name);
 
         /*
          * Dans le cas ou le répertoire utilisé contient d'autre fichier
@@ -267,8 +264,8 @@ class Schema
                 'increments' => $builder->getIncrement()
             ];
         }
-        $this->save($this->path, $this->name, $this->schema);
-        $this->create($this->path, $table);
+        $this->save($this->name, $this->schema);
+        $this->create($table);
 
         return $this;
     }
@@ -288,7 +285,7 @@ class Schema
             $this->createTable($table, $callback);
         } elseif (!$this->driver->has($this->root . $this->path, $table)) {
             /* Si elle existe dans le schéma et que le fichier est absent alors on le créer. */
-            $this->create($this->path, $table);
+            $this->create($table);
         }
 
         return $this;
@@ -312,7 +309,7 @@ class Schema
         }
 
         $tableBuilder = self::tableBuilder($callback)->buildFull();
-        $dataTable    = $this->read($this->path, $table);
+        $dataTable    = $this->read($table);
         $fields       = $this->schema[ $table ][ 'fields' ];
 
         foreach ($tableBuilder as $name => $param) {
@@ -328,8 +325,8 @@ class Schema
             }
         }
         $this->schema[ $table ][ 'fields' ] = $fields;
-        $this->save($this->path, $this->name, $this->schema);
-        $this->save($this->path, $table, $dataTable);
+        $this->save($this->name, $this->schema);
+        $this->save($table, $dataTable);
 
         return $this;
     }
@@ -406,9 +403,10 @@ class Schema
         $deleteSchema = true;
         if ($this->schema[ $table ][ 'increments' ] !== null) {
             $this->schema[ $table ][ 'increments' ] = 0;
-            $deleteSchema                           = $this->save($this->path, $this->name, $this->schema);
+
+            $deleteSchema = $this->save($this->name, $this->schema);
         }
-        $deleteData = $this->save($this->path, $table, []);
+        $deleteData = $this->save($table, []);
 
         return $deleteSchema && $deleteData;
     }
@@ -429,8 +427,8 @@ class Schema
         }
 
         unset($this->schema[ $table ]);
-        $deleteData   = $this->delete($this->path, $table);
-        $deleteSchema = $this->save($this->path, $this->name, $this->schema);
+        $deleteData   = $this->delete($table);
+        $deleteSchema = $this->save($this->name, $this->schema);
 
         return $deleteSchema && $deleteData;
     }
@@ -460,55 +458,51 @@ class Schema
     /**
      * Utilisation du driver pour lire un fichier.
      *
-     * @param string $path
      * @param string $file
      *
      * @return array le contenu du fichier
      */
-    public function read($path, $file)
+    public function read($file)
     {
-        return $this->driver->read($this->root . $path, $file);
+        return $this->driver->read($this->root . $this->path, $file);
     }
 
     /**
      * Utilisation du driver pour enregistrer des données dans un fichier.
      *
-     * @param string $path
      * @param string $file
      * @param array  $data
      *
      * @return bool
      */
-    public function save($path, $file, array $data)
+    public function save($file, array $data)
     {
-        return $this->driver->save($this->root . $path, $file, $data);
+        return $this->driver->save($this->root . $this->path, $file, $data);
     }
 
     /**
      * Utilisation du driver pour créer un fichier.
      *
-     * @param string $path
      * @param string $file
      * @param array  $data
      *
      * @return bool
      */
-    protected function create($path, $file, array $data = [])
+    protected function create($file, array $data = [])
     {
-        return $this->driver->create($this->root . $path, $file, $data);
+        return $this->driver->create($this->root . $this->path, $file, $data);
     }
 
     /**
      * Utilisation du driver pour supprimer un fichier.
      *
-     * @param string $path
      * @param string $file
      *
      * @return bool
      */
-    protected function delete($path, $file)
+    protected function delete($file)
     {
-        return $this->driver->delete($this->root . $path, $file);
+        return $this->driver->delete($this->root . $this->path, $file);
     }
 
     /**

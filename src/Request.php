@@ -186,7 +186,7 @@ class Request extends RequestHandler
      */
     public function getTableData($name)
     {
-        return $this->schema->read($this->schema->getPath(), $name);
+        return $this->schema->read($name);
     }
 
     /**
@@ -227,7 +227,7 @@ class Request extends RequestHandler
             throw new BadFunctionException('Only the insert, update and delete functions can be executed.');
         }
 
-        $this->schema->save($this->schema->getPath(), $this->from, $this->tableData);
+        $this->schema->save($this->from, $this->tableData);
         $this->init();
     }
 
