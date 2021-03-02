@@ -135,7 +135,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function orderBy($columns, $order = self::ASC)
+    public function orderBy($columns, $order = SORT_ASC)
     {
         $this->orderBy[ $columns ] = $order;
 

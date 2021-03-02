@@ -10,6 +10,7 @@ namespace Queryflatfile;
 
 use Queryflatfile\Exception\Query\BadFunctionException;
 use Queryflatfile\Exception\Query\ColumnsNotFoundException;
+use Queryflatfile\Exception\Query\OperatorNotFound;
 use Queryflatfile\Exception\Query\QueryException;
 use Queryflatfile\Exception\Query\TableNotFoundException;
 
@@ -117,8 +118,10 @@ class Request extends RequestHandler
         }
         if ($this->orderBy) {
             $output .= 'ORDER BY ';
-            foreach ($this->orderBy as $table => $order) {
-                $output .= " $table " . strtoupper($order) . ',';
+            foreach ($this->orderBy as $field => $order) {
+                $output .= $field . ' ' . ($order === SORT_ASC
+                    ? 'ASC,'
+                    : 'DESC,');
             }
             $output = substr($output, 0, -1) . ' ';
         }
@@ -301,7 +304,7 @@ class Request extends RequestHandler
 
         /* ORDER BY */
         if ($this->orderBy) {
-            $return = $this->executeOrderBy($return, $this->orderBy);
+            $this->executeOrderBy($return, $this->orderBy);
         }
 
         /* LIMIT */
@@ -436,44 +439,39 @@ class Request extends RequestHandler
     /**
      * Trie le tableau en fonction des clés paramétrés.
      *
-     * @param array $data Données à trier.
-     * @param array $keys Clés sur lesquelles le trie s'exécute.
+     * @param array $data    Données à trier.
+     * @param array $orderBy Clés sur lesquelles le trie s'exécute.
      *
      * @return array les données triées
      */
-    protected function executeOrderBy(array $data, array $keys)
+    protected function executeOrderBy(array &$data, array $orderBy)
     {
-        $keyLength = count($keys);
-
-        if (!$keys) {
-            return $data;
-        }
-
-        foreach ($keys as &$value) {
-            $value = $value == self::DESC || $value == -1
+        foreach ($orderBy as &$order) {
+            $order = $order === SORT_DESC
                 ? -1
-                : ($value == 'skip' || $value === 0
-                ? 0
-                : 1);
+                : 1;
         }
-        unset($value);
-        usort($data, function ($a, $b) use ($keys, $keyLength) {
-            $sorted = 0;
-            $ix     = 0;
+        unset($order);
 
-            while ($sorted === 0 && $ix < $keyLength) {
-                $k = $this->obIx($keys, $ix);
-                if ($k) {
-                    $dir    = $keys[ $k ];
-                    $sorted = $this->keySort($a[ $k ], $b[ $k ], $dir);
-                    $ix++;
+        usort($data, static function ($a, $b) use ($orderBy) {
+            $sorted = 0;
+
+            foreach ($orderBy as $field => $order) {
+                if ($a[ $field ] == $b[ $field ]) {
+                    continue;
+                }
+
+                $sorted = $a[ $field ] > $b[ $field ]
+                    ? 1 * $order
+                    : -1 * $order;
+
+                if ($sorted !== 0) {
+                    break;
                 }
             }
 
             return $sorted;
         });
-
-        return $data;
     }
 
     /**
@@ -570,50 +568,6 @@ class Request extends RequestHandler
     }
 
     /**
-     * Fonction d'appui à orderByExecute().
-     *
-     * @param array $obj
-     * @param int   $ix
-     *
-     * @return bool|int
-     */
-    private function obIx(array $obj, $ix)
-    {
-        $size = 0;
-        foreach (array_keys($obj) as $key) {
-            if ($size == $ix) {
-                return $key;
-            }
-            $size++;
-        }
-
-        return false;
-    }
-
-    /**
-     * Fonction de trie de orderByExecute
-     *
-     * @param type $a
-     * @param type $b
-     * @param type $c
-     *
-     * @return int
-     */
-    private function keySort($a, $b, $c = null)
-    {
-        $d = $c !== null
-            ? $c
-            : 1;
-        if ($a == $b) {
-            return 0;
-        }
-
-        return ($a > $b)
-            ? 1 * $d
-            : -1 * $d;
-    }
-
-    /**
      * Charge les colonnes de la table courante et des tables de jointure.
      */
     private function loadAllColumnsSchema()
@@ -687,12 +641,24 @@ class Request extends RequestHandler
 
     /**
      * Vérifie pour tous les ORDER BY l'existence des champs à partir du schéma.
+     *
+     * @throws OperatorNotFound
+     *
+     * @return void
      */
     private function filterOrderBy()
     {
-        if ($this->orderBy) {
-            $columns = array_keys($this->orderBy);
-            $this->diffColumns($columns);
+        if ($this->orderBy === []) {
+            return;
+        }
+
+        $columns = array_keys($this->orderBy);
+        $this->diffColumns($columns);
+
+        foreach ($this->orderBy as $field => $order) {
+            if ($order !== SORT_ASC && $order !== SORT_DESC) {
+                throw new OperatorNotFound("The sort type of the $field field is not valid.");
+            }
         }
     }
 
