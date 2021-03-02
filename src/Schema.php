@@ -556,13 +556,11 @@ class Schema
      */
     protected static function rename(array &$fields, array &$dataTable, $name, $to)
     {
-        $tmp           = $fields[ $name ];
+        $fields[ $to ] = $fields[ $name ];
         unset($fields[ $name ]);
-        $fields[ $to ] = $tmp;
         foreach ($dataTable as &$data) {
-            $tmp         = $data[ $name ];
+            $data[ $to ] = $data[ $name ];
             unset($data[ $name ]);
-            $data[ $to ] = $tmp;
         }
     }
 
