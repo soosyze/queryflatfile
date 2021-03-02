@@ -692,7 +692,7 @@ Requête en PHP avec QueryFlatFile :
 ```php
 $request->select( 'firstname' )
     ->from('user')
-    ->orderBy('firstname', 'desc')
+    ->orderBy('firstname', SORT_DESC)
     ->fetchAll();
 ```
 
@@ -719,7 +719,7 @@ Requête en PHP avec QueryFlatFile :
 ```php
 $request->select( 'name', 'firstname' )
     ->from('user')
-    ->orderBy('name', 'desc')
+    ->orderBy('name', SORT_DESC)
     ->orderBy('firstname')
     ->fetchAll();
 ```
@@ -747,8 +747,8 @@ Requête en PHP avec QueryFlatFile :
 ```php
 $request->select( 'name', 'firstname' )
     ->from('user')
-    ->orderBy('name', 'desc')
-    ->orderBy('firstname', 'desc')
+    ->orderBy('name', SORT_DESC)
+    ->orderBy('firstname', SORT_DESC)
     ->fetchAll();
 ```
 
