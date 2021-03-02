@@ -11,21 +11,9 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
      */
     protected $object;
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
     protected function setUp()
     {
         $this->object = new TableBuilder;
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown()
-    {
     }
 
     public function testIncrements()
@@ -42,13 +30,15 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
      */
     public function testIncrementsException()
     {
-        $this->object->increments('id')
+        $this->object
+            ->increments('id')
             ->increments('error');
     }
 
     public function testChar()
     {
-        $this->object->char('id')
+        $this->object
+            ->char('id')
             ->char('id2', 2);
 
         self::assertArraySubset($this->object->build(), [
@@ -76,7 +66,8 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
 
     public function testString()
     {
-        $this->object->string('id')
+        $this->object
+            ->string('id')
             ->string('id2', 256);
 
         self::assertArraySubset($this->object->build(), [
@@ -216,7 +207,8 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
 
     public function testValueDefault()
     {
-        $this->object->increments('0')
+        $this->object
+            ->increments('0')
             ->char('1')->valueDefault('a')
             ->text('2')->valueDefault('test')
             ->string('3')->valueDefault('test')

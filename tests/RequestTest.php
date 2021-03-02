@@ -45,16 +45,12 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
     protected function setUp()
     {
         self::$root = __DIR__ . '/data/';
-        $this->bdd = new Schema();
-        $this->bdd->setConfig('data', 'schema', new \Queryflatfile\Driver\Json());
-        $this->bdd->setPathRoot(__DIR__ . '/');
+        $this->bdd  = (new Schema)
+            ->setConfig('data', 'schema', new \Queryflatfile\Driver\Json())
+            ->setPathRoot(__DIR__ . '/');
 
         $this->request  = new Request($this->bdd);
         $this->request2 = new Request($this->bdd);
@@ -156,8 +152,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateTableIfNotExistsData()
     {
-        $this->bdd->createTableIfNotExists('user', static function () {
-        });
+        $this->bdd->createTableIfNotExists('user');
 
         self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
     }

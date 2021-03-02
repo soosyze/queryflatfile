@@ -24,13 +24,13 @@ class Json extends \Queryflatfile\Driver
         $file = $this->getFile($path, $fileName);
 
         if (!file_exists($path)) {
-            mkdir($path, 0775, true);
+            mkdir($path, 0755, true);
         }
         if (!file_exists($file)) {
-            $fichier = fopen($file, 'w+');
-            fwrite($fichier, json_encode($data, JSON_UNESCAPED_UNICODE));
+            $handle = fopen($file, 'w+');
+            fwrite($handle, json_encode($data, JSON_UNESCAPED_UNICODE));
 
-            return fclose($fichier);
+            return fclose($handle);
         }
 
         return false;
@@ -47,9 +47,9 @@ class Json extends \Queryflatfile\Driver
         $this->isExist($file);
         $this->isRead($file);
 
-        $json = file_get_contents($file);
+        $data = file_get_contents($file);
 
-        return json_decode($json, true, 512, JSON_UNESCAPED_UNICODE);
+        return json_decode($data, true, 512, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -63,10 +63,10 @@ class Json extends \Queryflatfile\Driver
         $this->isExist($file);
         $this->isWrite($file);
 
-        $fp = fopen($file, 'w');
-        fwrite($fp, json_encode($data, JSON_UNESCAPED_UNICODE));
+        $handle = fopen($file, 'w');
+        fwrite($handle, json_encode($data, JSON_UNESCAPED_UNICODE));
 
-        return fclose($fp);
+        return fclose($handle);
     }
 
     /**
