@@ -422,6 +422,7 @@ class Request extends RequestHandler
             }
         }
         $this->tableData = $result;
+        unset($tableData, $tableJoin, $result);
 
         return $this;
     }

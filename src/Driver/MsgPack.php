@@ -26,13 +26,13 @@ class MsgPack extends \Queryflatfile\Driver
         $file = $this->getFile($path, $fileName);
 
         if (!file_exists($path)) {
-            mkdir($path, 0775);
+            mkdir($path, 0755);
         }
         if (!file_exists($file)) {
-            $fichier = fopen($file, 'w+');
-            fwrite($fichier, msgpack_pack($data));
+            $handle = fopen($file, 'w+');
+            fwrite($handle, msgpack_pack($data));
 
-            return fclose($fichier);
+            return fclose($handle);
         }
 
         return false;
@@ -63,10 +63,10 @@ class MsgPack extends \Queryflatfile\Driver
         $this->isExist($file);
         $this->isWrite($file);
 
-        $fp = fopen($file, 'w');
-        fwrite($fp, msgpack_pack($data));
+        $handle = fopen($file, 'w');
+        fwrite($handle, msgpack_pack($data));
 
-        return fclose($fp);
+        return fclose($handle);
     }
 
     /**

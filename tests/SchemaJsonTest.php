@@ -2,12 +2,15 @@
 
 namespace Queryflatfile\Test;
 
+use Queryflatfile\Driver\Json;
 use Queryflatfile\Request;
 use Queryflatfile\Schema;
 use Queryflatfile\TableBuilder;
 
 class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 {
+    const DATA_DIR = 'data2';
+
     /**
      * @var Schema
      */
@@ -20,29 +23,26 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
     public static function tearDownAfterClass()
     {
-        if (!file_exists('data2')) {
+        if (!file_exists(self::DATA_DIR)) {
             return;
         }
-        $dir = new \DirectoryIterator('data2');
+        $dir = new \DirectoryIterator(self::DATA_DIR);
         foreach ($dir as $fileInfo) {
             if ($fileInfo->isDot()) {
                 continue;
             }
             unlink($fileInfo->getRealPath());
         }
-        if (file_exists('data2')) {
-            rmdir('data2');
+        if (file_exists(self::DATA_DIR)) {
+            rmdir(self::DATA_DIR);
         }
     }
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
     protected function setUp()
     {
-        $this->bdd     = new Schema();
-        $this->bdd->setConfig('data2', 'schema', new \Queryflatfile\Driver\Json());
+        $this->bdd = (new Schema)
+            ->setConfig(self::DATA_DIR, 'schema', new Json());
+
         $this->request = new Request($this->bdd);
     }
 

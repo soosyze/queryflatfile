@@ -45,7 +45,7 @@ Support plus de [85% des versions PHP actuelles](https://w3techs.com/technologie
 ## Mémoire requise
 
  La quantité de mémoire minimum nécessaire dépend du volume de données que vous traiterez et du type d'opérations.
-Pour gagner en performance utiliser les versions PHP 7.x et le driver `MsgPack`.
+Pour gagner en performance utiliser les versions PHP 7.x et le driver `MsgPack` ou `Igbinary`.
 
 ## Permission des fichiers et répértoire
 

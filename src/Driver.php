@@ -15,6 +15,8 @@ namespace Queryflatfile;
  */
 abstract class Driver implements DriverInterface
 {
+    const DS = DIRECTORY_SEPARATOR;
+
     /**
      * {@inheritDoc}
      */
@@ -61,10 +63,9 @@ abstract class Driver implements DriverInterface
      */
     public function getFile($path, $fileName)
     {
-        $DS   = DIRECTORY_SEPARATOR;
-        $file = $path . $DS . $fileName . '.' . $this->getExtension();
+        $file = $path . self::DS . $fileName . '.' . $this->getExtension();
 
-        return str_replace('\\', $DS, $file);
+        return str_replace('\\', self::DS, $file);
     }
 
     /**

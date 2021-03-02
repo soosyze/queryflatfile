@@ -19,6 +19,10 @@ use Queryflatfile\Exception\TableBuilder\TableBuilderException;
  */
 class TableBuilder
 {
+    const CURRENT_DATE_DEFAULT = 'current_date';
+
+    const CURRENT_DATETIME_DEFAULT = 'current_datetime';
+
     /**
      * Les champs et leurs paramètres.
      *
@@ -120,7 +124,8 @@ class TableBuilder
      *
      * @param string $name nom du champ
      *
-     * @throws Exception
+     * @throws TableBuilderException
+     *
      * @return $this
      */
     public function increments($name)
@@ -309,8 +314,8 @@ class TableBuilder
 
                 break;
             case 'date':
-                if (strtolower($value) === 'current_date') {
-                    return 'current_date';
+                if (strtolower($value) === self::CURRENT_DATE_DEFAULT) {
+                    return self::CURRENT_DATE_DEFAULT;
                 }
                 if (($timestamp = strtotime($value))) {
                     return date('Y-m-d', $timestamp);
@@ -318,8 +323,8 @@ class TableBuilder
 
                 throw new ColumnsValueException($error);
             case 'datetime':
-                if (strtolower($value) === 'current_datetime') {
-                    return 'current_datetime';
+                if (strtolower($value) === self::CURRENT_DATETIME_DEFAULT) {
+                    return self::CURRENT_DATETIME_DEFAULT;
                 }
                 if (($timestamp = strtotime($value))) {
                     return date('Y-m-d H:i:s', $timestamp);
@@ -374,7 +379,7 @@ class TableBuilder
      */
     public function dropColumn($name)
     {
-        $this->builder[ $name ] = [ 'opt' => 'drop' ];
+        $this->builder[ $name ][ 'opt' ] = 'drop';
 
         return $this;
     }
@@ -402,7 +407,8 @@ class TableBuilder
     public function modify()
     {
         $this->checkPreviousBuild('modify');
-        $key                            = key($this->builder);
+        $key = key($this->builder);
+
         $this->builder[ $key ][ 'opt' ] = 'modify';
 
         return $this;

@@ -23,13 +23,13 @@ class Txt extends \Queryflatfile\Driver
         $file = $this->getFile($path, $fileName);
 
         if (!file_exists($path)) {
-            mkdir($path, 0775);
+            mkdir($path, 0755);
         }
         if (!file_exists($file)) {
-            $fichier = fopen($file, 'w+');
-            fwrite($fichier, serialize($data));
+            $handle = fopen($file, 'w+');
+            fwrite($handle, serialize($data));
 
-            return fclose($fichier);
+            return fclose($handle);
         }
 
         return false;
@@ -60,10 +60,10 @@ class Txt extends \Queryflatfile\Driver
         $this->isExist($file);
         $this->isWrite($file);
 
-        $fp = fopen($file, 'w');
-        fwrite($fp, serialize($data));
+        $handle = fopen($file, 'w');
+        fwrite($handle, serialize($data));
 
-        return fclose($fp);
+        return fclose($handle);
     }
 
     /**
