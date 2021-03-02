@@ -52,18 +52,19 @@ class TableBuilder
      * Enregistre un champ de type `char` avec une limite de taille par défaut de un caractère.
      * http://php.net/language.types.string
      *
-     * @param string      $name   Nom du champ
-     * @param numeric|int $length longueur maximum de la chaine.
+     * @param string $name   Nom du champ
+     * @param int    $length longueur maximum de la chaine.
      *
-     * @throws Exception
+     * @throws TableBuilderException
+     *
      * @return $this
      */
     public function char($name, $length = 1)
     {
-        if (!\is_numeric($length) || $length < 0) {
+        if (!\is_int($length) || $length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
-        $this->builder[ $name ] = [ 'type' => 'char', 'length' => (int) $length ];
+        $this->builder[ $name ] = [ 'type' => 'char', 'length' => $length ];
 
         return $this;
     }
@@ -154,18 +155,18 @@ class TableBuilder
      * Enregistre un champ de type `string` avec une limite de taille  par défaut de 255 caractères.
      * http://php.net/language.types.string
      *
-     * @param string      $name   Nom du champ.
-     * @param numeric|int $length Longueur maximum de la chaine.
+     * @param string $name   Nom du champ.
+     * @param int    $length Longueur maximum de la chaine.
      *
      * @throws Exception
      * @return $this
      */
     public function string($name, $length = 255)
     {
-        if (!\is_numeric($length) || $length < 0) {
+        if (!\is_int($length) || $length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
-        $this->builder[ $name ] = [ 'type' => 'string', 'length' => (int) $length ];
+        $this->builder[ $name ] = [ 'type' => 'string', 'length' => $length ];
 
         return $this;
     }
