@@ -158,7 +158,7 @@ Array
 - `execute()` Exécute l'insertion, la modification et la suppression de données,
 - `fetch()` Renvoie le premier résultat de la requête,
 - `fetchAll()` Renvoie tous les résultats de la requête,
-- `lists( $name = null )` Renvoie une liste de la colonne passée en paramètre.
+- `lists( $name, $key = null )` Renvoie une liste de la colonne passée en paramètre.
 
 **Where**
 - `where( callable|string $column, $condition = null, $value = null )`,

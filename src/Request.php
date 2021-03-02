@@ -335,27 +335,17 @@ class Request extends RequestHandler
      * Retourne les résultats de la requête sous forme de tableau simple,
      * composé uniquement du champ passé en paramètre ou du premier champ sélectionné.
      *
-     * @param string|null $name Nom du champ.
+     * @param string      $name Nom du champ.
+     * @param string|null $key  Clé des valeurs de la liste
      *
      * @throws ColumnsNotFoundException
      * @return array                    Liste du champ passé en paramètre.
      */
-    public function lists($name = null)
+    public function lists($name, $key = null)
     {
-        if ($name !== null && !in_array($name, $this->columns)) {
-            $this->columns[] = $name;
-        } elseif ($this->columns) {
-            $name = $this->columns[ 0 ];
-        } else {
-            throw new ColumnsNotFoundException('No key selected for the list.');
-        }
-
         $data = $this->fetchAll();
-        foreach ($data as &$row) {
-            $row = $row[ $name ];
-        }
 
-        return $data;
+        return array_column($data, $name, $key);
     }
 
     /**
