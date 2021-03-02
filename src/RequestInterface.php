@@ -21,16 +21,6 @@ interface RequestInterface
     const ALL = 0;
 
     /**
-     * La valeur pour le trie par ordre croissant.
-     */
-    const ASC = 'asc';
-
-    /**
-     * La valeur pour le trie par ordre décroissant.
-     */
-    const DESC = 'desc';
-
-    /**
      * La valeur pour une union simple.
      */
     const UNION_SIMPLE = 'simple';
@@ -113,11 +103,11 @@ interface RequestInterface
      * Enregistre un trie des résultats de la requête.
      *
      * @param string $columns Colonnes à trier.
-     * @param string $order   Ordre du trie (asc|desc).
+     * @param int    $order   Ordre du trie (SORT_ASC|SORT_DESC).
      *
      * @return $this
      */
-    public function orderBy($columns, $order = self::ASC);
+    public function orderBy($columns, $order = SORT_ASC);
 
     /**
      * Enregistre l'action d'insertion de données.

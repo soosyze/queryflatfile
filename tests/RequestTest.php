@@ -968,7 +968,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $data = $this->request->select([ 'firstname' ])
             ->from('user')
-            ->orderBy('firstname', 'desc')
+            ->orderBy('firstname', SORT_DESC)
             ->fetchAll();
 
         self::assertArraySubset($data, [
@@ -982,12 +982,23 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
+    /**
+     * @expectedException \Queryflatfile\Exception\Query\OperatorNotFound
+     */
+    public function testOrderByException()
+    {
+        $this->request
+            ->from('user')
+            ->orderBy('firstname', 'error')
+            ->fetchAll();
+    }
+
     public function testOrderByDescFetch()
     {
         $data = $this->request->select([ 'name' ])
             ->from('user')
             ->where('id', '>=', 4)
-            ->orderBy('name', 'desc')
+            ->orderBy('name', SORT_DESC)
             ->fetch();
 
         self::assertArraySubset($data, [ 'name' => 'ROBERT' ]);
@@ -998,7 +1009,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request->select([ 'name' ])
             ->from('user')
             ->where('id', '>=', 3)
-            ->orderBy('name', 'desc')
+            ->orderBy('name', SORT_DESC)
             ->limit(2, 1)
             ->fetchAll();
 
@@ -1012,7 +1023,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $data = $this->request->select([ 'name', 'firstname' ])
             ->from('user')
-            ->orderBy('name', 'desc')
+            ->orderBy('name', SORT_DESC)
             ->orderBy('firstname')
             ->fetchAll();
 
@@ -1031,8 +1042,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $data = $this->request->select([ 'name', 'firstname' ])
             ->from('user')
-            ->orderBy('name', 'desc')
-            ->orderBy('firstname', 'desc')
+            ->orderBy('name', SORT_DESC)
+            ->orderBy('firstname', SORT_DESC)
             ->fetchAll();
 
         self::assertArraySubset($data, [

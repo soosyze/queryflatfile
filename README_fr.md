@@ -145,7 +145,7 @@ Array
 - `rightJoin( $table, callable|string $column, $condition = null, $value = null )`,
 - `union( Request $union )`,
 - `unionAll( Request $union )`,
-- `orderBy( $columns, $order = 'asc' )`,
+- `orderBy( $columns, $order = SORT_DESC|SORT_ASC )`,
 - `limit( $limit, $offset = 0 )`.
 
 **Requête d'exécution**
