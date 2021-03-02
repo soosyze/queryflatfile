@@ -199,23 +199,33 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testLists()
     {
-        $data1 = $this->request->select('firstname')->from('user')->lists();
-        $data2 = $this->request->select('firstname', 'name')->from('user')->lists();
-        $data3 = $this->request->from('user')->lists('firstname');
+        $data = $this->request->from('user')->lists('firstname');
 
         $assert = [ 'Mathieu', 'Jean', 'Manon', 'Marie', 'Pierre', 'Eva', null ];
 
-        self::assertArraySubset($data1, $assert);
-        self::assertArraySubset($data2, $assert);
-        self::assertArraySubset($data3, $assert);
+        self::assertArraySubset($data, $assert);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testListsException()
+    public function testListsKey()
     {
-        $this->request->from('user')->lists();
+        $data = $this->request->from('user')->lists('firstname', 'name');
+
+        self::assertArraySubset($data, [
+            'NOEL'   => 'Mathieu',
+            'DUPOND' => 'Jean',
+            'MARTIN' => 'Manon',
+            null     => 'Marie',
+            'DUPOND' => 'Pierre',
+            'MEYER'  => 'Eva',
+            'ROBERT' => null
+        ]);
+    }
+
+    public function testListsVoid()
+    {
+        $data = $this->request->from('user')->lists('error');
+
+        self::assertArraySubset($data, []);
     }
 
     /**
@@ -1333,7 +1343,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->select('name')
             ->from('user')
             ->union($union)
-            ->lists();
+            ->lists('name');
 
         self::assertArraySubset($data, [
             'NOEL',
@@ -1353,6 +1363,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->between('id', 1, 5);
 
         $data = $this->request2
+            ->select('name')
             ->from('user')
             ->union($union)
             ->orderBy('name')

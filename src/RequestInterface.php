@@ -187,12 +187,13 @@ interface RequestInterface
      * Retourne les résultats de la requête sous forme de tableau simple,
      * composé uniquement du champ passé en paramètre ou du premier champ sélectionné.
      *
-     * @param string|null $name Nom du champ.
+     * @param string      $name Nom du champ.
+     * @param string|null $key  Clé des valeurs de la liste
      *
      * @throws ColumnsNotFoundException
      * @return array                    Liste du champ passé en paramètre.
      */
-    public function lists();
+    public function lists($name, $key = null);
 
     /**
      * Lance l'exécution d'une requête de création, modification ou suppression.

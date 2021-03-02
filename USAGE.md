@@ -295,16 +295,12 @@ Résultat(s) de la requête :
 
 ### Lists
 
-La fonction `lists( $name = null );` contrairement à la fonction `fetch();` ou `fetchAll();`
-renvoie les résultats du champ passé en paramètre ou du premier champ sélectionné dans
-un tableau simple (sans clé).
+La fonction `lists( $name, $key = null );` contrairement à la fonction `fetch();` ou `fetchAll();` renvoie les résultats en listes en fonction du champ spécifié en premier paramètre.
+Le second paramètre sert à spécifier les clés à associer aux valeurs.
 
 Requête en PHP avec QueryFlatFile :
 ```php
-// Ces 3 fonctions sont équivalentes
 $request->from('user')->lists('firstname');
-$request->select([ 'firstname' ])->from('user')->lists();
-$request->select('firstname')->from('user')->lists();
 ```
 
 Résultat(s) de la requête :
