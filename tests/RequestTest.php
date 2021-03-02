@@ -203,16 +203,16 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testListsKey()
     {
-        $data = $this->request->from('user')->lists('firstname', 'name');
+        $data = $this->request->from('user')->lists('firstname', 'id');
 
         self::assertArraySubset($data, [
-            'NOEL'   => 'Mathieu',
-            'DUPOND' => 'Jean',
-            'MARTIN' => 'Manon',
-            null     => 'Marie',
-            'DUPOND' => 'Pierre',
-            'MEYER'  => 'Eva',
-            'ROBERT' => null
+            0 => 'Mathieu',
+            1 => 'Jean',
+            2 => 'Manon',
+            3 => 'Marie',
+            4 => 'Pierre',
+            5 => 'Eva',
+            6 => null
         ]);
     }
 
