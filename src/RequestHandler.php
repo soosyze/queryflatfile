@@ -254,7 +254,7 @@ abstract class RequestHandler implements RequestInterface
      *                                 ou une colonne de la table jointe (au format nom_table.colonne)
      *                                 ou null pour une closure.
      */
-    protected function join($type, $table, $column, $operator = null, $value = null)
+    private function join($type, $table, $column, $operator = null, $value = null)
     {
         if ($column instanceof \Closure) {
             $where = new Where();
