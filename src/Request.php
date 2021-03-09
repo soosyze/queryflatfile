@@ -270,7 +270,7 @@ class Request extends RequestHandler
                 if ($i++ < $this->offset) {
                     continue;
                 }
-                if (($i++ > $this->offset + $this->limit) && ($this->limit <= count($return))) {
+                if (($i++ > $this->sumLimit) && ($this->limit <= count($return))) {
                     break;
                 }
             }
