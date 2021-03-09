@@ -83,16 +83,16 @@ class Where extends WhereHandler
     {
         $output = [];
         foreach ($this->where as $value) {
-            if (!\is_array($value[ 'column' ])) {
-                $output[] = $this->getColumn($value[ 'column' ]);
+            if (\is_array($value[ 'column' ])) {
+                $output = array_merge($output, $value[ 'column' ]);
 
                 continue;
             }
 
-            $output = array_merge($output, $value[ 'column' ]);
+            $output[] = $this->getColumn($value[ 'column' ]);
         }
 
-        return $this->columns;
+        return $output;
     }
 
     /**
@@ -107,9 +107,9 @@ class Where extends WhereHandler
         $output = true;
         foreach ($this->where as $key => $value) {
             /* Si la clause est standard ou une sous clause. */
-            $predicate = $value[ 'type' ] !== 'whereCallback'
-                ? self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ])
-                : $value[ 'value' ]->execute($row);
+            $predicate = $value[ 'type' ] === 'whereCallback'
+                ? $value[ 'value' ]->execute($row)
+                : self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ]);
             /* Si la clause est inversé. */
             if ($value[ 'not' ]) {
                 $predicate ^= 1;
@@ -144,12 +144,15 @@ class Where extends WhereHandler
     {
         $output = true;
         foreach ($this->where as $key => $value) {
+            $predicate = true;
+
             switch ($value[ 'type' ]) {
                 case 'where':
                 case 'isNull':
-                    $val       = $this->isColumn($value[ 'value' ])
+                    $val = self::isColumn($value[ 'value' ])
                         ? $rowTable[ substr(strrchr($value[ 'value' ], '.'), 1) ]
                         : $value[ 'value' ];
+
                     $predicate = self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $val);
 
                     break;
@@ -207,7 +210,7 @@ class Where extends WhereHandler
             case 'in':
                 return in_array($columns, $value);
             case 'regex':
-                return preg_match($value, $columns);
+                return preg_match($value, $columns) === 1;
             case 'between':
                 return $columns >= $value[ 'min' ] && $columns <= $value[ 'max' ];
         }
@@ -224,7 +227,7 @@ class Where extends WhereHandler
      *
      * @return bool
      */
-    protected function isColumn($value)
+    protected static function isColumn($value)
     {
         return \is_string($value) && strstr($value, '.');
     }
@@ -236,9 +239,9 @@ class Where extends WhereHandler
      *
      * @return string
      */
-    protected function getColumn($value)
+    protected static function getColumn($value)
     {
-        return $this->isColumn($value)
+        return self::isColumn($value)
             ? substr(strrchr($value, '.'), 1)
             : $value;
     }

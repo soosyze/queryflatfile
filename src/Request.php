@@ -250,6 +250,8 @@ class Request extends RequestHandler
         /* Le pointeur en cas de limite de résultat. */
         $i      = 0;
 
+        $column = array_flip($this->columns);
+
         /*
          * Exécution des jointures.
          * La réunion et l'intersection des ensembles sont soumis à la loi interne * et donc commutative.
@@ -276,29 +278,26 @@ class Request extends RequestHandler
             }
 
             /* SELECT */
-            if ($this->columns) {
-                $column   = array_flip($this->columns);
-                $return[] = array_intersect_key($row, $column);
-            } else {
-                $return[] = $row;
-            }
+            $return[] = $this->columns
+                ? array_intersect_key($row, $column)
+                : $row;
         }
 
         /* UNION */
         foreach ($this->union as $union) {
             /* Si le retour est demandé en liste. */
-            $fetch = $union[ 'request' ]->fetchAll();
+            $fetchAll = $union[ 'request' ]->fetchAll();
 
             /**
              * UNION ALL
              * Pour chaque requêtes unions, on récupère les résultats.
              * On merge puis on supprime les doublons.
              */
-            $return = array_merge($return, $fetch);
+            $return = array_merge($return, $fetchAll);
 
             /* UNION */
             if ($union[ 'type' ] !== self::UNION_ALL) {
-                $return = self::arrayUniqueMultidimensional($return);
+                self::arrayUniqueMultidimensional($return);
             }
         }
 
@@ -326,7 +325,7 @@ class Request extends RequestHandler
     {
         $fetch = $this->limit(1)->fetchAll();
 
-        return !empty($fetch[ 0 ])
+        return $fetch
             ? $fetch[ 0 ]
             : [];
     }
@@ -356,7 +355,7 @@ class Request extends RequestHandler
         parent::init();
         $this->allColumnsSchema = [];
         $this->execute          = null;
-        $this->tableData        = null;
+        $this->tableData        = [];
         $this->where            = null;
 
         return $this;
@@ -369,7 +368,7 @@ class Request extends RequestHandler
      *
      * @return array Tableau multidimensionnel avec des entrées uniques.
      */
-    protected static function arrayUniqueMultidimensional(array $input)
+    protected static function arrayUniqueMultidimensional(array &$input)
     {
         /* Sérialise les données du tableaux. */
         $serialized = array_map('serialize', $input);
@@ -381,7 +380,7 @@ class Request extends RequestHandler
         $output = array_intersect_key($input, $unique);
 
         /* Renvoie le tableau avec ses clés ré-indexé */
-        return array_values($output);
+        $input = array_values($output);
     }
 
     protected function executeJoins($type, $table, Where $where)
@@ -423,8 +422,6 @@ class Request extends RequestHandler
         }
         $this->tableData = $result;
         unset($tableData, $tableJoin, $result);
-
-        return $this;
     }
 
     /**
@@ -476,17 +473,17 @@ class Request extends RequestHandler
         $increments    = $this->getIncrement();
         /* Je charge les colonnes de mon schéma. */
         $schemaColumns = $this->tableSchema[ 'fields' ];
-        $count         = count($this->columns);
 
         foreach ($this->values as $values) {
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
-            if ($count != count($values)) {
+            try {
+                /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
+                $row = array_combine($this->columns, $values);
+            } catch (\Exception $ex) {
                 throw new ColumnsNotFoundException('keys : ' . implode(',', $this->columns) . ' != ' . implode(',', $values));
             }
 
-            /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
-            $row = array_combine($this->columns, $values);
-
+            $data = [];
             foreach ($schemaColumns as $field => $arg) {
                 /* Si mon champs existe dans le schema. */
                 if (isset($row[ $field ])) {
@@ -592,9 +589,6 @@ class Request extends RequestHandler
     {
         if ($this->columns) {
             $this->diffColumns($this->columns);
-        } else {
-            /* Si aucunes colonnes selectionnées. */
-            $this->columns = [];
         }
     }
 
@@ -681,8 +675,10 @@ class Request extends RequestHandler
      */
     private function diffColumns(array $columns)
     {
-        $all  = $this->allColumnsSchema;
-        $diff = array_diff_key(array_flip($columns), $all);
+        $diff = array_diff_key(
+            array_flip($columns),
+            $this->allColumnsSchema
+        );
 
         if ($diff) {
             $columnsDiff = array_flip($diff);

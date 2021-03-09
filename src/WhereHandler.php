@@ -57,13 +57,6 @@ class WhereHandler
     ];
 
     /**
-     * Les colonnes appelées pour les clauses.
-     *
-     * @var array
-     */
-    protected $columns = [];
-
-    /**
      * Ajoute une condition simple pour la requête.
      * Si la valeur du champ est égal (non égale, supérieur à, ...)  par rapport à une valeur.
      *
@@ -90,8 +83,7 @@ class WhereHandler
             return $this;
         }
         if ($value === null) {
-            $value    = $operator;
-            $operator = '=';
+            list($value, $operator) = [ $operator, '=' ];
         }
 
         /* Pour que l'opérateur soit insensible à la case. */
@@ -114,7 +106,6 @@ class WhereHandler
             'bool'      => $bool,
             'not'       => $not
         ];
-        $this->columns[] = $column;
 
         return $this;
     }
@@ -189,7 +180,6 @@ class WhereHandler
             'bool'      => $bool,
             'not'       => $not
         ];
-        $this->columns[] = $column;
 
         return $this;
     }
@@ -263,7 +253,6 @@ class WhereHandler
             'bool'      => $bool,
             'not'       => $not
         ];
-        $this->columns[] = $column;
 
         return $this;
     }
@@ -333,7 +322,6 @@ class WhereHandler
             'bool'      => $bool,
             'not'       => $not
         ];
-        $this->columns[] = $column;
 
         return $this;
     }
@@ -400,7 +388,6 @@ class WhereHandler
             'bool'      => $bool,
             'not'       => $not
         ];
-        $this->columns[] = $column;
 
         return $this;
     }
@@ -459,8 +446,9 @@ class WhereHandler
      */
     protected function whereCallback(\Closure $column, $bool = self::EXP_AND, $not = false)
     {
-        $where         = new Where();
+        $where = new Where();
         call_user_func_array($column, [ &$where ]);
+
         $this->where[] = [
             'type'   => __FUNCTION__,
             'column' => $where->getColumns(),
@@ -468,7 +456,6 @@ class WhereHandler
             'bool'   => $bool,
             'not'    => $not
         ];
-        $this->columns = array_merge($this->columns, $where->getColumns());
     }
 
     /**
@@ -482,7 +469,8 @@ class WhereHandler
     protected function like($column, $operator, $value, $bool = self::EXP_AND)
     {
         /* Protection des caractères spéciaux des expressions rationnelles autre que celle imposée. */
-        $str     = preg_quote($value, '/');
+        $str = preg_quote($value, '/');
+
         /* Le paterne commun au 4 conditions. */
         $pattern = '/^' . strtr($str, [ '%' => '.*' ]);
 
@@ -500,6 +488,5 @@ class WhereHandler
             /* Pour inverser le comportement du like. */
             'not'       => $operator === 'not like' || $operator === 'not ilike'
         ];
-        $this->columns[] = $column;
     }
 }
