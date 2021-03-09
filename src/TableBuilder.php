@@ -33,7 +33,7 @@ class TableBuilder
     /**
      * La valeur des champs incrémentaux.
      *
-     * @var array
+     * @var int|null
      */
     private $increment = null;
 
@@ -363,7 +363,7 @@ class TableBuilder
     /**
      * Retourne la liste des champs incrémentaux.
      *
-     * @return array
+     * @return int|null
      */
     public function getIncrement()
     {
