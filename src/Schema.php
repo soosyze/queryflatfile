@@ -233,7 +233,8 @@ class Schema
          * (Si le répertoire contient que les 2 élements '.' et '..')
          * alors nous le supprimons.
          */
-        if (count(scandir($this->root . $this->path)) == 2) {
+        $dir = scandir($this->root . $this->path);
+        if ($dir !== false && count($dir) == 2) {
             rmdir($this->root . $this->path);
         }
 
