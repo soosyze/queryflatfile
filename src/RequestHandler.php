@@ -65,6 +65,13 @@ abstract class RequestHandler implements RequestInterface
     protected $offset = 0;
 
     /**
+     * La somme de l'offset et de la limite.
+     *
+     * @var int
+     */
+    protected $sumLimit = 0;
+
+    /**
      * La liste des colonnes à mettre à jour.
      *
      * @var string[]
@@ -126,8 +133,9 @@ abstract class RequestHandler implements RequestInterface
      */
     public function limit($limit, $offset = 0)
     {
-        $this->limit  = $limit;
-        $this->offset = $offset;
+        $this->limit    = $limit;
+        $this->offset   = $offset;
+        $this->sumLimit = $offset + $limit;
 
         return $this;
     }
@@ -220,15 +228,16 @@ abstract class RequestHandler implements RequestInterface
      */
     protected function init()
     {
-        $this->columns = [];
-        $this->execute = null;
-        $this->from    = '';
-        $this->joins   = [];
-        $this->limit   = self::ALL;
-        $this->offset  = 0;
-        $this->orderBy = [];
-        $this->union   = [];
-        $this->values  = [];
+        $this->columns  = [];
+        $this->execute  = null;
+        $this->from     = '';
+        $this->joins    = [];
+        $this->limit    = self::ALL;
+        $this->offset   = 0;
+        $this->orderBy  = [];
+        $this->sumLimit = 0;
+        $this->union    = [];
+        $this->values   = [];
 
         return $this;
     }
