@@ -20,23 +20,27 @@ use Queryflatfile\Exception\Query\TableNotFoundException;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  *
- * @method Request where( callable|string $column, null|string $operator = null, null|string $value = null, string $bool = 'and', boolean $not = false ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request where( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request notWhere( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orWhere( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orNotWhere( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request between( string $column, mixed $min, mixed $max, string $bool = 'and', boolean $not = false ) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request between( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orBetween( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request notBetween( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orNotBetween( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request in( string $column, array $values, string $bool = 'and', boolean $not = false ) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request in( string $column, array $values) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orIn( string $column, array $values ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request notIn( string $column, array $values ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orNotIn( string $column, array $values ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request isNull( string $column, string $condition = '===', string $bool = 'and', boolean $not = false ) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request isNull( string $column, string $condition = '===' ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orIsNull( string $column ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request isNotNull( string $column ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orIsNotNull( string $column ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request regex( string $column, string $pattern, string $bool = 'and', boolean $not = false ) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request regex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orRegex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request notRegex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orNotRegex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
@@ -67,7 +71,7 @@ class Request extends RequestHandler
     /**
      * Les conditions de la requête.
      *
-     * @var Where
+     * @var Where|null
      */
     private $where = null;
 
@@ -76,12 +80,12 @@ class Request extends RequestHandler
      *
      * @var Schema
      */
-    private $schema = null;
+    private $schema;
 
     /**
      * Réalise une requête sur un schéma de données
      *
-     * @param \Queryflatfile\Schema $sch
+     * @param Schema $sch
      */
     public function __construct(Schema $sch)
     {
@@ -166,7 +170,7 @@ class Request extends RequestHandler
     /**
      * Ajoute un schéma de données à notre requête.
      *
-     * @param \Queryflatfile\Schema $sch
+     * @param Schema $sch
      *
      * @return $this
      */
@@ -366,7 +370,7 @@ class Request extends RequestHandler
      *
      * @param array $input Table multidimensionnelle.
      *
-     * @return array Tableau multidimensionnel avec des entrées uniques.
+     * @return void
      */
     protected static function arrayUniqueMultidimensional(array &$input)
     {
@@ -383,6 +387,15 @@ class Request extends RequestHandler
         $input = array_values($output);
     }
 
+    /**
+     * Execute les jointures.
+     *
+     * @param string $type
+     * @param string $table
+     * @param Where  $where
+     *
+     * @return void;
+     */
     protected function executeJoins($type, $table, Where $where)
     {
         $result       = [];
@@ -466,6 +479,7 @@ class Request extends RequestHandler
      * Exécute l'insertion de données.
      *
      * @throws ColumnsNotFoundException
+     * @return void
      */
     protected function executeInsert()
     {
@@ -518,6 +532,8 @@ class Request extends RequestHandler
 
     /**
      * Exécute le calcul de mise à jour des données.
+     *
+     * @return void
      */
     protected function executeUpdate()
     {
@@ -533,6 +549,8 @@ class Request extends RequestHandler
 
     /**
      * Supprime des lignes de la table en fonction des conditions et sauvegarde la table.
+     *
+     * @return void
      */
     protected function executeDelete()
     {
@@ -557,6 +575,8 @@ class Request extends RequestHandler
 
     /**
      * Charge les colonnes de la table courante et des tables de jointure.
+     *
+     * @return void
      */
     private function loadAllColumnsSchema()
     {
@@ -574,6 +594,7 @@ class Request extends RequestHandler
      * Vérifie l'existence de la table courante.
      *
      * @throws TableNotFoundException
+     * @return void
      */
     private function filterFrom()
     {
@@ -584,6 +605,8 @@ class Request extends RequestHandler
 
     /**
      * Vérifie pour tous les champs sélectionnées, leur l'existence à partir du schéma.
+     *
+     * @return void
      */
     private function filterSelect()
     {
@@ -592,6 +615,12 @@ class Request extends RequestHandler
         }
     }
 
+    /**
+     * Vérifie que la limite est un entier positif.
+     *
+     * @throws QueryException
+     * @return void
+     */
     private function filterLimit()
     {
         if (!\is_int($this->limit) || $this->limit < self::ALL) {
@@ -605,6 +634,8 @@ class Request extends RequestHandler
     /**
      * Vérifie pour toutes les jointures (LEFT JOIN, RIGHT JOIN) et les clauses conditionnées (WHERE),
      * l'existence des champs à partir du schéma.
+     *
+     * @return void
      */
     private function filterWhere()
     {
@@ -651,6 +682,7 @@ class Request extends RequestHandler
      * Vérifie la cohérence des champs dans chaque requêtes entre les UNIONS.
      *
      * @throws ColumnsNotFoundException
+     * @return void
      */
     private function filterUnion()
     {
@@ -672,6 +704,7 @@ class Request extends RequestHandler
      * @param array $columns Liste des champs.
      *
      * @throws ColumnsNotFoundException
+     * @return void
      */
     private function diffColumns(array $columns)
     {

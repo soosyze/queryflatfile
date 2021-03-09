@@ -187,9 +187,9 @@ class WhereHandler
     /**
      * Alias inverse de la fonction between().
      *
-     * @param callable|string $column
-     * @param mixed           $min
-     * @param mixed           $max
+     * @param string $column
+     * @param mixed  $min
+     * @param mixed  $max
      *
      * @return $this
      */
@@ -203,9 +203,9 @@ class WhereHandler
     /**
      * Alias avec la porte logique 'OR' de la fonction between().
      *
-     * @param callable|string $column
-     * @param mixed           $min
-     * @param mixed           $max
+     * @param string $column
+     * @param mixed  $min
+     * @param mixed  $max
      *
      * @return $this
      */
@@ -219,9 +219,9 @@ class WhereHandler
     /**
      * Alias inverse avec la porte logique 'OR' de la fonction between().
      *
-     * @param callable|string $column
-     * @param mixed           $min
-     * @param mixed           $max
+     * @param string $column
+     * @param mixed  $min
+     * @param mixed  $max
      *
      * @return $this
      */
@@ -443,6 +443,8 @@ class WhereHandler
      * @param \Closure $column
      * @param string   $bool
      * @param bool     $not
+     *
+     * @return void
      */
     protected function whereCallback(\Closure $column, $bool = self::EXP_AND, $not = false)
     {

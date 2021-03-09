@@ -74,6 +74,7 @@ abstract class Driver implements DriverInterface
      * @param string $file Chemin complet du fichier.
      *
      * @throws Exception\Driver\FileNotFoundException
+     * @return void
      */
     protected function isExist($file)
     {
@@ -90,6 +91,7 @@ abstract class Driver implements DriverInterface
      * @param string $file Chemin complet du fichier.
      *
      * @throws Exception\Driver\FileNotWritableException
+     * @return void
      */
     protected function isWrite($file)
     {
@@ -106,6 +108,7 @@ abstract class Driver implements DriverInterface
      * @param string $file Chemin complet du fichier.
      *
      * @throws Exception\Driver\FileNotReadableException
+     * @return void
      */
     protected function isRead($file)
     {
