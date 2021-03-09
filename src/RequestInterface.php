@@ -62,13 +62,13 @@ interface RequestInterface
     /**
      * Enregistre une jointure gauche.
      *
-     * @param string         $table    Nom de la table à joindre.
-     * @param string|Closure $column   Nom de la colonne d'une des tables précédentes
-     *                                 ou une closure pour affiner les conditions.
-     * @param string|null    $operator Opérateur logique ou null pour une closure.
-     * @param string|null    $value    Valeur
-     *                                 ou une colonne de la table jointe (au format nom_table.colonne)
-     *                                 ou null pour une closure.
+     * @param string          $table    Nom de la table à joindre.
+     * @param string|\Closure $column   Nom de la colonne d'une des tables précédentes
+     *                                  ou une closure pour affiner les conditions.
+     * @param string|null     $operator Opérateur logique ou null pour une closure.
+     * @param string|null     $value    Valeur
+     *                                  ou une colonne de la table jointe (au format nom_table.colonne)
+     *                                  ou null pour une closure.
      *
      * @return $this
      */
@@ -77,13 +77,13 @@ interface RequestInterface
     /**
      * Enregistre une jointure droite.
      *
-     * @param string         $table    Nom de la table à joindre
-     * @param string|Closure $column   Nom de la colonne d'une des tables précédentes
-     *                                 ou une closure pour affiner les conditions.
-     * @param string|null    $operator Opérateur logique ou null pour une closure.
-     * @param string|null    $value    Valeur
-     *                                 ou une colonne de la table jointe (au format nom_table.colonne)
-     *                                 ou null pour une closure.
+     * @param string          $table    Nom de la table à joindre
+     * @param string|\Closure $column   Nom de la colonne d'une des tables précédentes
+     *                                  ou une closure pour affiner les conditions.
+     * @param string|null     $operator Opérateur logique ou null pour une closure.
+     * @param string|null     $value    Valeur
+     *                                  ou une colonne de la table jointe (au format nom_table.colonne)
+     *                                  ou null pour une closure.
      *
      * @return $this
      */
@@ -199,6 +199,7 @@ interface RequestInterface
      * Lance l'exécution d'une requête de création, modification ou suppression.
      *
      * @throws BadFunctionException
+     * @return void
      */
     public function execute();
 }

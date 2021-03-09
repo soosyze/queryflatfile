@@ -89,6 +89,8 @@ class Schema
      * @param string               $host   Répertoire de stockage des données.
      * @param string               $name   Nom du fichier contenant le schéma de base.
      * @param DriverInterface|null $driver Interface de manipulation de données.
+     *
+     * @return $this
      */
     public function setConfig(
         $host,
@@ -295,8 +297,8 @@ class Schema
     /**
      * Modifie les champs du schéma de données.
      *
-     * @param string        $table    Nom de la table.
-     * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
+     * @param string   $table    Nom de la table.
+     * @param callable $callback fonction(TableBuilder $table) pour créer les champs.
      *
      * @throws TableNotFoundException
      * @throws Exception
@@ -339,7 +341,8 @@ class Schema
      * @param array  $arg   Différente configurations.
      *
      * @throws ColumnsValueException
-     * @return mixed                 Valeur par defaut.
+     *
+     * @return mixed Valeur par defaut.
      */
     public static function getValueDefault($field, $arg)
     {
@@ -512,7 +515,9 @@ class Schema
      * @param array  $fields    Les champs de la table.
      * @param array  $dataTable Les données de la table.
      * @param string $name      Nom du champ.
-     * @param type   $value     Nouveaux paramètres.
+     * @param array  $value     Nouveaux paramètres.
+     *
+     * @return void
      */
     protected static function add(array &$fields, array &$dataTable, $name, array $value)
     {
@@ -533,6 +538,8 @@ class Schema
      * @param array  $dataTable Les données de la table.
      * @param string $name      Nom du champ.
      * @param array  $value     Nouveaux paramètres.
+     *
+     * @return void
      */
     protected static function modify(array &$fields, array &$dataTable, $name, array $value)
     {
@@ -554,6 +561,8 @@ class Schema
      * @param array  $dataTable Les données de la table.
      * @param string $name      Nom du champ.
      * @param string $to        Nouveau nom du champ.
+     *
+     * @return void
      */
     protected static function rename(array &$fields, array &$dataTable, $name, $to)
     {
@@ -571,6 +580,8 @@ class Schema
      * @param array  $fields    Les champs de la table.
      * @param array  $dataTable Les données de la table.
      * @param string $name      Nom du champ.
+     *
+     * @return void
      */
     protected static function drop(array &$fields, array &$dataTable, $name)
     {
@@ -590,6 +601,7 @@ class Schema
      *
      * @throws Exception
      * @throws ColumnsNotFoundException
+     * @return void
      */
     protected static function filterField($table, array $value, array $fields, $name)
     {
