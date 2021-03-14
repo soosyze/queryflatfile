@@ -174,10 +174,10 @@ Supported conditions (===, ==, !=, <>, <, <=, >, >=, like, ilike, not like, not 
 - `orNotBetween( $column, $min, $max )`.
 
 **Where in**
-- `in( $column, callable|array $values )`,
-- `orIn( $column, callable|array $values )`,
-- `notIn( $column, callable|array $values )`,
-- `orNotIn( $column, callable|array $values )`.
+- `in( $column, array $values )`,
+- `orIn( $column, array $values )`,
+- `notIn( $column, array $values )`,
+- `orNotIn( $column, array $values )`.
 
 **Where isNull**
 - `isNull( $column )`,

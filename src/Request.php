@@ -148,23 +148,20 @@ class Request extends RequestHandler
      * @param array  $arg  Pararètre de la méthode.
      *
      * @return $this
+     * @throws BadMethodCallException
      */
-    public function __call($name, $arg)
+    public function __call( $name, $arg )
     {
-        if ($this->where === null) {
+        if( method_exists($this->where, $name) ) {
+            throw new BadMethodCallException("The $name method not exist");
+        }
+        if( $this->where === null ) {
             $this->where = new Where();
         }
-        if (method_exists($this->where, $name)) {
-            if ($name === 'in' && $arg[ 1 ] instanceof \Closure) {
-                $request  = new Request($this->schema);
-                call_user_func_array($arg[ 1 ], [ &$request ]);
-                $arg[ 1 ] = $request->lists();
-            }
 
-            call_user_func_array([ $this->where, $name ], $arg);
+        call_user_func_array([ $this->where, $name ], $arg);
 
-            return $this;
-        }
+        return $this;
     }
 
     /**
