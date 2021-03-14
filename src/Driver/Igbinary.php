@@ -8,63 +8,23 @@
 
 namespace Queryflatfile\Driver;
 
+use Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
+
 /**
  * Manipule des données sérialisées avec l'extension igbinary
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class Igbinary extends \Queryflatfile\Driver
+final class Igbinary extends \Queryflatfile\Driver
 {
     /**
      * {@inheritDoc}
      */
-    public function create($path, $fileName, array $data = [])
+    public function checkExtension()
     {
-        $this->checkExtension();
-        $file = $this->getFile($path, $fileName);
-
-        if (!file_exists($path)) {
-            mkdir($path, 0755);
+        if (!extension_loaded('igbinary')) {
+            throw new ExtensionNotLoadedException('The igbinary extension is not loaded.');
         }
-        if (!file_exists($file)) {
-            $handle = fopen($file, 'w+');
-            fwrite($handle, igbinary_serialize($data));
-
-            return fclose($handle);
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function read($path, $fileName)
-    {
-        $file = $this->getFile($path, $fileName);
-
-        $this->isExist($file);
-        $this->isRead($file);
-
-        $data = file_get_contents($file);
-
-        return igbinary_unserialize($data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function save($path, $fileName, array $data)
-    {
-        $file = $this->getFile($path, $fileName);
-
-        $this->isExist($file);
-        $this->isWrite($file);
-
-        $handle = fopen($file, 'w');
-        fwrite($handle, igbinary_serialize($data));
-
-        return fclose($handle);
     }
 
     /**
@@ -76,16 +36,18 @@ class Igbinary extends \Queryflatfile\Driver
     }
 
     /**
-     * Déclanche une exception si le l'extension du fichier n'est pas chargée.
-     *
-     * @codeCoverageIgnore has
-     *
-     * @throws Exception\Driver\ExtensionNotLoadedException
+     * {@inheritDoc}
      */
-    private function checkExtension()
+    public function serializeData(array $data)
     {
-        if (!extension_loaded('igbinary')) {
-            throw new Exception\Driver\ExtensionNotLoadedException('The igbinary extension is not loaded.');
-        }
+        return igbinary_serialize($data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function unserializeData($data)
+    {
+        return igbinary_unserialize($data);
     }
 }
