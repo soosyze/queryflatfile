@@ -82,7 +82,7 @@ class WhereHandler
 
             return $this;
         }
-        if ($value === null) {
+        if ($operator !== null && $value === null) {
             list($value, $operator) = [ $operator, '=' ];
         }
 
@@ -467,6 +467,8 @@ class WhereHandler
      * @param string $operator
      * @param string $value
      * @param string $bool
+     *
+     * @return void
      */
     protected function like($column, $operator, $value, $bool = self::EXP_AND)
     {

@@ -147,16 +147,16 @@ class Request extends RequestHandler
      * @param string $name Nom de la méthode appelée.
      * @param array  $arg  Pararètre de la méthode.
      *
+     * @throws \BadMethodCallException
      * @return $this
-     * @throws BadMethodCallException
      */
-    public function __call( $name, $arg )
+    public function __call($name, $arg)
     {
-        if( method_exists($this->where, $name) ) {
-            throw new BadMethodCallException("The $name method not exist");
-        }
-        if( $this->where === null ) {
+        if ($this->where === null) {
             $this->where = new Where();
+        }
+        if (!method_exists($this->where, $name)) {
+            throw new \BadMethodCallException("The $name method not exist");
         }
 
         call_user_func_array([ $this->where, $name ], $arg);
@@ -440,7 +440,7 @@ class Request extends RequestHandler
      * @param array $data    Données à trier.
      * @param array $orderBy Clés sur lesquelles le trie s'exécute.
      *
-     * @return array les données triées
+     * @return void
      */
     protected function executeOrderBy(array &$data, array $orderBy)
     {
