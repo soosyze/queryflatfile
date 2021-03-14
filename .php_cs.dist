@@ -2,6 +2,7 @@
 
 /* friendsofphp/php-cs-fixer: 1.13.* */
 $finder = PhpCsFixer\Finder::create()
+    ->exclude('build')
     ->in(__DIR__);
 
 return PhpCsFixer\Config::create()
