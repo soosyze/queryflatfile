@@ -18,19 +18,86 @@ abstract class Driver implements DriverInterface
     const DS = DIRECTORY_SEPARATOR;
 
     /**
-     * {@inheritDoc}
+     * Déclenche une exception si l'extension du fichier n'est pas chargée.
+     *
+     * @codeCoverageIgnore has
+     *
+     * @throws Exception\Driver\ExtensionNotLoadedException
+     * @return void
      */
-    abstract public function create($path, $fileName, array $data = []);
+    abstract public function checkExtension();
+
+    /**
+     * Renvoie les données séréalisées.
+     *
+     * @param array $data
+     *
+     * @return string
+     */
+    abstract public function serializeData(array $data);
+
+    /**
+     * Renvoie les données désérialisées.
+     *
+     * @param string $data
+     *
+     * @return array
+     */
+    abstract public function unserializeData($data);
 
     /**
      * {@inheritDoc}
      */
-    abstract public function read($path, $fileName);
+    public function create($path, $fileName, array $data = [])
+    {
+        $this->checkExtension();
+        $file = $this->getFile($path, $fileName);
+
+        if (!file_exists($path)) {
+            mkdir($path, 0775, true);
+        }
+        if (!file_exists($file)) {
+            $handle = fopen($file, 'w+');
+            fwrite($handle, $this->serializeData($data));
+
+            return fclose($handle);
+        }
+
+        return false;
+    }
 
     /**
      * {@inheritDoc}
      */
-    abstract public function save($path, $fileName, array $data);
+    public function read($path, $fileName)
+    {
+        $this->checkExtension();
+        $file = $this->getFile($path, $fileName);
+
+        $this->isExist($file);
+        $this->isRead($file);
+
+        $data = file_get_contents($file);
+
+        return $this->unserializeData($data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function save($path, $fileName, array $data)
+    {
+        $this->checkExtension();
+        $file = $this->getFile($path, $fileName);
+
+        $this->isExist($file);
+        $this->isWrite($file);
+
+        $handle = fopen($file, 'w');
+        fwrite($handle, $this->serializeData($data));
+
+        return fclose($handle);
+    }
 
     /**
      * {@inheritDoc}
@@ -47,11 +114,6 @@ abstract class Driver implements DriverInterface
     {
         return file_exists($this->getFile($path, $fileName));
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    abstract public function getExtension();
 
     /**
      * Concatène le chemin, le nom du fichier et l'extension.
