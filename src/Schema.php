@@ -309,13 +309,13 @@ class Schema
             if (!isset($params[ 'opt' ])) {
                 self::filterFieldAdd($table, $fields, $name, $params[ 'type' ]);
                 self::add($schema, $dataTable, $name, $params);
-            } elseif ($params[ 'opt' ] === 'rename') {
+            } elseif ($params[ 'opt' ] === TableAlter::OPT_RENAME) {
                 self::filterFieldRename($table, $fields, $name, $params[ 'to' ]);
                 self::rename($schema, $dataTable, $name, $params[ 'to' ]);
-            } elseif ($params[ 'opt' ] === 'modify') {
+            } elseif ($params[ 'opt' ] === TableAlter::OPT_MODIFY) {
                 self::filterFieldModify($table, $fields, $name, $params[ 'type' ]);
                 self::modify($schema, $dataTable, $name, $params);
-            } elseif ($params[ 'opt' ] === 'drop') {
+            } elseif ($params[ 'opt' ] === TableAlter::OPT_DROP) {
                 self::filterFieldDrop($table, $fields, $name);
                 self::drop($schema, $dataTable, $name);
             }
@@ -341,10 +341,10 @@ class Schema
     public static function getValueDefault($name, array &$params)
     {
         if (isset($params[ 'default' ])) {
-            if ($params[ 'type' ] === 'date' && $params[ 'default' ] === 'current_date') {
+            if ($params[ 'type' ] === TableBuilder::TYPE_DATE && $params[ 'default' ] === TableBuilder::CURRENT_DATE_DEFAULT) {
                 return date('Y-m-d', time());
             }
-            if ($params[ 'type' ] === 'datetime' && $params[ 'default' ] === 'current_datetime') {
+            if ($params[ 'type' ] === TableBuilder::TYPE_DATETIME && $params[ 'default' ] === TableBuilder::CURRENT_DATETIME_DEFAULT) {
                 return date('Y-m-d H:i:s', time());
             }
 
@@ -521,7 +521,7 @@ class Schema
     ) {
         $schema[ 'fields' ][ $name ] = $params;
 
-        $increment = $params[ 'type' ] === 'increments'
+        $increment = $params[ 'type' ] === TableBuilder::TYPE_INCREMENT
             ? 1
             : null;
 
@@ -537,7 +537,7 @@ class Schema
                 : $increment++;
         }
 
-        if ($params[ 'type' ] === 'increments') {
+        if ($params[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
             $schema[ 'increments' ] = $increment;
         }
     }
@@ -561,7 +561,7 @@ class Schema
         unset($params[ 'opt' ]);
         $schema[ 'fields' ][ $name ] = $params;
 
-        $increment = $params[ 'type' ] === 'increments'
+        $increment = $params[ 'type' ] === TableBuilder::TYPE_INCREMENT
             ? 0
             : null;
 
@@ -573,7 +573,7 @@ class Schema
         } catch (ColumnsValueException $e) {
         }
 
-        if ($params[ 'type' ] === 'increments') {
+        if ($params[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
             $schema[ 'increments' ] = $increment;
         }
     }
@@ -620,7 +620,7 @@ class Schema
             unset($dataTable[ $key ][ $name ]);
         }
 
-        if ($schema[ 'fields' ][ $name ][ 'type' ] === 'increments') {
+        if ($schema[ 'fields' ][ $name ][ 'type' ] === TableBuilder::TYPE_INCREMENT) {
             $schema[ 'increments' ] = null;
         }
         unset($schema[ 'fields' ][ $name ]);
@@ -636,7 +636,7 @@ class Schema
     protected static function isFieldIncrement(array $fields)
     {
         foreach ($fields as $field) {
-            if ($field[ 'type' ] === 'increments') {
+            if ($field[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
                 return true;
             }
         }
@@ -699,7 +699,7 @@ class Schema
         if (isset($fields[ $name ])) {
             throw new Exception("$name field does not exists in $table table.");
         }
-        if ($type === 'increments' && self::isFieldIncrement($fields)) {
+        if ($type === TableBuilder::TYPE_INCREMENT && self::isFieldIncrement($fields)) {
             throw new ColumnsValueException(
                 "The $table table can not have multiple incremental values."
             );
@@ -729,7 +729,7 @@ class Schema
                 "$name field does not exists in $table table."
             );
         }
-        if ($type === 'increments' && self::isFieldIncrement($fields)) {
+        if ($type === TableBuilder::TYPE_INCREMENT && self::isFieldIncrement($fields)) {
             throw new ColumnsValueException(
                 "The $table table can not have multiple incremental values."
             );

@@ -21,7 +21,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
         $this->object->dropColumn('0');
 
         self::assertArraySubset($this->object->build(), [
-            [ 'opt' => 'drop', 'name' => '0' ]
+            [ 'opt' => TableAlter::OPT_DROP, 'name' => '0' ]
         ]);
     }
 
@@ -30,7 +30,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
         $this->object->renameColumn('0', '1');
 
         self::assertArraySubset($this->object->build(), [
-            [ 'opt' => 'rename', 'name' => '0', 'to' => '1' ]
+            [ 'opt' => TableAlter::OPT_RENAME, 'name' => '0', 'to' => '1' ]
         ]);
     }
 
@@ -39,7 +39,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
         $this->object->char('0')->modify();
 
         self::assertArraySubset($this->object->build(), [
-            '0' => [ 'type' => 'char', 'length' => 1, 'opt' => 'modify' ]
+            '0' => [ 'type' => 'char', 'length' => 1, 'opt' => TableAlter::OPT_MODIFY ]
         ]);
     }
 

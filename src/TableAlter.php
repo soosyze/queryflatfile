@@ -17,6 +17,12 @@ use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
  */
 class TableAlter extends TableBuilder
 {
+    const OPT_DROP = 'drop';
+
+    const OPT_MODIFY = 'modify';
+
+    const OPT_RENAME = 'rename';
+
     /**
      * Enregistre la suppression d'une colonne.
      *
@@ -26,7 +32,7 @@ class TableAlter extends TableBuilder
      */
     public function dropColumn($name)
     {
-        $this->builder[ $name ][ 'opt' ] = 'drop';
+        $this->builder[ $name ][ 'opt' ] = self::OPT_DROP;
 
         return $this;
     }
@@ -41,7 +47,7 @@ class TableAlter extends TableBuilder
      */
     public function renameColumn($from, $to)
     {
-        $this->builder[ $from ] = [ 'opt' => 'rename', 'to' => $to ];
+        $this->builder[ $from ] = [ 'opt' => self::OPT_RENAME, 'to' => $to ];
 
         return $this;
     }
@@ -56,7 +62,7 @@ class TableAlter extends TableBuilder
         $this->checkPreviousBuild('modify');
         $key = key($this->builder);
 
-        $this->builder[ $key ][ 'opt' ] = 'modify';
+        $this->builder[ $key ][ 'opt' ] = self::OPT_MODIFY;
 
         return $this;
     }
