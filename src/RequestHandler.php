@@ -15,6 +15,12 @@ namespace Queryflatfile;
  */
 abstract class RequestHandler implements RequestInterface
 {
+    const INSERT = 'insert';
+
+    const UPDATE = 'update';
+
+    const DELETE = 'delete';
+
     /**
      * Le type d'exécution (delete|update|insert).
      *
@@ -92,7 +98,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function delete()
     {
-        $this->execute = 'delete';
+        $this->execute = self::DELETE;
 
         return $this;
     }
@@ -112,7 +118,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function insertInto($table, array $columns)
     {
-        $this->execute = 'insert';
+        $this->execute = self::INSERT;
         $this->from($table)->select($columns);
 
         return $this;
@@ -163,9 +169,9 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function select()
+    public function select(...$columns)
     {
-        foreach (func_get_args() as $column) {
+        foreach ($columns as $column) {
             /* Dans le cas ou les colonnes sont normales. */
             if (!\is_array($column)) {
                 $this->columns[] = $column;
@@ -204,7 +210,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function update($table, array $columns)
     {
-        $this->execute = 'update';
+        $this->execute = self::UPDATE;
         $this->from($table)->select(array_keys($columns));
         $this->values  = $columns;
 

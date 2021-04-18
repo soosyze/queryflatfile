@@ -145,12 +145,12 @@ class Request extends RequestHandler
      * et de personnaliser les closures pour certaines méthodes.
      *
      * @param string $name Nom de la méthode appelée.
-     * @param array  $arg  Pararètre de la méthode.
+     * @param array  $args Pararètre de la méthode.
      *
      * @throws \BadMethodCallException
      * @return $this
      */
-    public function __call($name, $arg)
+    public function __call($name, $args)
     {
         if ($this->where === null) {
             $this->where = new Where();
@@ -159,7 +159,7 @@ class Request extends RequestHandler
             throw new \BadMethodCallException("The $name method not exist");
         }
 
-        call_user_func_array([ $this->where, $name ], $arg);
+        $this->where->$name(...$args);
 
         return $this;
     }
@@ -218,11 +218,11 @@ class Request extends RequestHandler
         $this->filterSelect();
         $this->filterWhere();
 
-        if ($this->execute === 'insert') {
+        if ($this->execute === self::INSERT) {
             $this->executeInsert();
-        } elseif ($this->execute === 'update') {
+        } elseif ($this->execute === self::UPDATE) {
             $this->executeUpdate();
-        } elseif ($this->execute === 'delete') {
+        } elseif ($this->execute === self::DELETE) {
             $this->executeDelete();
         } else {
             throw new BadFunctionException('Only the insert, update and delete functions can be executed.');
@@ -500,17 +500,16 @@ class Request extends RequestHandler
                 if (isset($row[ $field ])) {
                     $data[ $field ] = TableBuilder::filterValue($field, $arg[ 'type' ], $row[ $field ], $arg);
                     /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma. */
-                    if ($arg[ 'type' ] === 'increments' && ($data[ $field ] > $increments)) {
-                        $increments = $data[ $field ];
+                    if ($arg[ 'type' ] === TableBuilder::TYPE_INCREMENT && ($data[ $field ] > $increment)) {
+                        $increment = $data[ $field ];
                     }
 
                     continue;
                 }
-
                 /* Si mon champ n'existe pas et qu'il de type incrémental. */
-                if (!isset($row[ $field ]) && $arg[ 'type' ] === 'increments') {
-                    $increments++;
-                    $data[ $field ] = $increments;
+                if ($arg[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
+                    $increment++;
+                    $data[ $field ] = $increment;
 
                     continue;
                 }

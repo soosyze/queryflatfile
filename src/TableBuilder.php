@@ -23,6 +23,24 @@ class TableBuilder
 
     const CURRENT_DATETIME_DEFAULT = 'current_datetime';
 
+    const TYPE_BOOL = 'boolean';
+
+    const TYPE_CHAR = 'char';
+
+    const TYPE_DATE = 'date';
+
+    const TYPE_DATETIME = 'datetime';
+
+    const TYPE_FLOAT = 'float';
+
+    const TYPE_INCREMENT = 'increments';
+
+    const TYPE_INT = 'integer';
+
+    const TYPE_STRING = 'string';
+
+    const TYPE_TEXT = 'text';
+
     /**
      * Les champs et leurs paramètres.
      *
@@ -47,7 +65,7 @@ class TableBuilder
      */
     public function boolean($name)
     {
-        $this->builder[ $name ][ 'type' ] = 'boolean';
+        $this->builder[ $name ][ 'type' ] = self::TYPE_BOOL;
 
         return $this;
     }
@@ -68,7 +86,7 @@ class TableBuilder
         if (!\is_int($length) || $length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
-        $this->builder[ $name ] = [ 'type' => 'char', 'length' => $length ];
+        $this->builder[ $name ] = [ 'type' => self::TYPE_CHAR, 'length' => $length ];
 
         return $this;
     }
@@ -82,7 +100,7 @@ class TableBuilder
      */
     public function date($name)
     {
-        $this->builder[ $name ][ 'type' ] = 'date';
+        $this->builder[ $name ][ 'type' ] = self::TYPE_DATE;
 
         return $this;
     }
@@ -96,7 +114,7 @@ class TableBuilder
      */
     public function datetime($name)
     {
-        $this->builder[ $name ][ 'type' ] = 'datetime';
+        $this->builder[ $name ][ 'type' ] = self::TYPE_DATETIME;
 
         return $this;
     }
@@ -112,7 +130,7 @@ class TableBuilder
      */
     public function float($name)
     {
-        $this->builder[ $name ][ 'type' ] = 'float';
+        $this->builder[ $name ][ 'type' ] = self::TYPE_FLOAT;
 
         return $this;
     }
@@ -134,7 +152,7 @@ class TableBuilder
             throw new TableBuilderException('Only one incremental column is allowed per table.');
         }
 
-        $this->builder[ $name ][ 'type' ] = 'increments';
+        $this->builder[ $name ][ 'type' ] = self::TYPE_INCREMENT;
         $this->increment                  = 0;
 
         return $this;
@@ -151,7 +169,7 @@ class TableBuilder
      */
     public function integer($name)
     {
-        $this->builder[ $name ][ 'type' ] = 'integer';
+        $this->builder[ $name ][ 'type' ] = self::TYPE_INT;
 
         return $this;
     }
@@ -163,7 +181,8 @@ class TableBuilder
      * @param string $name   Nom du champ.
      * @param int    $length Longueur maximum de la chaine.
      *
-     * @throws Exception
+     * @throws TableBuilderException
+     *
      * @return $this
      */
     public function string($name, $length = 255)
@@ -171,7 +190,7 @@ class TableBuilder
         if (!\is_int($length) || $length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
-        $this->builder[ $name ] = [ 'type' => 'string', 'length' => $length ];
+        $this->builder[ $name ] = [ 'type' => self::TYPE_STRING, 'length' => $length ];
 
         return $this;
     }
@@ -186,7 +205,7 @@ class TableBuilder
      */
     public function text($name)
     {
-        $this->builder[ $name ][ 'type' ] = 'text';
+        $this->builder[ $name ][ 'type' ] = self::TYPE_TEXT;
 
         return $this;
     }
@@ -223,12 +242,13 @@ class TableBuilder
      * Enregistre le champ précédent (uniquement de type integer) comme étant non signié.
      *
      * @throws ColumnsValueException
+     *
      * @return $this
      */
     public function unsigned()
     {
         $current = $this->checkPreviousBuild('unsigned');
-        if ($current[ 'type' ] !== 'integer') {
+        if ($current[ 'type' ] !== self::TYPE_INT) {
             throw new ColumnsValueException("Impossiblie of unsigned type {$current[ 'type' ]} only integer).");
         }
 
@@ -243,7 +263,8 @@ class TableBuilder
      *
      * @param mixed $value Valeur à tester.
      *
-     * @throws Exception
+     * @throws TableBuilderException
+     *
      * @return $this
      */
     public function valueDefault($value)
@@ -251,7 +272,7 @@ class TableBuilder
         $current = $this->checkPreviousBuild('value default');
         $type    = $current[ 'type' ];
 
-        if ($type === 'increments') {
+        if ($type === self::TYPE_INCREMENT) {
             throw new TableBuilderException('An incremental type column can not have a default value.');
         }
 
@@ -280,8 +301,8 @@ class TableBuilder
         $error = 'The default value (' . $value . ') for column ' . $name . ' does not correspond to type ' . $type . '.';
 
         switch (strtolower($type)) {
-            case 'string':
-            case 'char':
+            case self::TYPE_STRING:
+            case self::TYPE_CHAR:
                 if (!\is_string($value)) {
                     throw new ColumnsValueException($error);
                 }
@@ -290,32 +311,32 @@ class TableBuilder
                 }
 
                 break;
-            case 'text':
+            case self::TYPE_TEXT:
                 if (!\is_string($value)) {
                     throw new ColumnsValueException($error);
                 }
 
                 break;
-            case 'integer':
-            case 'increments':
-                if (!\is_numeric($value)) {
+            case self::TYPE_INT:
+            case self::TYPE_INCREMENT:
+                if (!\is_int($value)) {
                     throw new ColumnsValueException($error);
                 }
 
                 return (int) $value;
-            case 'float':
-                if (!\is_numeric($value)) {
+            case self::TYPE_FLOAT:
+                if (!\is_float($value)) {
                     throw new ColumnsValueException($error);
                 }
 
                 return (float) $value;
-            case 'boolean':
+            case self::TYPE_BOOL:
                 if (!\is_bool($value)) {
                     throw new ColumnsValueException($error);
                 }
 
                 break;
-            case 'date':
+            case self::TYPE_DATE:
                 if (strtolower($value) === self::CURRENT_DATE_DEFAULT) {
                     return self::CURRENT_DATE_DEFAULT;
                 }
@@ -324,7 +345,7 @@ class TableBuilder
                 }
 
                 throw new ColumnsValueException($error);
-            case 'datetime':
+            case self::TYPE_DATETIME:
                 if (strtolower($value) === self::CURRENT_DATETIME_DEFAULT) {
                     return self::CURRENT_DATETIME_DEFAULT;
                 }
