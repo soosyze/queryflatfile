@@ -498,7 +498,7 @@ class Request extends RequestHandler
             foreach ($schemaColumns as $field => $arg) {
                 /* Si mon champs existe dans le schema. */
                 if (isset($row[ $field ])) {
-                    $data[ $field ] = TableBuilder::checkValue($field, $arg[ 'type' ], $row[ $field ], $arg);
+                    $data[ $field ] = TableBuilder::filterValue($field, $arg[ 'type' ], $row[ $field ], $arg);
                     /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma. */
                     if ($arg[ 'type' ] === 'increments' && ($data[ $field ] > $increments)) {
                         $increments = $data[ $field ];
