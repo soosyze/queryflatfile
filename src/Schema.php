@@ -133,15 +133,15 @@ class Schema
     /**
      * Modifie la valeur incrémentale d'une table.
      *
-     * @param string $table      Nom de la table.
-     * @param int    $increments Tableau associatif des valeurs incrémentales.
+     * @param string $table     Nom de la table.
+     * @param int    $increment Tableau associatif des valeurs incrémentales.
      *
      * @throws TableNotFoundException
      * @throws Exception
      *
      * @return bool Si le schéma d'incrémentaion est bien enregistré.
      */
-    public function setIncrements($table, $increments)
+    public function setIncrement($table, $increment)
     {
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException("Table $table is not exist.");
@@ -151,7 +151,7 @@ class Schema
             throw new Exception("Table $table does not have an incremental value.");
         }
 
-        $this->schema[ $table ][ 'increments' ] = $increments;
+        $this->schema[ $table ][ 'increments' ] = $increment;
 
         return $this->save($this->name, $this->schema);
     }
