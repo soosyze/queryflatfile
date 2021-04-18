@@ -481,7 +481,7 @@ class Request extends RequestHandler
     protected function executeInsert()
     {
         /* Si l'une des colonnes est de type incrémental. */
-        $increments    = $this->getIncrement();
+        $increment     = $this->getIncrement();
         /* Je charge les colonnes de mon schéma. */
         $schemaColumns = $this->tableSchema[ 'fields' ];
 
@@ -521,8 +521,8 @@ class Request extends RequestHandler
             $this->tableData[] = $data;
         }
         /* Met à jour les valeurs incrémentales dans le schéma de la table. */
-        if ($increments !== null) {
-            $this->schema->setIncrements($this->from, $increments);
+        if ($increment !== null) {
+            $this->schema->setIncrement($this->from, $increment);
         }
     }
 

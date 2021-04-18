@@ -115,6 +115,7 @@ Array
 
 **Schéma**
 - `dropSchema()`,
+- `getIncrement( $table )`,
 - `getSchema()`,
 - `getTableSchema( $table )`,
 - `hasColumn( $table, $columns )`,
