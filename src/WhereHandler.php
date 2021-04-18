@@ -77,7 +77,7 @@ class WhereHandler
         $bool = self::EXP_AND,
         $not = false
     ) {
-        if ($column instanceof \Closure) {
+        if (\is_callable($column)) {
             $this->whereCallback($column, $bool, $not);
 
             return $this;
@@ -440,13 +440,13 @@ class WhereHandler
     /**
      * Ajoute une sous-condition pour la requête.
      *
-     * @param \Closure $column
+     * @param callable $column
      * @param string   $bool
      * @param bool     $not
      *
      * @return void
      */
-    protected function whereCallback(\Closure $column, $bool = self::EXP_AND, $not = false)
+    protected function whereCallback(callable $column, $bool = self::EXP_AND, $not = false)
     {
         $where = new Where();
         call_user_func_array($column, [ &$where ]);
