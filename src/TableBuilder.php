@@ -28,7 +28,7 @@ class TableBuilder
      *
      * @var array
      */
-    private $builder = [];
+    protected $builder = [];
 
     /**
      * La valeur des champs incrémentaux.
@@ -249,14 +249,15 @@ class TableBuilder
     public function valueDefault($value)
     {
         $current = $this->checkPreviousBuild('value default');
-        $name    = key($this->builder);
         $type    = $current[ 'type' ];
 
         if ($type === 'increments') {
             throw new TableBuilderException('An incremental type column can not have a default value.');
         }
 
-        $this->builder[ $name ][ 'default' ] = self::checkValue($name, $type, $value, $current);
+        $name = key($this->builder);
+
+        $this->builder[ $name ][ 'default' ] = self::filterValue($name, $type, $value, $current);
 
         return $this;
     }
@@ -268,12 +269,13 @@ class TableBuilder
      * @param string $name  Nom du champ.
      * @param string $type  Type de donnée (string|text|int|float|bool|char|date|datetime).
      * @param mixed  $value Valeur à tester.
-     * @param array  $arg   Arguments de tests optionnels (length).
+     * @param array  $args  Arguments de tests optionnels (length).
      *
      * @throws ColumnsValueException
+     *
      * @return mixed
      */
-    public static function checkValue($name, $type, $value, array $arg = [])
+    public static function filterValue($name, $type, $value, array $args = [])
     {
         $error = 'The default value (' . $value . ') for column ' . $name . ' does not correspond to type ' . $type . '.';
 
@@ -283,7 +285,7 @@ class TableBuilder
                 if (!\is_string($value)) {
                     throw new ColumnsValueException($error);
                 }
-                if (!isset($arg[ 'length' ]) || strlen($value) > $arg[ 'length' ]) {
+                if (!isset($args[ 'length' ]) || strlen($value) > $args[ 'length' ]) {
                     throw new ColumnsValueException('The default value is larger than the specified size.');
                 }
 
@@ -339,23 +341,11 @@ class TableBuilder
     }
 
     /**
-     * Retourne le tableau contenant les configurations d'ajout.
+     * Retourne le tableau contenant les configurations
      *
      * @return array Les configurations.
      */
     public function build()
-    {
-        return array_filter($this->builder, static function ($var) {
-            return !isset($var[ 'opt' ]);
-        });
-    }
-
-    /**
-     * Retourne le tableau contenant toutes les configurations.
-     *
-     * @return array Les configurations.
-     */
-    public function buildFull()
     {
         return $this->builder;
     }
@@ -371,47 +361,16 @@ class TableBuilder
     }
 
     /**
-     * Enregistre la suppression d'une colonne.
+     * Retour le schéma de la table.
      *
-     * @param string $name Nom de la colonne.
-     *
-     * @return $this
+     * @return array
      */
-    public function dropColumn($name)
+    public function getTableSchema()
     {
-        $this->builder[ $name ][ 'opt' ] = 'drop';
-
-        return $this;
-    }
-
-    /**
-     * Enregistre le renommage d'une colonne.
-     *
-     * @param string $from Nom de la colonne.
-     * @param string $to   Nouveau nom de la colonne.
-     *
-     * @return $this
-     */
-    public function renameColumn($from, $to)
-    {
-        $this->builder[ $from ] = [ 'opt' => 'rename', 'to' => $to ];
-
-        return $this;
-    }
-
-    /**
-     * Enregistre la modification du champ précédent.
-     *
-     * @return $this
-     */
-    public function modify()
-    {
-        $this->checkPreviousBuild('modify');
-        $key = key($this->builder);
-
-        $this->builder[ $key ][ 'opt' ] = 'modify';
-
-        return $this;
+        return [
+            'fields'     => $this->builder,
+            'increments' => $this->increment
+        ];
     }
 
     /**
@@ -422,16 +381,13 @@ class TableBuilder
      * @param string $opt Nom de l'opération réalisé.
      *
      * @throws ColumnsNotFoundException
-     * @return array                    Paramètres du champ.
+     *
+     * @return array Paramètres du champ.
      */
     protected function checkPreviousBuild($opt)
     {
-        $str     = 'No column selected for ' . $opt . '.';
         if (!($current = end($this->builder))) {
-            throw new ColumnsNotFoundException($str);
-        }
-        if (isset($current[ 'opt' ])) {
-            throw new ColumnsNotFoundException($str);
+            throw new ColumnsNotFoundException("No column selected for $opt.");
         }
 
         return $current;
