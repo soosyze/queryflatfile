@@ -115,7 +115,7 @@ Array
 **Schema**
 - `dropSchema()`,
 - `getSchema()`,
-- `getSchemaTable( $table )`,
+- `getTableSchema( $table )`,
 - `hasColumn( $table, $columns )`,
 - `hasTable( $table )`,
 - `setConfig( $host, $name = 'schema', DriverInterface $driver = null )`.
@@ -151,10 +151,10 @@ Array
 - `insertInto( $table, array $columns )`,
 - `values( array $columns )`,
 - `update( $table, array $columns )`,
-- `delete()`.
+- `delete()`,
+- `execute()` Performs the insertion, modification and deletion of data.
 
 **Result(s) of the query**
-- `execute()` Performs the insertion, modification and deletion of data,
 - `fetch()` Returns the first result of the query,
 - `fetchAll()` Returns all the results of the query,
 - `lists( $name, $key = null )` Returns a list of the column passed in parameter.
