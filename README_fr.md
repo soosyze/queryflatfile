@@ -31,8 +31,8 @@ Support plus de [85% des versions PHP actuelles](https://w3techs.com/technologie
 
 | Version PHP                 | QueryFlatFile 1.4.x |
 |-----------------------------|---------------------|
-| <= 5.4                      | ✗ Non supporté      |
-| 5.5 / 5.6                   | ✓ Supporté          |
+| <= 5.5                      | ✗ Non supporté      |
+| 5.6                         | ✓ Supporté          |
 | 7.0 / 7.1 / 7.2 / 7.3 / 7.4 | ✓ Supporté          |
 
 ## Extensions PHP
@@ -140,7 +140,7 @@ Array
 - `truncateTable( $table )`.
 
 **Requête de sélection**
-- `select( mixed $var [, mixed $... ] )`,
+- `select( array|string ...$columns )`,
 - `from( $table )`,
 - `leftJoin( $table, callable|string $column, $condition = null, $value = null )`,
 - `rightJoin( $table, callable|string $column, $condition = null, $value = null )`,
