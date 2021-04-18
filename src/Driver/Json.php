@@ -40,7 +40,11 @@ final class Json extends \Queryflatfile\Driver
      */
     public function serializeData(array $data)
     {
-        return json_encode($data, JSON_UNESCAPED_UNICODE);
+        $encode = json_encode($data, JSON_UNESCAPED_UNICODE);
+
+        return $encode === false
+            ? '{}'
+            :$encode;
     }
 
     /**

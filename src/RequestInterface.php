@@ -8,6 +8,9 @@
 
 namespace Queryflatfile;
 
+use Queryflatfile\Exception\Query\BadFunctionException;
+use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
+
 /**
  * Ensemble des fonctions nécessaires à une requête.
  *
@@ -44,11 +47,11 @@ interface RequestInterface
      * Enregistre les champs sélectionnées par la requête.
      * En cas d'absence de selection, la requêtes retournera toutes les champs.
      *
-     * @param string[] $columns Liste ou tableau des noms des colonnes.
+     * @param mixed $columns Liste ou tableau des noms des colonnes.
      *
      * @return $this
      */
-    public function select();
+    public function select(...$columns);
 
     /**
      * Enregistre le nom de la source des données principale de la requête.
