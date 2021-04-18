@@ -264,38 +264,27 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->request->from('foo')->fetch();
     }
 
-    public function testWhereEquals()
+    /**
+     * @dataProvider whereEqualsProvider
+     */
+    public function testWhereEquals($operator, $value, array $arraySubject)
     {
-        $data1 = $this->request->select('name')
+        $data = $this->request->select('name')
             ->from('user')
-            ->where('id', '=', '1')
+            ->where('id', $operator, $value)
             ->fetch();
 
-        $data2 = $this->request->select('name')
-            ->from('user')
-            ->where('id', '===', '1')
-            ->fetch();
+        self::assertArraySubset($data, $arraySubject);
+    }
 
-        $data3 = $this->request->select('name')
-            ->from('user')
-            ->where('id', '=', 1)
-            ->fetch();
-
-        $data4 = $this->request->select('name')
-            ->from('user')
-            ->where('id', '===', '1')
-            ->fetch();
-
-        $data5 = $this->request->select('name')
-            ->from('user')
-            ->where('id', '==', '1')
-            ->fetch();
-
-        self::assertArraySubset($data1, []);
-        self::assertArraySubset($data2, []);
-        self::assertArraySubset($data3, [ 'name' => 'DUPOND' ]);
-        self::assertArraySubset($data4, [ 'name' => 'DUPOND' ]);
-        self::assertArraySubset($data5, [ 'name' => 'DUPOND' ]);
+    public function whereEqualsProvider()
+    {
+        yield [ '=', '1', [] ];
+        yield [ '===', '1', [] ];
+        yield [ '=', 1, [ 'name' => 'DUPOND' ] ];
+        yield [ '===', '1', [ 'name' => 'DUPOND' ] ];
+        yield [ '==', '1', [ 'name' => 'DUPOND' ] ];
+        yield [ 1, null, [ 'name' => 'DUPOND' ] ];
     }
 
     /**
@@ -309,39 +298,17 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->fetch();
     }
 
-    public function testWhereEqualsAlternative()
+    /**
+     * @dataProvider whereNotEqualsProvider
+     */
+    public function testWhereNotEqualsNoType($operator, $value)
     {
-        $data = $this->request->select([ 'name' ])
+        $data = $this->request->select('firstname')
             ->from('user')
-            ->where('firstname', 'Jean')
-            ->fetch();
-
-        self::assertArraySubset($data, [ 'name' => 'DUPOND' ]);
-    }
-
-    public function testWhereNotEqualsNoType()
-    {
-        $data1 = $this->request->select('firstname')
-            ->from('user')
-            ->where('id', '<>', '1')
+            ->where('id', $operator, $value)
             ->fetchAll();
 
-        $data2 = $this->request->select('firstname')
-            ->from('user')
-            ->where('id', '<>', 1)
-            ->fetchAll();
-
-        $data3 = $this->request->select('firstname')
-            ->from('user')
-            ->where('id', '!=', '1')
-            ->fetchAll();
-
-        $data4 = $this->request->select('firstname')
-            ->from('user')
-            ->where('id', '!=', 1)
-            ->fetchAll();
-
-        $result_notType = [
+        $arraySubject = [
             [ 'firstname' => 'Mathieu' ],
             [ 'firstname' => 'Manon' ],
             [ 'firstname' => 'Marie' ],
@@ -351,10 +318,15 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
 
         /* whereNotEquals sans prendre en compte le type */
-        self::assertArraySubset($data1, $result_notType);
-        self::assertArraySubset($data2, $result_notType);
-        self::assertArraySubset($data3, $result_notType);
-        self::assertArraySubset($data4, $result_notType);
+        self::assertArraySubset($data, $arraySubject);
+    }
+
+    public function whereNotEqualsProvider()
+    {
+        yield [ '<>', '1' ];
+        yield [ '<>', 1 ];
+        yield [ '!=', '1' ];
+        yield [ '!=', 1 ];
     }
 
     public function testWhereNotEqualsType()
@@ -389,63 +361,56 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testWhereNot()
+    /**
+     * @dataProvider whereLessProvider
+     */
+    public function testWhereLess($operator, array $arraySubject)
     {
-        $data = $this->request->select('id', 'firstname')
+        $data = $this->request
             ->from('user')
-            ->notWhere('id', '>', 1)
+            ->where('id', $operator, 1)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
-            [ 'id' => 0, 'firstname' => 'Mathieu' ],
-            [ 'id' => 1, 'firstname' => 'Jean' ]
-        ]);
+        self::assertArraySubset($data, $arraySubject);
     }
 
-    public function testWhereLess()
+    public function whereLessProvider()
+    {
+        yield [ '<', [
+                [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]
+            ]
+        ];
+        yield [ '<=', [
+                [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+                [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider whereGreaterProvider
+     */
+    public function testWhereGreater($operator, array $arraySubject)
     {
         $data = $this->request
             ->from('user')
-            ->where('id', '<', 1)
-            ->fetch();
-
-        self::assertArraySubset($data, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-    }
-
-    public function testWhereLessOrEquals()
-    {
-        $data = $this->request
-            ->from('user')
-            ->where('id', '<=', 1)
+            ->where('id', $operator, 5)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
-            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]
-        ]);
+        self::assertArraySubset($data, $arraySubject);
     }
 
-    public function testWhereGreater()
+    public function whereGreaterProvider()
     {
-        $data = $this->request
-            ->from('user')
-            ->where('id', '>', 5)
-            ->fetch();
-
-        self::assertArraySubset($data, [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]);
-    }
-
-    public function testWhereGreaterOrEquals()
-    {
-        $data = $this->request
-            ->from('user')
-            ->where('id', '>=', 5)
-            ->fetchAll();
-
-        self::assertArraySubset($data, [
-            [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
-            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
-        ]);
+        yield [ '>', [
+                [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+            ]
+        ];
+        yield [ '>=', [
+                [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
+                [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+            ]
+        ];
     }
 
     /**
@@ -672,82 +637,104 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->fetch();
     }
 
-    public function testWhereLike()
+    /**
+     * @dataProvider whereLikeProvider
+     */
+    public function testWhereLike($operator, $value, array $arraySubject)
     {
-        $data1 = $this->request->from('user')->where('name', 'like', 'DUP%')->fetchAll();
-        $data2 = $this->request->from('user')->where('name', 'like', '%TI%')->fetchAll();
+        $data = $this->request
+            ->select('id', 'name')
+            ->from('user')
+            ->where('name', $operator, $value)
+            ->fetchAll();
 
-        $data3 = $this->request->from('user')->where('name', 'like', 'OND')->fetchAll();
-        $data4 = $this->request->from('user')->where('name', 'like', 'OND%')->fetchAll();
-        $data5 = $this->request->from('user')->where('name', 'like', '%OND')->fetchAll();
-        $data6 = $this->request->from('user')->where('name', 'like', '%OND%')->fetchAll();
-
-        self::assertArraySubset($data1, [
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
-        ]);
-        self::assertArraySubset($data2, [
-            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
-        ]);
-        self::assertArraySubset($data3, []);
-        self::assertArraySubset($data4, []);
-        self::assertArraySubset($data5, [
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
-        ]);
-        self::assertArraySubset($data6, [
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
-        ]);
+        self::assertArraySubset($data, $arraySubject);
     }
 
-    public function testWhereIlike()
+    public function whereLikeProvider()
     {
-        $data1 = $this->request->from('user')->where('name', 'ilike', 'Dup%')->fetchAll();
-        $data2 = $this->request->from('user')->where('name', 'ilike', '%OnD')->fetchAll();
-        $data3 = $this->request->from('user')->where('name', 'ilike', '%ti%')->fetchAll();
+        // LIKE
+        yield [ 'like', 'DUP%', [
+                [ 'id' => 1, 'name' => 'DUPOND' ],
+                [ 'id' => 4, 'name' => 'DUPOND' ]
+            ]
+        ];
+        yield [ 'like', '%TI%', [
+                [ 'id' => 2, 'name' => 'MARTIN' ]
+            ]
+        ];
+        yield [ 'like', 'OND', [] ];
+        yield [ 'like', 'OND%', [] ];
+        yield [ 'like', '%OND', [
+                [ 'id' => 1, 'name' => 'DUPOND'],
+                [ 'id' => 4, 'name' => 'DUPOND']
+            ]
+        ];
+        yield [ 'like', '%OND%', [
+                [ 'id' => 1, 'name' => 'DUPOND'],
+                [ 'id' => 4, 'name' => 'DUPOND']
+            ]
+        ];
 
-        self::assertArraySubset($data1, [
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
-        ]);
-        self::assertArraySubset($data2, [
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
-        ]);
-        self::assertArraySubset($data3, [
-            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
-        ]);
-    }
+        // ILIKE
+        yield [ 'ilike', 'Dup%', [
+                [ 'id' => 1, 'name' => 'DUPOND'],
+                [ 'id' => 4, 'name' => 'DUPOND']
+            ]
+        ];
+        yield [ 'ilike', '%OnD', [
+                [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+                [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
+            ]
+        ];
+        yield [ 'ilike', '%ti%', [
+                [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
+            ]
+        ];
 
-    public function testWhereNotLike()
-    {
-        $data1 = $this->request->from('user')->where('name', 'not like', 'DUP%')->fetch();
-        $data2 = $this->request->from('user')->where('name', 'not like', '%OND')->fetch();
-        $data3 = $this->request->from('user')->where('name', 'not like', '%E%')->fetchAll();
+        // NOT LIKE
+        yield [ 'not like', 'DUP%', [
+                [ 'id' => 0, 'name' => 'NOEL' ],
+                [ 'id' => 2, 'name' => 'MARTIN' ],
+                [ 'id' => 5, 'name' => 'MEYER' ],
+                [ 'id' => 6, 'name' => 'ROBERT' ]
+            ]
+        ];
+        yield [ 'not like', '%OND', [
+                [ 'id' => 0, 'name' => 'NOEL' ],
+                [ 'id' => 2, 'name' => 'MARTIN' ],
+                [ 'id' => 5, 'name' => 'MEYER' ],
+                [ 'id' => 6, 'name' => 'ROBERT' ]
+            ]
+        ];
+        yield [ 'not like', '%E%', [
+                [ 'id' => 1, 'name' => 'DUPOND' ],
+                [ 'id' => 2, 'name' => 'MARTIN' ],
+                [ 'id' => 4, 'name' => 'DUPOND' ]
+            ]
+        ];
 
-        self::assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        self::assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        self::assertArraySubset($data3, [
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
-            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
-        ]);
-    }
-
-    public function testWhereNotIlike()
-    {
-        $data1 = $this->request->from('user')->where('name', 'not ilike', 'D%')->fetch();
-        $data2 = $this->request->from('user')->where('name', 'not ilike', '%D')->fetch();
-        $data3 = $this->request->from('user')->where('name', 'not ilike', '%E%')->fetchAll();
-
-        self::assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        self::assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        self::assertArraySubset($data3, [
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-            [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
-            [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
-        ]);
+        // NOT ILIKE
+        yield [ 'not ilike', 'DuP%', [
+                [ 'id' => 0, 'name' => 'NOEL' ],
+                [ 'id' => 2, 'name' => 'MARTIN' ],
+                [ 'id' => 5, 'name' => 'MEYER' ],
+                [ 'id' => 6, 'name' => 'ROBERT' ]
+            ]
+        ];
+        yield [ 'not ilike', '%D', [
+                [ 'id' => 0, 'name' => 'NOEL' ],
+                [ 'id' => 2, 'name' => 'MARTIN' ],
+                [ 'id' => 5, 'name' => 'MEYER' ],
+                [ 'id' => 6, 'name' => 'ROBERT' ]
+            ]
+        ];
+        yield [ 'not ilike', '%E%', [
+                [ 'id' => 1, 'name' => 'DUPOND' ],
+                [ 'id' => 2, 'name' => 'MARTIN' ],
+                [ 'id' => 4, 'name' => 'DUPOND' ]
+            ]
+        ];
     }
 
     public function testWhereRegex()
