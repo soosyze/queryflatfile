@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -27,7 +29,7 @@ interface DriverInterface
      *
      * @return bool TRUE si tous ce passe bien sinon FALSE.
      */
-    public function create($path, $fileName, array $data = []);
+    public function create(string $path, string $fileName, array $data = []): bool;
 
     /**
      * Lit un fichier et DOIT retourner son contenu sous forme de tableau associatif
@@ -42,7 +44,7 @@ interface DriverInterface
      *
      * @return array les données du fichier
      */
-    public function read($path, $fileName);
+    public function read(string $path, string $fileName): array;
 
     /**
      * Enregistre des données dans le fichier.
@@ -58,7 +60,7 @@ interface DriverInterface
      *
      * @return bool TRUE si tous ce passe bien sinon FALSE.
      */
-    public function save($path, $fileName, array $data);
+    public function save(string $path, string $fileName, array $data): bool;
 
     /**
      * Supprime un fichier.
@@ -68,7 +70,7 @@ interface DriverInterface
      *
      * @return bool TRUE si tous ce passe bien sinon FALSE.
      */
-    public function delete($path, $fileName);
+    public function delete(string $path, string $fileName): bool;
 
     /**
      * Si le fichier existe.
@@ -78,7 +80,7 @@ interface DriverInterface
      *
      * @return bool
      */
-    public function has($path, $fileName);
+    public function has(string $path, string $fileName): bool;
 
     /**
      * Renseigne le nom de l'extension de fichier utilisé par le driver
@@ -86,5 +88,5 @@ interface DriverInterface
      *
      * @return string Nom de l'extension SANS le point en préfix.
      */
-    public function getExtension();
+    public function getExtension(): string;
 }

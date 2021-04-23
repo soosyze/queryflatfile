@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -22,7 +24,7 @@ class Exception extends \Exception
      */
     protected $balise = '<b><cite><code><em><i><span><sub><sup><strong><u>';
 
-    public function __construct($message = '', $code = 0, $previous = null)
+    public function __construct(string $message = '', int $code = 0, \Throwable $previous = null)
     {
         $msgEntities = htmlentities($message, ENT_QUOTES, 'UTF-8');
         $msgDecode   = htmlspecialchars_decode($msgEntities);

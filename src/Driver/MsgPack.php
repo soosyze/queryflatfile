@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -22,7 +24,7 @@ final class MsgPack extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function checkExtension()
+    public function checkExtension(): void
     {
         if (!extension_loaded('msgpack')) {
             throw new ExtensionNotLoadedException('The msgpack extension is not loaded.');
@@ -32,7 +34,7 @@ final class MsgPack extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function getExtension()
+    public function getExtension(): string
     {
         return 'msg';
     }
@@ -40,7 +42,7 @@ final class MsgPack extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function serializeData(array $data)
+    public function serializeData(array $data): string
     {
         return msgpack_pack($data);
     }
@@ -48,7 +50,7 @@ final class MsgPack extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function unserializeData($data)
+    public function unserializeData(string $data): array
     {
         return msgpack_unpack($data);
     }
