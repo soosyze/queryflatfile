@@ -284,7 +284,6 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         yield [ '=', 1, [ 'name' => 'DUPOND' ] ];
         yield [ '===', '1', [ 'name' => 'DUPOND' ] ];
         yield [ '==', '1', [ 'name' => 'DUPOND' ] ];
-        yield [ 1, null, [ 'name' => 'DUPOND' ] ];
     }
 
     /**
@@ -972,17 +971,6 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [ 'firstname' => 'Eva' ],
             [ 'firstname' => null ]
         ]);
-    }
-
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\OperatorNotFound
-     */
-    public function testOrderByException()
-    {
-        $this->request
-            ->from('user')
-            ->orderBy('firstname', 'error')
-            ->fetchAll();
     }
 
     public function testOrderByDescFetch()

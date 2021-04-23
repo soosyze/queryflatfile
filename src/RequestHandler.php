@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -15,11 +17,11 @@ namespace Queryflatfile;
  */
 abstract class RequestHandler implements RequestInterface
 {
-    const INSERT = 'insert';
+    protected const INSERT = 'insert';
 
-    const UPDATE = 'update';
+    protected const UPDATE = 'update';
 
-    const DELETE = 'delete';
+    protected const DELETE = 'delete';
 
     /**
      * Le type d'exécution (delete|update|insert).
@@ -106,7 +108,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function from($table)
+    public function from(string $table)
     {
         $this->from = $table;
 
@@ -116,7 +118,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function insertInto($table, array $columns)
+    public function insertInto(string $table, array $columns)
     {
         $this->execute = self::INSERT;
         $this->from($table)->select($columns);
@@ -127,7 +129,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function leftJoin($table, $column, $operator = null, $value = null)
+    public function leftJoin(string $table, $column, ?string $operator = null, ?string $value = null)
     {
         $this->join(self::JOIN_LEFT, $table, $column, $operator, $value);
 
@@ -137,7 +139,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function limit($limit, $offset = 0)
+    public function limit(int $limit, int $offset = 0)
     {
         $this->limit    = $limit;
         $this->offset   = $offset;
@@ -149,7 +151,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function orderBy($columns, $order = SORT_ASC)
+    public function orderBy(string $columns, int $order = SORT_ASC)
     {
         $this->orderBy[ $columns ] = $order;
 
@@ -159,7 +161,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function rightJoin($table, $column, $operator = null, $value = null)
+    public function rightJoin(string $table, $column, ?string $operator = null, ?string $value = null)
     {
         $this->join(self::JOIN_RIGHT, $table, $column, $operator, $value);
 
@@ -190,7 +192,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function union(RequestInterface $request, $type = self::UNION_SIMPLE)
+    public function union(RequestInterface $request, string $type = self::UNION_SIMPLE)
     {
         $this->union[] = [ 'request' => $request, 'type' => $type ];
 
@@ -208,7 +210,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function update($table, array $columns)
+    public function update(string $table, array $columns)
     {
         $this->execute = self::UPDATE;
         $this->from($table)->select(array_keys($columns));
@@ -259,10 +261,8 @@ abstract class RequestHandler implements RequestInterface
      * @param string|null     $value    Valeur
      *                                  ou une colonne de la table jointe (au format nom_table.colonne)
      *                                  ou null pour une closure.
-     *
-     * @return void
      */
-    private function join($type, $table, $column, $operator = null, $value = null)
+    private function join(string $type, string $table, $column, ?string $operator = null, ?string $value = null): void
     {
         if ($column instanceof \Closure) {
             $where = new Where();

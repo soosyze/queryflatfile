@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -74,8 +76,8 @@ class Schema
      * @param DriverInterface $driver Interface de manipulation de données.
      */
     public function __construct(
-    $host = null,
-        $name = 'schema',
+        ?string $host = null,
+        string $name = 'schema',
         DriverInterface $driver = null
     ) {
         if (!\is_null($host)) {
@@ -93,13 +95,11 @@ class Schema
      * @return $this
      */
     public function setConfig(
-        $host,
-        $name = 'schema',
+        string $host,
+        string $name = 'schema',
         DriverInterface $driver = null
-    ) {
-        $this->driver = $driver === null
-            ? new Driver\Json()
-            : $driver;
+    ): self {
+        $this->driver = $driver ?? new Driver\Json();
         $this->path   = $host;
         $this->name   = $name;
 
@@ -111,7 +111,7 @@ class Schema
      *
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -123,7 +123,7 @@ class Schema
      *
      * @return $this
      */
-    public function setPathRoot($root = '')
+    public function setPathRoot(string $root = ''): self
     {
         $this->root = $root;
 
@@ -141,7 +141,7 @@ class Schema
      *
      * @return bool Si le schéma d'incrémentaion est bien enregistré.
      */
-    public function setIncrement($table, $increment)
+    public function setIncrement(string $table, int $increment): bool
     {
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException("Table $table is not exist.");
@@ -166,7 +166,7 @@ class Schema
      *
      * @return int
      */
-    public function getIncrement($table)
+    public function getIncrement(string $table): int
     {
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException("Table $table is not exist.");
@@ -184,7 +184,7 @@ class Schema
      *
      * @return array Schéma de la base de données.
      */
-    public function getSchema()
+    public function getSchema(): array
     {
         if ($this->schema) {
             return $this->schema;
@@ -204,7 +204,7 @@ class Schema
      *
      * @return array Schéma de la table.
      */
-    public function getSchemaTable($table)
+    public function getSchemaTable(string $table): array
     {
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException("The $table table is missing in the schema.");
@@ -218,7 +218,7 @@ class Schema
      *
      * @return $this
      */
-    public function dropSchema()
+    public function dropSchema(): self
     {
         $schema = $this->getSchema();
 
@@ -253,7 +253,7 @@ class Schema
      *
      * @return $this
      */
-    public function createTable($table, callable $callback = null)
+    public function createTable(string $table, ?callable $callback = null): self
     {
         if ($this->hasTable($table)) {
             throw new Exception("Table $table exist.");
@@ -277,7 +277,7 @@ class Schema
      *
      * @return $this
      */
-    public function createTableIfNotExists($table, callable $callback = null)
+    public function createTableIfNotExists(string $table, ?callable $callback = null): self
     {
         /* Créer la table si elle n'existe pas dans le schéma. */
         if (!$this->hasTable($table)) {
@@ -298,7 +298,7 @@ class Schema
      *
      * @return $this
      */
-    public function alterTable($table, callable $callback)
+    public function alterTable(string $table, callable $callback): self
     {
         $schema       = $this->getSchemaTable($table);
         $fields       = $schema[ 'fields' ];
@@ -338,7 +338,7 @@ class Schema
      *
      * @return mixed Valeur par defaut.
      */
-    public static function getValueDefault($name, array &$params)
+    public static function getValueDefault(string $name, array &$params)
     {
         if (isset($params[ 'default' ])) {
             if ($params[ 'type' ] === TableBuilder::TYPE_DATE && $params[ 'default' ] === TableBuilder::CURRENT_DATE_DEFAULT) {
@@ -365,7 +365,7 @@ class Schema
      *
      * @return bool Si le schéma de référence et le fichier de données existent.
      */
-    public function hasTable($table)
+    public function hasTable(string $table): bool
     {
         return isset($this->getSchema()[ $table ]) && $this->driver->has($this->root . $this->path, $table);
     }
@@ -378,7 +378,7 @@ class Schema
      *
      * @return bool Si le schéma de référence et le fichier de données existent.
      */
-    public function hasColumn($table, $column)
+    public function hasColumn(string $table, string $column): bool
     {
         return isset($this->getSchema()[ $table ][ 'fields' ][ $column ]) && $this->driver->has($this->root . $this->path, $table);
     }
@@ -392,7 +392,7 @@ class Schema
      *
      * @return bool
      */
-    public function truncateTable($table)
+    public function truncateTable(string $table): bool
     {
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException("Table $table is not exist.");
@@ -418,7 +418,7 @@ class Schema
      *
      * @return bool Si la suppression du schema et des données se son bien passé.
      */
-    public function dropTable($table)
+    public function dropTable(string $table): bool
     {
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException("Table $table is not exist.");
@@ -438,7 +438,7 @@ class Schema
      *
      * @return bool Si la table n'existe plus.
      */
-    public function dropTableIfExists($table)
+    public function dropTableIfExists(string $table): bool
     {
         return $this->hasTable($table) && $this->dropTable($table);
     }
@@ -448,7 +448,7 @@ class Schema
      *
      * @return string Extension de fichier sans le '.'.
      */
-    public function getExtension()
+    public function getExtension(): string
     {
         return $this->driver->getExtension();
     }
@@ -460,7 +460,7 @@ class Schema
      *
      * @return array le contenu du fichier
      */
-    public function read($file)
+    public function read(string $file): array
     {
         return $this->driver->read($this->root . $this->path, $file);
     }
@@ -473,7 +473,7 @@ class Schema
      *
      * @return bool
      */
-    public function save($file, array $data)
+    public function save(string $file, array $data): bool
     {
         return $this->driver->save($this->root . $this->path, $file, $data);
     }
@@ -486,7 +486,7 @@ class Schema
      *
      * @return bool
      */
-    protected function create($file, array $data = [])
+    protected function create(string $file, array $data = []): bool
     {
         return $this->driver->create($this->root . $this->path, $file, $data);
     }
@@ -498,7 +498,7 @@ class Schema
      *
      * @return bool
      */
-    protected function delete($file)
+    protected function delete(string $file): bool
     {
         return $this->driver->delete($this->root . $this->path, $file);
     }
@@ -516,9 +516,9 @@ class Schema
     protected static function add(
         array &$schema,
         array &$dataTable,
-        $name,
+        string $name,
         array $params
-    ) {
+    ): void {
         $schema[ 'fields' ][ $name ] = $params;
 
         $increment = $params[ 'type' ] === TableBuilder::TYPE_INCREMENT
@@ -555,9 +555,9 @@ class Schema
     protected static function modify(
         array &$schema,
         array &$dataTable,
-        $name,
+        string $name,
         array $params
-    ) {
+    ): void {
         unset($params[ 'opt' ]);
         $schema[ 'fields' ][ $name ] = $params;
 
@@ -591,9 +591,9 @@ class Schema
     protected static function rename(
         array &$schema,
         array &$dataTable,
-        $name,
-        $to
-    ) {
+        string $name,
+        string $to
+    ): void {
         $schema[ 'fields' ][ $to ] = $schema[ 'fields' ][ $name ];
         unset($schema[ 'fields' ][ $name ]);
         foreach ($dataTable as &$data) {
@@ -614,8 +614,8 @@ class Schema
     protected static function drop(
         array &$schema,
         array &$dataTable,
-        $name
-    ) {
+        string $name
+    ): void {
         foreach (array_keys($dataTable) as $key) {
             unset($dataTable[ $key ][ $name ]);
         }
@@ -633,7 +633,7 @@ class Schema
      *
      * @return bool
      */
-    protected static function isFieldIncrement(array $fields)
+    protected static function isFieldIncrement(array $fields): bool
     {
         foreach ($fields as $field) {
             if ($field[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
@@ -651,7 +651,7 @@ class Schema
      *
      * @return TableBuilder
      */
-    protected static function tableAlterBuilder(callable $callback)
+    protected static function tableAlterBuilder(callable $callback): TableBuilder
     {
         $builder = new TableAlter();
         call_user_func_array($callback, [ &$builder ]);
@@ -666,7 +666,7 @@ class Schema
      *
      * @return TableBuilder
      */
-    protected static function tableBuilder(callable $callback = null)
+    protected static function tableBuilder(?callable $callback = null): TableBuilder
     {
         $builder = new TableBuilder();
         if ($callback !== null) {
@@ -686,15 +686,13 @@ class Schema
      *
      * @throws Exception
      * @throws ColumnsNotFoundException
-     *
-     * @return void
      */
     private static function filterFieldAdd(
-        $table,
+        string $table,
         array $fields,
-        $name,
-        $type
-    ) {
+        string $name,
+        string $type
+    ): void {
         /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
         if (isset($fields[ $name ])) {
             throw new Exception("$name field does not exists in $table table.");
@@ -715,15 +713,13 @@ class Schema
      * @throws ColumnsNotFoundException
      * @throws ColumnsValueException
      * @throws Exception
-     *
-     * @return void
      */
     private static function filterFieldModify(
-        $table,
+        string $table,
         array $fields,
-        $name,
-        $type
-    ) {
+        string $name,
+        string $type
+    ): void {
         if (!isset($fields[ $name ])) {
             throw new ColumnsNotFoundException(
                 "$name field does not exists in $table table."
@@ -756,15 +752,13 @@ class Schema
      *
      * @throws ColumnsNotFoundException
      * @throws Exception
-     *
-     * @return void
      */
     private static function filterFieldRename(
-        $table,
+        string $table,
         array $fields,
-        $name,
-        $to
-    ) {
+        string $name,
+        string $to
+    ): void {
         if (!isset($fields[ $name ])) {
             throw new ColumnsNotFoundException(
                 "$name field does not exists in $table table."
@@ -788,10 +782,10 @@ class Schema
      * @return void
      */
     private static function filterFieldDrop(
-        $table,
+        string $table,
         array $fields,
-        $name
-    ) {
+        string $name
+    ): void {
         if (!isset($fields[ $name ])) {
             throw new ColumnsNotFoundException(
                 "$name field does not exists in $table table."

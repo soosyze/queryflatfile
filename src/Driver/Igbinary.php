@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
 
@@ -20,7 +22,7 @@ final class Igbinary extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function checkExtension()
+    public function checkExtension(): void
     {
         if (!extension_loaded('igbinary')) {
             throw new ExtensionNotLoadedException('The igbinary extension is not loaded.');
@@ -30,7 +32,7 @@ final class Igbinary extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function getExtension()
+    public function getExtension(): string
     {
         return 'ig';
     }
@@ -38,7 +40,7 @@ final class Igbinary extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function serializeData(array $data)
+    public function serializeData(array $data): string
     {
         return igbinary_serialize($data);
     }
@@ -46,7 +48,7 @@ final class Igbinary extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function unserializeData($data)
+    public function unserializeData(string $data): array
     {
         return igbinary_unserialize($data);
     }

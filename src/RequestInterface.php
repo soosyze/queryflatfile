@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -21,27 +23,27 @@ interface RequestInterface
     /**
      * La valeur par défaut de LIMIT.
      */
-    const ALL = 0;
+    public const ALL = 0;
 
     /**
      * La valeur pour une union simple.
      */
-    const UNION_SIMPLE = 'simple';
+    public const UNION_SIMPLE = 'simple';
 
     /**
      * La valeur pour une union totale.
      */
-    const UNION_ALL = 'all';
+    public const UNION_ALL = 'all';
 
     /**
      * Valeur pour un join gauche.
      */
-    const JOIN_LEFT = 'left';
+    public const JOIN_LEFT = 'left';
 
     /**
      * Valeur pour un join droit.
      */
-    const JOIN_RIGHT = 'right';
+    public const JOIN_RIGHT = 'right';
 
     /**
      * Enregistre les champs sélectionnées par la requête.
@@ -56,11 +58,11 @@ interface RequestInterface
     /**
      * Enregistre le nom de la source des données principale de la requête.
      *
-     * @param string $from Nom de la table.
+     * @param string $table Nom de la table.
      *
      * @return $this
      */
-    public function from($from);
+    public function from(string $table);
 
     /**
      * Enregistre une jointure gauche.
@@ -75,7 +77,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function leftJoin($table, $column, $operator = null, $value = null);
+    public function leftJoin(string $table, $column, ?string $operator = null, ?string $value = null);
 
     /**
      * Enregistre une jointure droite.
@@ -90,7 +92,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function rightJoin($table, $column, $operator = null, $value = null);
+    public function rightJoin(string $table, $column, ?string $operator = null, ?string $value = null);
 
     /**
      * Enregistre une limitation et un décalage au retour de la requête.
@@ -100,7 +102,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function limit($limit, $offset = 0);
+    public function limit(int $limit, int $offset = 0);
 
     /**
      * Enregistre un trie des résultats de la requête.
@@ -110,7 +112,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function orderBy($columns, $order = SORT_ASC);
+    public function orderBy(string $columns, int $order = SORT_ASC);
 
     /**
      * Enregistre l'action d'insertion de données.
@@ -122,7 +124,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function insertInto($table, array $columns);
+    public function insertInto(string $table, array $columns);
 
     /**
      * Cette fonction doit suivre la fonction insertInto().
@@ -142,7 +144,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function update($table, array $columns);
+    public function update(string $table, array $columns);
 
     /**
      * Enregistre l'action de suppression des données.
@@ -160,7 +162,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function union(RequestInterface $request, $type = self::UNION_SIMPLE);
+    public function union(RequestInterface $request, string $type = self::UNION_SIMPLE);
 
     /**
      * Enregistre une union all entre 2 ensembles.
@@ -177,14 +179,14 @@ interface RequestInterface
      *
      * @return array les données
      */
-    public function fetchAll();
+    public function fetchAll(): array;
 
     /**
      * Retourne le premier résultat de la requête.
      *
      * @return array Résultat de la requête.
      */
-    public function fetch();
+    public function fetch(): array;
 
     /**
      * Retourne les résultats de la requête sous forme de tableau simple,
@@ -194,15 +196,15 @@ interface RequestInterface
      * @param string|null $key  Clé des valeurs de la liste
      *
      * @throws ColumnsNotFoundException
-     * @return array                    Liste du champ passé en paramètre.
+     *
+     * @return array Liste du champ passé en paramètre.
      */
-    public function lists($name, $key = null);
+    public function lists(string $name, ?string $key = null): array;
 
     /**
      * Lance l'exécution d'une requête de création, modification ou suppression.
      *
      * @throws BadFunctionException
-     * @return void
      */
-    public function execute();
+    public function execute(): void;
 }
