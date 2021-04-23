@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -7,6 +9,10 @@
  */
 
 namespace Queryflatfile;
+
+use Queryflatfile\Exception\Driver\FileNotFoundException;
+use Queryflatfile\Exception\Driver\FileNotReadableException;
+use Queryflatfile\Exception\Driver\FileNotWritableException;
 
 /**
  * Implementation partiel Queryflatfile\DriverInterface.
@@ -23,9 +29,10 @@ abstract class Driver implements DriverInterface
      * @codeCoverageIgnore has
      *
      * @throws Exception\Driver\ExtensionNotLoadedException
+     *
      * @return void
      */
-    abstract public function checkExtension();
+    abstract public function checkExtension(): void;
 
     /**
      * Renvoie les données séréalisées.
@@ -34,7 +41,7 @@ abstract class Driver implements DriverInterface
      *
      * @return string
      */
-    abstract public function serializeData(array $data);
+    abstract public function serializeData(array $data): string;
 
     /**
      * Renvoie les données désérialisées.
@@ -43,12 +50,12 @@ abstract class Driver implements DriverInterface
      *
      * @return array
      */
-    abstract public function unserializeData($data);
+    abstract public function unserializeData(string $data): array;
 
     /**
      * {@inheritDoc}
      */
-    public function create($path, $fileName, array $data = [])
+    public function create(string $path, string $fileName, array $data = []): bool
     {
         $this->checkExtension();
         $file = $this->getFile($path, $fileName);
@@ -69,7 +76,7 @@ abstract class Driver implements DriverInterface
     /**
      * {@inheritDoc}
      */
-    public function read($path, $fileName)
+    public function read(string $path, string $fileName): array
     {
         $this->checkExtension();
         $file = $this->getFile($path, $fileName);
@@ -85,7 +92,7 @@ abstract class Driver implements DriverInterface
     /**
      * {@inheritDoc}
      */
-    public function save($path, $fileName, array $data)
+    public function save(string $path, string $fileName, array $data): bool
     {
         $this->checkExtension();
         $file = $this->getFile($path, $fileName);
@@ -102,7 +109,7 @@ abstract class Driver implements DriverInterface
     /**
      * {@inheritDoc}
      */
-    public function delete($path, $fileName)
+    public function delete(string $path, string $fileName): bool
     {
         return unlink($this->getFile($path, $fileName));
     }
@@ -110,7 +117,7 @@ abstract class Driver implements DriverInterface
     /**
      * {@inheritDoc}
      */
-    public function has($path, $fileName)
+    public function has(string $path, string $fileName): bool
     {
         return file_exists($this->getFile($path, $fileName));
     }
@@ -123,7 +130,7 @@ abstract class Driver implements DriverInterface
      *
      * @return string Chemin complet du fichier.
      */
-    public function getFile($path, $fileName)
+    public function getFile(string $path, string $fileName): string
     {
         $file = $path . self::DS . $fileName . '.' . $this->getExtension();
 
@@ -135,13 +142,14 @@ abstract class Driver implements DriverInterface
      *
      * @param string $file Chemin complet du fichier.
      *
-     * @throws Exception\Driver\FileNotFoundException
+     * @throws FileNotFoundException
+     *
      * @return void
      */
-    protected function isExist($file)
+    protected function isExist(string $file): void
     {
         if (!file_exists($file)) {
-            throw new Exception\Driver\FileNotFoundException("The $file file is missing.");
+            throw new FileNotFoundException("The $file file is missing.");
         }
     }
 
@@ -152,13 +160,14 @@ abstract class Driver implements DriverInterface
      *
      * @param string $file Chemin complet du fichier.
      *
-     * @throws Exception\Driver\FileNotWritableException
+     * @throws FileNotWritableException
+     *
      * @return void
      */
-    protected function isWrite($file)
+    protected function isWrite(string $file): void
     {
         if (!\is_writable($file)) {
-            throw new Exception\Driver\FileNotWritableException("The $file file is not writable.");
+            throw new FileNotWritableException("The $file file is not writable.");
         }
     }
 
@@ -169,13 +178,14 @@ abstract class Driver implements DriverInterface
      *
      * @param string $file Chemin complet du fichier.
      *
-     * @throws Exception\Driver\FileNotReadableException
+     * @throws FileNotReadableException
+     *
      * @return void
      */
-    protected function isRead($file)
+    protected function isRead(string $file): void
     {
         if (!\is_readable($file)) {
-            throw new Exception\Driver\FileNotReadableException("The $file file is not readable.");
+            throw new FileNotReadableException("The $file file is not readable.");
         }
     }
 }

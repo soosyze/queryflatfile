@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -19,27 +21,27 @@ use Queryflatfile\Exception\TableBuilder\TableBuilderException;
  */
 class TableBuilder
 {
-    const CURRENT_DATE_DEFAULT = 'current_date';
+    public const CURRENT_DATE_DEFAULT = 'current_date';
 
-    const CURRENT_DATETIME_DEFAULT = 'current_datetime';
+    public const CURRENT_DATETIME_DEFAULT = 'current_datetime';
 
-    const TYPE_BOOL = 'boolean';
+    public const TYPE_BOOL = 'boolean';
 
-    const TYPE_CHAR = 'char';
+    public const TYPE_CHAR = 'char';
 
-    const TYPE_DATE = 'date';
+    public const TYPE_DATE = 'date';
 
-    const TYPE_DATETIME = 'datetime';
+    public const TYPE_DATETIME = 'datetime';
 
-    const TYPE_FLOAT = 'float';
+    public const TYPE_FLOAT = 'float';
 
-    const TYPE_INCREMENT = 'increments';
+    public const TYPE_INCREMENT = 'increments';
 
-    const TYPE_INT = 'integer';
+    public const TYPE_INT = 'integer';
 
-    const TYPE_STRING = 'string';
+    public const TYPE_STRING = 'string';
 
-    const TYPE_TEXT = 'text';
+    public const TYPE_TEXT = 'text';
 
     /**
      * Les champs et leurs paramètres.
@@ -63,7 +65,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function boolean($name)
+    public function boolean(string $name): self
     {
         $this->builder[ $name ][ 'type' ] = self::TYPE_BOOL;
 
@@ -81,9 +83,9 @@ class TableBuilder
      *
      * @return $this
      */
-    public function char($name, $length = 1)
+    public function char(string $name, int $length = 1): self
     {
-        if (!\is_int($length) || $length < 0) {
+        if ($length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
         $this->builder[ $name ] = [ 'type' => self::TYPE_CHAR, 'length' => $length ];
@@ -98,7 +100,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function date($name)
+    public function date(string $name): self
     {
         $this->builder[ $name ][ 'type' ] = self::TYPE_DATE;
 
@@ -112,7 +114,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function datetime($name)
+    public function datetime(string $name): self
     {
         $this->builder[ $name ][ 'type' ] = self::TYPE_DATETIME;
 
@@ -128,7 +130,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function float($name)
+    public function float(string $name): self
     {
         $this->builder[ $name ][ 'type' ] = self::TYPE_FLOAT;
 
@@ -146,7 +148,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function increments($name)
+    public function increments(string $name): self
     {
         if ($this->increment !== null) {
             throw new TableBuilderException('Only one incremental column is allowed per table.');
@@ -167,7 +169,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function integer($name)
+    public function integer(string $name): self
     {
         $this->builder[ $name ][ 'type' ] = self::TYPE_INT;
 
@@ -185,9 +187,9 @@ class TableBuilder
      *
      * @return $this
      */
-    public function string($name, $length = 255)
+    public function string(string $name, int $length = 255): self
     {
-        if (!\is_int($length) || $length < 0) {
+        if ($length < 0) {
             throw new TableBuilderException('The length passed in parameter is not of numeric type.');
         }
         $this->builder[ $name ] = [ 'type' => self::TYPE_STRING, 'length' => $length ];
@@ -203,7 +205,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function text($name)
+    public function text(string $name): self
     {
         $this->builder[ $name ][ 'type' ] = self::TYPE_TEXT;
 
@@ -217,7 +219,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function comment($comment)
+    public function comment(string $comment): self
     {
         $this->checkPreviousBuild('comment');
         $this->builder[ key($this->builder) ][ '_comment' ] = $comment;
@@ -230,7 +232,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function nullable()
+    public function nullable(): self
     {
         $this->checkPreviousBuild('nullable');
         $this->builder[ key($this->builder) ][ 'nullable' ] = true;
@@ -245,7 +247,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function unsigned()
+    public function unsigned(): self
     {
         $current = $this->checkPreviousBuild('unsigned');
         if ($current[ 'type' ] !== self::TYPE_INT) {
@@ -267,7 +269,7 @@ class TableBuilder
      *
      * @return $this
      */
-    public function valueDefault($value)
+    public function valueDefault($value): self
     {
         $current = $this->checkPreviousBuild('value default');
         $type    = $current[ 'type' ];
@@ -276,7 +278,7 @@ class TableBuilder
             throw new TableBuilderException('An incremental type column can not have a default value.');
         }
 
-        $name = key($this->builder);
+        $name = (string) key($this->builder);
 
         $this->builder[ $name ][ 'default' ] = self::filterValue($name, $type, $value, $current);
 
@@ -296,7 +298,7 @@ class TableBuilder
      *
      * @return mixed
      */
-    public static function filterValue($name, $type, $value, array $args = [])
+    public static function filterValue(string $name, string $type, $value, array $args = [])
     {
         $error = 'The default value (' . $value . ') for column ' . $name . ' does not correspond to type ' . $type . '.';
 
@@ -366,7 +368,7 @@ class TableBuilder
      *
      * @return array Les configurations.
      */
-    public function build()
+    public function build(): array
     {
         return $this->builder;
     }
@@ -376,7 +378,7 @@ class TableBuilder
      *
      * @return int|null
      */
-    public function getIncrement()
+    public function getIncrement(): ?int
     {
         return $this->increment;
     }
@@ -386,7 +388,7 @@ class TableBuilder
      *
      * @return array
      */
-    public function getTableSchema()
+    public function getTableSchema(): array
     {
         return [
             'fields'     => $this->builder,
@@ -405,7 +407,7 @@ class TableBuilder
      *
      * @return array Paramètres du champ.
      */
-    protected function checkPreviousBuild($opt)
+    protected function checkPreviousBuild(string $opt): array
     {
         if (!($current = end($this->builder))) {
             throw new ColumnsNotFoundException("No column selected for $opt.");

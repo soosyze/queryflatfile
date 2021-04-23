@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -17,11 +19,11 @@ use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
  */
 class TableAlter extends TableBuilder
 {
-    const OPT_DROP = 'drop';
+    public const OPT_DROP = 'drop';
 
-    const OPT_MODIFY = 'modify';
+    public const OPT_MODIFY = 'modify';
 
-    const OPT_RENAME = 'rename';
+    public const OPT_RENAME = 'rename';
 
     /**
      * Enregistre la suppression d'une colonne.
@@ -30,7 +32,7 @@ class TableAlter extends TableBuilder
      *
      * @return $this
      */
-    public function dropColumn($name)
+    public function dropColumn(string $name): self
     {
         $this->builder[ $name ][ 'opt' ] = self::OPT_DROP;
 
@@ -45,7 +47,7 @@ class TableAlter extends TableBuilder
      *
      * @return $this
      */
-    public function renameColumn($from, $to)
+    public function renameColumn(string $from, string $to): self
     {
         $this->builder[ $from ] = [ 'opt' => self::OPT_RENAME, 'to' => $to ];
 
@@ -57,7 +59,7 @@ class TableAlter extends TableBuilder
      *
      * @return $this
      */
-    public function modify()
+    public function modify(): self
     {
         $this->checkPreviousBuild('modify');
         $key = key($this->builder);
@@ -78,7 +80,7 @@ class TableAlter extends TableBuilder
      *
      * @return array Paramètres du champ.
      */
-    protected function checkPreviousBuild($opt)
+    protected function checkPreviousBuild(string $opt): array
     {
         $current = parent::checkPreviousBuild($opt);
         if (isset($current[ 'opt' ])) {

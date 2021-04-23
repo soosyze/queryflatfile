@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -20,10 +22,10 @@ use Queryflatfile\Exception\Query\TableNotFoundException;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  *
- * @method Request where( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notWhere( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orWhere( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotWhere( callable|string $column, null|string $operator = null, null|string $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request where( callable|string $column, null|string $operator = null, mixed $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notWhere( callable|string $column, null|string $operator = null, mixed $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orWhere( callable|string $column, null|string $operator = null, mixed $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotWhere( callable|string $column, null|string $operator = null, mixed $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
  *
  * @method Request between( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orBetween( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
@@ -97,7 +99,7 @@ class Request extends RequestHandler
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $output = '';
         if ($this->columns) {
@@ -148,13 +150,13 @@ class Request extends RequestHandler
      * @param array  $args Pararètre de la méthode.
      *
      * @throws \BadMethodCallException
+     *
      * @return $this
      */
-    public function __call($name, $args)
+    public function __call(string $name, array $args): self
     {
-        if ($this->where === null) {
-            $this->where = new Where();
-        }
+        $this->where = $this->where ?? new Where();
+
         if (!method_exists($this->where, $name)) {
             throw new \BadMethodCallException("The $name method not exist");
         }
@@ -171,7 +173,7 @@ class Request extends RequestHandler
      *
      * @return $this
      */
-    public function setSchema(Schema $sch)
+    public function setSchema(Schema $sch): self
     {
         $this->schema = $sch;
 
@@ -185,23 +187,19 @@ class Request extends RequestHandler
      *
      * @return array Données de la table.
      */
-    public function getTableData($name)
+    public function getTableData(string $name): array
     {
         return $this->schema->read($name);
     }
 
     /**
-     * Enregistre le nom de la source des données principale de la requête.
-     *
-     * @param string $from Nom de la table.
-     *
-     * @return $this
+     * {@inheritdoc}
      */
-    public function from($from)
+    public function from(string $table): self
     {
-        parent::from($from);
-        $this->tableSchema = $this->schema->getSchemaTable($from);
-        $this->tableData   = $this->getTableData($from);
+        parent::from($table);
+        $this->tableSchema = $this->schema->getSchemaTable($table);
+        $this->tableData   = $this->getTableData($table);
 
         return $this;
     }
@@ -211,7 +209,7 @@ class Request extends RequestHandler
      *
      * @throws BadFunctionException
      */
-    public function execute()
+    public function execute(): void
     {
         $this->filterFrom();
         $this->loadAllColumnsSchema();
@@ -237,7 +235,7 @@ class Request extends RequestHandler
      *
      * @return array les données
      */
-    public function fetchAll()
+    public function fetchAll(): array
     {
         $this->filterFrom();
         $this->loadAllColumnsSchema();
@@ -322,7 +320,7 @@ class Request extends RequestHandler
      *
      * @return array Résultat de la requête.
      */
-    public function fetch()
+    public function fetch(): array
     {
         $fetch = $this->limit(1)->fetchAll();
 
@@ -339,9 +337,10 @@ class Request extends RequestHandler
      * @param string|null $key  Clé des valeurs de la liste
      *
      * @throws ColumnsNotFoundException
-     * @return array                    Liste du champ passé en paramètre.
+     *
+     * @return array Liste du champ passé en paramètre.
      */
-    public function lists($name, $key = null)
+    public function lists(string $name, ?string $key = null): array
     {
         $data = $this->fetchAll();
 
@@ -351,7 +350,7 @@ class Request extends RequestHandler
     /**
      * {@inheritdoc}
      */
-    public function init()
+    public function init(): self
     {
         parent::init();
         $this->allColumnsSchema = [];
@@ -369,7 +368,7 @@ class Request extends RequestHandler
      *
      * @return void
      */
-    protected static function arrayUniqueMultidimensional(array &$input)
+    protected static function arrayUniqueMultidimensional(array &$input): void
     {
         /* Sérialise les données du tableaux. */
         $serialized = array_map('serialize', $input);
@@ -393,7 +392,7 @@ class Request extends RequestHandler
      *
      * @return void;
      */
-    protected function executeJoins($type, $table, Where $where)
+    protected function executeJoins(string $type, string $table, Where $where): void
     {
         $result       = [];
         $rowTableNull = $this->getRowTableNull($table);
@@ -442,7 +441,7 @@ class Request extends RequestHandler
      *
      * @return void
      */
-    protected function executeOrderBy(array &$data, array $orderBy)
+    protected function executeOrderBy(array &$data, array $orderBy): void
     {
         foreach ($orderBy as &$order) {
             $order = $order === SORT_DESC
@@ -476,9 +475,10 @@ class Request extends RequestHandler
      * Exécute l'insertion de données.
      *
      * @throws ColumnsNotFoundException
+     *
      * @return void
      */
-    protected function executeInsert()
+    protected function executeInsert(): void
     {
         /* Si l'une des colonnes est de type incrémental. */
         $increment     = $this->getIncrement();
@@ -531,7 +531,7 @@ class Request extends RequestHandler
      *
      * @return void
      */
-    protected function executeUpdate()
+    protected function executeUpdate(): void
     {
         /* La variable $row est utilisé dans le test d'évaluation. */
         foreach ($this->tableData as &$row) {
@@ -548,7 +548,7 @@ class Request extends RequestHandler
      *
      * @return void
      */
-    protected function executeDelete()
+    protected function executeDelete(): void
     {
         foreach ($this->tableData as $key => $row) {
             if ($this->where && !$this->where->execute($row)) {
@@ -562,19 +562,17 @@ class Request extends RequestHandler
     /**
      * Retourne les champs incrémental de la courrante.
      *
-     * @return array Tableau des champ incrémentales et leur valeur.
+     * @return int|null Increment de la table courante
      */
-    protected function getIncrement()
+    protected function getIncrement(): ?int
     {
         return $this->tableSchema[ 'increments' ];
     }
 
     /**
      * Charge les colonnes de la table courante et des tables de jointure.
-     *
-     * @return void
      */
-    private function loadAllColumnsSchema()
+    private function loadAllColumnsSchema(): void
     {
         $this->allColumnsSchema = $this->tableSchema[ 'fields' ];
 
@@ -590,21 +588,18 @@ class Request extends RequestHandler
      * Vérifie l'existence de la table courante.
      *
      * @throws TableNotFoundException
-     * @return void
      */
-    private function filterFrom()
+    private function filterFrom(): void
     {
-        if (empty($this->from) || !\is_string($this->from)) {
+        if (empty($this->from)) {
             throw new TableNotFoundException("Table {$this->from} is missing.");
         }
     }
 
     /**
      * Vérifie pour tous les champs sélectionnées, leur l'existence à partir du schéma.
-     *
-     * @return void
      */
-    private function filterSelect()
+    private function filterSelect(): void
     {
         if ($this->columns) {
             $this->diffColumns($this->columns);
@@ -615,14 +610,13 @@ class Request extends RequestHandler
      * Vérifie que la limite est un entier positif.
      *
      * @throws QueryException
-     * @return void
      */
-    private function filterLimit()
+    private function filterLimit(): void
     {
-        if (!\is_int($this->limit) || $this->limit < self::ALL) {
+        if ($this->limit < self::ALL) {
             throw new QueryException('The limit must be a non-zero positive integer.');
         }
-        if (!\is_int($this->offset) || $this->offset < 0) {
+        if ($this->offset < 0) {
             throw new QueryException('The offset must be a non-zero positive integer.');
         }
     }
@@ -630,10 +624,8 @@ class Request extends RequestHandler
     /**
      * Vérifie pour toutes les jointures (LEFT JOIN, RIGHT JOIN) et les clauses conditionnées (WHERE),
      * l'existence des champs à partir du schéma.
-     *
-     * @return void
      */
-    private function filterWhere()
+    private function filterWhere(): void
     {
         $columns = [];
         /* Merge toutes les colonnes des conditions de chaque jointure. */
@@ -655,10 +647,8 @@ class Request extends RequestHandler
      * Vérifie pour tous les ORDER BY l'existence des champs à partir du schéma.
      *
      * @throws OperatorNotFound
-     *
-     * @return void
      */
-    private function filterOrderBy()
+    private function filterOrderBy(): void
     {
         if ($this->orderBy === []) {
             return;
@@ -678,9 +668,8 @@ class Request extends RequestHandler
      * Vérifie la cohérence des champs dans chaque requêtes entre les UNIONS.
      *
      * @throws ColumnsNotFoundException
-     * @return void
      */
-    private function filterUnion()
+    private function filterUnion(): void
     {
         $count = count($this->columns);
         foreach ($this->union as $request) {
@@ -700,9 +689,8 @@ class Request extends RequestHandler
      * @param array $columns Liste des champs.
      *
      * @throws ColumnsNotFoundException
-     * @return void
      */
-    private function diffColumns(array $columns)
+    private function diffColumns(array $columns): void
     {
         $diff = array_diff_key(
             array_flip($columns),
@@ -722,10 +710,8 @@ class Request extends RequestHandler
      * pour les jointures en cas d'absence de résultat.
      *
      * @param string $table Nom de la table.
-     *
-     * @return array
      */
-    private function getRowTableNull($table)
+    private function getRowTableNull($table): array
     {
         /* Le schéma de la table à joindre. */
         $sch         = $this->schema->getSchemaTable($table);

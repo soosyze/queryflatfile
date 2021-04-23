@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -20,7 +22,7 @@ final class Json extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function checkExtension()
+    public function checkExtension(): void
     {
         if (!extension_loaded('json')) {
             throw new ExtensionNotLoadedException('The json extension is not loaded.');
@@ -30,7 +32,7 @@ final class Json extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function getExtension()
+    public function getExtension(): string
     {
         return 'json';
     }
@@ -38,7 +40,7 @@ final class Json extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function serializeData(array $data)
+    public function serializeData(array $data): string
     {
         $encode = json_encode($data, JSON_UNESCAPED_UNICODE);
 
@@ -50,7 +52,7 @@ final class Json extends \Queryflatfile\Driver
     /**
      * {@inheritDoc}
      */
-    public function unserializeData($data)
+    public function unserializeData(string $data): array
     {
         return json_decode($data, true, 512, JSON_UNESCAPED_UNICODE);
     }

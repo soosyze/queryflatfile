@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Queryflatfile
  *
@@ -20,7 +22,7 @@ class Where extends WhereHandler
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $output = '';
         foreach ($this->where as $where) {
@@ -79,7 +81,7 @@ class Where extends WhereHandler
      *
      * @return array Colonnes.
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         $output = [];
         foreach ($this->where as $value) {
@@ -102,7 +104,7 @@ class Where extends WhereHandler
      *
      * @return bool
      */
-    public function execute(array $row)
+    public function execute(array $row): bool
     {
         $output = true;
         foreach ($this->where as $key => $value) {
@@ -128,7 +130,7 @@ class Where extends WhereHandler
             }
         }
 
-        return $output;
+        return (bool) $output;
     }
 
     /**
@@ -140,7 +142,7 @@ class Where extends WhereHandler
      *
      * @return bool
      */
-    public function executeJoin(array $row, array $rowTable)
+    public function executeJoin(array $row, array $rowTable): bool
     {
         $output = true;
         foreach ($this->where as $key => $value) {
@@ -185,7 +187,7 @@ class Where extends WhereHandler
      *
      * @return bool
      */
-    public static function predicate($columns, $operator, $value)
+    public static function predicate($columns, string $operator, $value): bool
     {
         switch ($operator) {
             case '==':
@@ -210,7 +212,11 @@ class Where extends WhereHandler
             case 'in':
                 return in_array($columns, $value);
             case 'regex':
-                return preg_match($value, $columns) === 1;
+                if ($columns === null) {
+                    return false;
+                }
+
+                return preg_match((string) $value, (string) $columns) === 1;
             case 'between':
                 return $columns >= $value[ 'min' ] && $columns <= $value[ 'max' ];
         }
@@ -227,9 +233,9 @@ class Where extends WhereHandler
      *
      * @return bool
      */
-    protected static function isColumn($value)
+    protected static function isColumn(string $value): bool
     {
-        return \is_string($value) && strstr($value, '.');
+        return strstr($value, '.') !== false;
     }
 
     /**
@@ -239,7 +245,7 @@ class Where extends WhereHandler
      *
      * @return string
      */
-    protected static function getColumn($value)
+    protected static function getColumn(string $value): string
     {
         return self::isColumn($value)
             ? substr(strrchr($value, '.'), 1)
