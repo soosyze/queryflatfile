@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Queryflatfile;
 
+use Queryflatfile\Exception\Query\OperatorNotFound;
+
 /**
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
  *
@@ -68,9 +70,12 @@ class Where extends WhereHandler
                 : ' OR ';
         }
         /* Cherche si la dernière occurence est AND ou OR. */
-        $nb = substr(strrchr($output, 'AND'), 0) === 'AND '
-            ? -4
-            : -3;
+        $nb = 0;
+        if (strrchr($output, 'AND') !== false) {
+            $nb = substr(strrchr($output, 'AND'), 0) === 'AND '
+                ? -4
+                : -3;
+        }
 
         /* Supprime la dernière occurence et renvoie la chaine. */
         return htmlspecialchars(substr($output, 0, $nb));
@@ -91,7 +96,7 @@ class Where extends WhereHandler
                 continue;
             }
 
-            $output[] = $this->getColumn($value[ 'column' ]);
+            $output[] = self::getColumn($value[ 'column' ]);
         }
 
         return $output;
@@ -114,23 +119,24 @@ class Where extends WhereHandler
                 : self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ]);
             /* Si la clause est inversé. */
             if ($value[ 'not' ]) {
-                $predicate ^= 1;
+                $predicate = !$predicate;
             }
             /* Les retours des types regex et like doivent être non null. */
             if ($value[ 'type' ] === 'regex' || $value[ 'type' ] === 'like') {
-                $predicate &= $row[ $value[ 'column' ] ] !== null;
+                $predicate = $predicate && $row[ $value[ 'column' ] ] !== null;
             }
 
             if ($key === 0) {
                 $output = $predicate;
-            } elseif ($value[ 'bool' ] === self::EXP_AND) {
-                $output &= $predicate;
-            } else {
-                $output |= $predicate;
+
+                continue;
             }
+            $output = $value[ 'bool' ] === self::EXP_AND
+                ? $output && $predicate
+                : $output || $predicate;
         }
 
-        return (bool) $output;
+        return $output;
     }
 
     /**
@@ -142,35 +148,28 @@ class Where extends WhereHandler
      *
      * @return bool
      */
-    public function executeJoin(array $row, array $rowTable): bool
+    public function executeJoin(array $row, array &$rowTable): bool
     {
         $output = true;
         foreach ($this->where as $key => $value) {
             $predicate = true;
 
-            switch ($value[ 'type' ]) {
-                case 'where':
-                case 'isNull':
-                    $val = self::isColumn($value[ 'value' ])
-                        ? $rowTable[ substr(strrchr($value[ 'value' ], '.'), 1) ]
-                        : $value[ 'value' ];
+            if ($value[ 'type' ] === 'whereCallback') {
+                $predicate = $value[ 'value' ]->executeJoin($row, $rowTable);
+            } else {
+                $val = $rowTable[ self::getColumn($value[ 'value' ]) ];
 
-                    $predicate = self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $val);
-
-                    break;
-                case 'whereCallback':
-                    $predicate = $value[ 'value' ]->execute($row);
-
-                    break;
+                $predicate = self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $val);
             }
 
             if ($key === 0) {
                 $output = $predicate;
-            } elseif ($value[ 'bool' ] === self::EXP_AND) {
-                $output &= $predicate;
-            } else {
-                $output |= $predicate;
+
+                continue;
             }
+            $output = $value[ 'bool' ] === self::EXP_AND
+                ? $output && $predicate
+                : $output || $predicate;
         }
 
         return $output;
@@ -221,33 +220,19 @@ class Where extends WhereHandler
                 return $columns >= $value[ 'min' ] && $columns <= $value[ 'max' ];
         }
 
-        throw new \Exception("The $operator operator is not supported.");
-    }
-
-    /**
-     * Si la valeur représente une colonne ou une valeur,
-     * where('id', '=', 'test') ici 'test' est une valeur de type chaine de caractère,
-     * where('id', '=', 'table.test') ici 'test' est une colonne puisqu'il est précédé du nom de sa table.
-     *
-     * @param string $value
-     *
-     * @return bool
-     */
-    protected static function isColumn(string $value): bool
-    {
-        return strstr($value, '.') !== false;
+        throw new OperatorNotFound("The $operator operator is not supported.");
     }
 
     /**
      * Retourne le nom de la colonne ou la valeur.
      *
-     * @param mixed $value
+     * @param string $value
      *
      * @return string
      */
     protected static function getColumn(string $value): string
     {
-        return self::isColumn($value)
+        return strrchr($value, '.') !== false
             ? substr(strrchr($value, '.'), 1)
             : $value;
     }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Queryflatfile;
 
+use BadMethodCallException;
 use Queryflatfile\Exception\Query\BadFunctionException;
 use Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Queryflatfile\Exception\Query\OperatorNotFound;
@@ -87,11 +88,11 @@ class Request extends RequestHandler
     /**
      * Réalise une requête sur un schéma de données
      *
-     * @param Schema $sch
+     * @param Schema $schema
      */
-    public function __construct(Schema $sch)
+    public function __construct(Schema $schema)
     {
-        $this->schema = $sch;
+        $this->schema = $schema;
     }
 
     /**
@@ -101,11 +102,9 @@ class Request extends RequestHandler
      */
     public function __toString(): string
     {
-        $output = '';
+        $output = 'SELECT * ';
         if ($this->columns) {
-            $output .= 'SELECT ' . implode(', ', $this->columns) . ' ';
-        } else {
-            $output .= 'SELECT * ';
+            $output = 'SELECT ' . implode(', ', $this->columns) . ' ';
         }
         if ($this->from) {
             $output .= "FROM $this->from ";
@@ -149,7 +148,7 @@ class Request extends RequestHandler
      * @param string $name Nom de la méthode appelée.
      * @param array  $args Pararètre de la méthode.
      *
-     * @throws \BadMethodCallException
+     * @throws BadMethodCallException
      *
      * @return $this
      */
@@ -158,7 +157,7 @@ class Request extends RequestHandler
         $this->where = $this->where ?? new Where();
 
         if (!method_exists($this->where, $name)) {
-            throw new \BadMethodCallException("The $name method not exist");
+            throw new BadMethodCallException("The $name method not exist");
         }
 
         $this->where->$name(...$args);
@@ -169,13 +168,13 @@ class Request extends RequestHandler
     /**
      * Ajoute un schéma de données à notre requête.
      *
-     * @param Schema $sch
+     * @param Schema $schema
      *
      * @return $this
      */
-    public function setSchema(Schema $sch): self
+    public function setSchema(Schema $schema): self
     {
-        $this->schema = $sch;
+        $this->schema = $schema;
 
         return $this;
     }
@@ -390,7 +389,7 @@ class Request extends RequestHandler
      * @param string $table
      * @param Where  $where
      *
-     * @return void;
+     * @return void
      */
     protected function executeJoins(string $type, string $table, Where $where): void
     {
@@ -450,7 +449,7 @@ class Request extends RequestHandler
         }
         unset($order);
 
-        usort($data, static function ($a, $b) use ($orderBy) {
+        usort($data, static function ($a, $b) use ($orderBy): int {
             $sorted = 0;
 
             foreach ($orderBy as $field => $order) {
@@ -467,6 +466,7 @@ class Request extends RequestHandler
                 }
             }
 
+            /* @var int $sorted */
             return $sorted;
         });
     }
@@ -489,8 +489,12 @@ class Request extends RequestHandler
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
             try {
                 /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
-                $row = array_combine($this->columns, $values);
+                $row =  array_combine($this->columns, $values);
             } catch (\Exception $ex) {
+                throw new ColumnsNotFoundException('keys : ' . implode(',', $this->columns) . ' != ' . implode(',', $values));
+            }
+
+            if ($row === false) {
                 throw new ColumnsNotFoundException('keys : ' . implode(',', $this->columns) . ' != ' . implode(',', $values));
             }
 
@@ -508,7 +512,7 @@ class Request extends RequestHandler
                 }
                 /* Si mon champ n'existe pas et qu'il de type incrémental. */
                 if ($arg[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
-                    $increment++;
+                    ++$increment;
                     $data[ $field ] = $increment;
 
                     continue;
