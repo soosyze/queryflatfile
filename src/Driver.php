@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Queryflatfile;
 
+use Queryflatfile\Exception\Driver\DriverException;
 use Queryflatfile\Exception\Driver\FileNotFoundException;
 use Queryflatfile\Exception\Driver\FileNotReadableException;
 use Queryflatfile\Exception\Driver\FileNotWritableException;
@@ -63,14 +64,17 @@ abstract class Driver implements DriverInterface
         if (!file_exists($path)) {
             mkdir($path, 0775, true);
         }
-        if (!file_exists($file)) {
-            $handle = fopen($file, 'w+');
-            fwrite($handle, $this->serializeData($data));
-
-            return fclose($handle);
+        if (file_exists($file)) {
+            return false;
         }
 
-        return false;
+        $handle = fopen($file, 'w+');
+        if ($handle === false) {
+            throw new DriverException("$file file cannot be opened");
+        }
+        fwrite($handle, $this->serializeData($data));
+
+        return fclose($handle);
     }
 
     /**
@@ -86,7 +90,9 @@ abstract class Driver implements DriverInterface
 
         $data = file_get_contents($file);
 
-        return $this->unserializeData($data);
+        return $data === false
+            ? []
+            : $this->unserializeData($data);
     }
 
     /**
@@ -101,6 +107,9 @@ abstract class Driver implements DriverInterface
         $this->isWrite($file);
 
         $handle = fopen($file, 'w');
+        if ($handle === false) {
+            throw new DriverException("$file file cannot be opened");
+        }
         fwrite($handle, $this->serializeData($data));
 
         return fclose($handle);

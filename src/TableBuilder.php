@@ -374,16 +374,6 @@ class TableBuilder
     }
 
     /**
-     * Retourne la liste des champs incrémentaux.
-     *
-     * @return int|null
-     */
-    public function getIncrement(): ?int
-    {
-        return $this->increment;
-    }
-
-    /**
      * Retour le schéma de la table.
      *
      * @return array
@@ -409,7 +399,8 @@ class TableBuilder
      */
     protected function checkPreviousBuild(string $opt): array
     {
-        if (!($current = end($this->builder))) {
+        $current = end($this->builder);
+        if (!$current) {
             throw new ColumnsNotFoundException("No column selected for $opt.");
         }
 
