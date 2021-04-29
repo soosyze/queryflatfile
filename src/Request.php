@@ -484,17 +484,17 @@ class Request extends RequestHandler
         $increment     = $this->getIncrement();
         /* Je charge les colonnes de mon schéma. */
         $schemaColumns = $this->tableSchema[ 'fields' ];
+        $count         = count($this->columns);
 
         foreach ($this->values as $values) {
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
-            try {
-                /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
-                $row =  array_combine($this->columns, $values);
-            } catch (\Exception $ex) {
+            if ($count !== count($values)) {
                 throw new ColumnsNotFoundException('keys : ' . implode(',', $this->columns) . ' != ' . implode(',', $values));
             }
 
-            if ($row === false) {
+            /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
+            $row = array_combine($this->columns, $values);
+            if ($row == false) {
                 throw new ColumnsNotFoundException('keys : ' . implode(',', $this->columns) . ' != ' . implode(',', $values));
             }
 
