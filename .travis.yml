@@ -9,6 +9,7 @@ matrix:
     env:
       - ANALYSIS='true'
       - XDEBUG_MODE=coverage
+  - php: 8.0
 
 before_script:
   - if [[ "$ANALYSIS" == 'true' ]]; then pecl install -f igbinary ; fi
