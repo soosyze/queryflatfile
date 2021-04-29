@@ -11,125 +11,119 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
      */
     protected $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new TableBuilder;
     }
 
-    public function testIncrements()
+    public function testIncrements(): void
     {
         $this->object->increments('id');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'increments' ]
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testIncrementsException()
+    public function testIncrementsException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object
             ->increments('id')
             ->increments('error');
     }
 
-    public function testChar()
+    public function testChar(): void
     {
         $this->object
             ->char('id')
             ->char('id2', 2);
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id'  => [ 'type' => 'char', 'length' => 1 ],
             'id2' => [ 'type' => 'char', 'length' => 2 ]
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testCharException()
+    public function testCharException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->char('id2', -1);
     }
 
-    public function testText()
+    public function testText(): void
     {
         $this->object->text('id');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'text' ]
         ]);
     }
 
-    public function testString()
+    public function testString(): void
     {
         $this->object
             ->string('id')
             ->string('id2', 256);
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id'  => [ 'type' => 'string', 'length' => 255 ],
             'id2' => [ 'type' => 'string', 'length' => 256 ],
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testStringException()
+    public function testStringException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->string('id', -1);
     }
 
-    public function testInteger()
+    public function testInteger(): void
     {
         $this->object->integer('id');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'integer' ]
         ]);
     }
 
-    public function testFloat()
+    public function testFloat(): void
     {
         $this->object->float('id');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'float' ]
         ]);
     }
 
-    public function testBoolean()
+    public function testBoolean(): void
     {
         $this->object->boolean('id');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'boolean' ]
         ]);
     }
 
-    public function testDate()
+    public function testDate(): void
     {
         $this->object->date('id');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'date' ]
         ]);
     }
 
-    public function testDatetime()
+    public function testDatetime(): void
     {
         $this->object->datetime('id');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'datetime' ]
         ]);
     }
 
-    public function testNullable()
+    public function testNullable(): void
     {
         $this->object
             ->increments('0')->nullable()
@@ -142,7 +136,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
             ->date('7')->nullable()
             ->datetime('8')->nullable();
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             '0' => [ 'type' => 'increments', 'nullable' => true ],
             '1' => [ 'type' => 'char', 'length' => 1, 'nullable' => true ],
             '2' => [ 'type' => 'text', 'nullable' => true ],
@@ -155,57 +149,49 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testNullableException()
+    public function testNullableException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->nullable();
     }
 
-    public function testUnsigned()
+    public function testUnsigned(): void
     {
         $this->object->integer('id')->unsigned();
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'integer', 'unsigned' => true ]
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testUnsignedException()
+    public function testUnsignedException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->unsigned();
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testUnsignedTypeException()
+    public function testUnsignedTypeException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->string('id')->unsigned();
     }
 
-    public function testComment()
+    public function testComment(): void
     {
         $this->object->increments('id')->comment('identifiant');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             'id' => [ 'type' => 'increments', '_comment' => 'identifiant' ]
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testCommentException()
+    public function testCommentException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->comment('identifiant');
     }
 
-    public function testValueDefault()
+    public function testValueDefault(): void
     {
         $this->object
             ->increments('0')
@@ -220,7 +206,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
             ->datetime('8')->valueDefault('2017-11-26 22:00:00')
             ->datetime('8.1')->valueDefault('current_datetime');
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             '0'   => [ 'type' => 'increments' ],
             '1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
             '2'   => [ 'type' => 'text', 'default' => 'test' ],
@@ -235,99 +221,75 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultException()
+    public function testValueDefaultException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->valueDefault('1');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultIncrementException()
+    public function testValueDefaultIncrementException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->increments('0')->valueDefault(2);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultCharException()
+    public function testValueDefaultCharException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->char('0')->valueDefault(1);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultCharLenghtException()
+    public function testValueDefaultCharLenghtException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->char('0')->valueDefault('error');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultTextException()
+    public function testValueDefaultTextException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->text('0')->valueDefault(1);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultStringException()
+    public function testValueDefaultStringException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->string('0')->valueDefault(1);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultIntegerException()
+    public function testValueDefaultIntegerException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->integer('0')->valueDefault('error');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultFloatException()
+    public function testValueDefaultFloatException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->float('0')->valueDefault('error');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultBoolException()
+    public function testValueDefaultBoolException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->boolean('0')->valueDefault('1');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultDateException()
+    public function testValueDefaultDateException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->date('0')->valueDefault('1');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testValueDefaultDatetimesException()
+    public function testValueDefaultDatetimesException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->datetime('0')->valueDefault('1');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testCheckValueException()
+    public function testCheckValueException(): void
     {
+        $this->expectException(\Exception::class);
         TableBuilder::filterValue('testName', 'error', 'testValue');
     }
 }

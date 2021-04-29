@@ -2,12 +2,19 @@
 
 namespace Queryflatfile\Test;
 
+use Queryflatfile\Exception\Query\BadFunctionException;
+use Queryflatfile\Exception\Query\ColumnsNotFoundException;
+use Queryflatfile\Exception\Query\OperatorNotFound;
+use Queryflatfile\Exception\Query\QueryException;
+use Queryflatfile\Exception\Query\TableNotFoundException;
 use Queryflatfile\Request;
 use Queryflatfile\Schema;
 use Queryflatfile\TableBuilder;
 
 class RequestTest extends \PHPUnit\Framework\TestCase
 {
+    private const ROOT = __DIR__ . '/data/';
+
     /**
      * @var Schema
      */
@@ -23,31 +30,25 @@ class RequestTest extends \PHPUnit\Framework\TestCase
      */
     protected $request2;
 
-    /**
-     * @var string
-     */
-    protected static $root = '';
-
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
-        if (!file_exists(self::$root)) {
+        if (!file_exists(self::ROOT)) {
             return;
         }
-        $dir = new \DirectoryIterator(self::$root);
+        $dir = new \DirectoryIterator(self::ROOT);
         foreach ($dir as $fileInfo) {
-            if ($fileInfo->isDot()) {
+            if ($fileInfo->isDot() || $fileInfo->getRealPath() === false) {
                 continue;
             }
             unlink($fileInfo->getRealPath());
         }
-        if (file_exists(self::$root)) {
-            rmdir(self::$root);
+        if (file_exists(self::ROOT)) {
+            rmdir(self::ROOT);
         }
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        self::$root = __DIR__ . '/data/';
         $this->bdd  = (new Schema)
             ->setConfig('data', 'schema', new \Queryflatfile\Driver\Json())
             ->setPathRoot(__DIR__ . '/');
@@ -56,7 +57,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->request2 = new Request($this->bdd);
     }
 
-    public function testCreateTable()
+    public function testCreateTable(): void
     {
         $this->bdd->createTable('user', static function (TableBuilder $table) {
             $table->increments('id')
@@ -72,27 +73,25 @@ class RequestTest extends \PHPUnit\Framework\TestCase
                 ->string('labelle');
         });
 
-        self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
-        self::assertFileExists(self::$root . 'user_role.' . $this->bdd->getExtension());
-        self::assertFileExists(self::$root . 'role.' . $this->bdd->getExtension());
+        self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
+        self::assertFileExists(self::ROOT . 'user_role.' . $this->bdd->getExtension());
+        self::assertFileExists(self::ROOT . 'role.' . $this->bdd->getExtension());
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testCreateTableException()
+    public function testCreateTableException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->createTable('user');
     }
 
-    public function testCreateTableIfNotExists()
+    public function testCreateTableIfNotExists(): void
     {
         $this->bdd->createTableIfNotExists('user');
 
-        self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
+        self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
     }
 
-    public function testInsertInto()
+    public function testInsertInto(): void
     {
         $this->request->insertInto('user', [ 'id', 'name', 'firstname' ])
             ->values([ 0, 'NOEL', 'Mathieu' ])
@@ -125,87 +124,81 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->values([ 5, 2 ])
             ->execute();
 
-        self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
+        self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
     }
 
-    public function testGetIncrement()
+    public function testGetIncrement(): void
     {
         self::assertEquals($this->bdd->getIncrement('user'), 6);
         self::assertEquals($this->bdd->getIncrement('role'), 2);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
-     */
-    public function testGetIncrementNoFound()
+    public function testGetIncrementNoFound(): void
     {
+        $this->expectException(TableNotFoundException::class);
         self::assertEquals($this->bdd->getIncrement('error'), 1);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testGetIncrementNoExist()
+    public function testGetIncrementNoExist(): void
     {
+        $this->expectException(\Exception::class);
         self::assertEquals($this->bdd->getIncrement('user_role'), 1);
     }
 
-    public function testCreateTableIfNotExistsData()
+    public function testCreateTableIfNotExistsData(): void
     {
         $this->bdd->createTableIfNotExists('user');
 
-        self::assertFileExists(self::$root . 'user.' . $this->bdd->getExtension());
+        self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
-     */
-    public function testInsertIntoExceptionTable()
+    public function testInsertIntoExceptionTable(): void
     {
+        $this->expectException(TableNotFoundException::class);
         $this->request->insertInto('foo', [ 'id', 'name', 'firstname' ])->execute();
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testInsertIntoExceptionColumn()
+    public function testInsertIntoExceptionColumn(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request->insertInto('user', [])->values([ 0, 'NOEL' ])->execute();
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testInsertIntoExceptionValue()
+    public function testInsertIntoExceptionValue(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request->insertInto('user', [ 'id', 'name', 'firstname' ])
             ->values([ 0, 'NOEL' ])
             ->execute();
     }
 
-    public function testSelect()
+    public function testSelect(): void
     {
         $data1 = $this->request->select([ 'firstname' ])->from('user')->fetch();
         $data2 = $this->request->select('firstname')->from('user')->fetch();
+        $data3 = $this->request->select()->from('user')->fetch();
+        $data4 = $this->request->from('user')->fetch();
 
-        self::assertArraySubset($data1, [ 'firstname' => 'Mathieu' ]);
-        self::assertArraySubset($data2, [ 'firstname' => 'Mathieu' ]);
+        self::assertEquals($data1, [ 'firstname' => 'Mathieu' ]);
+        self::assertEquals($data2, [ 'firstname' => 'Mathieu' ]);
+        self::assertEquals($data3, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
+        self::assertEquals($data4, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
     }
 
-    public function testLists()
+    public function testLists(): void
     {
         $data = $this->request->from('user')->lists('firstname');
 
         $assert = [ 'Mathieu', 'Jean', 'Manon', 'Marie', 'Pierre', 'Eva', null ];
 
-        self::assertArraySubset($data, $assert);
+        self::assertEquals($data, $assert);
     }
 
-    public function testListsKey()
+    public function testListsKey(): void
     {
         $data = $this->request->from('user')->lists('firstname', 'id');
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             0 => 'Mathieu',
             1 => 'Jean',
             2 => 'Manon',
@@ -216,81 +209,64 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testListsVoid()
+    public function testListsVoid(): void
     {
         $data = $this->request->from('user')->lists('error');
 
-        self::assertArraySubset($data, []);
+        self::assertEquals($data, []);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testSelectExceptionValue()
+    public function testSelectExceptionValue(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request->select([ 'foo' ])->from('user')->fetch();
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
-     */
-    public function testSelectExceptionFrom()
+    public function testSelectExceptionFrom(): void
     {
+        $this->expectException(TableNotFoundException::class);
         $this->request->select([ 'firstname' ])->from('foo')->fetch();
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
-     */
-    public function testFromException()
+    public function testFromException(): void
     {
+        $this->expectException(TableNotFoundException::class);
         $this->request->select([ 'firstname' ])->fetch();
     }
 
-    public function testSelectAlternative()
+    public function testSelectAlternativeExceptionFrom(): void
     {
-        $data1 = $this->request->select()->from('user')->fetch();
-        $data2 = $this->request->from('user')->fetch();
-
-        self::assertArraySubset($data1, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-        self::assertArraySubset($data2, [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]);
-    }
-
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\TableNotFoundException
-     */
-    public function testSelectAlternativeExceptionFrom()
-    {
+        $this->expectException(TableNotFoundException::class);
         $this->request->from('foo')->fetch();
     }
 
     /**
+     * @param numeric $value
+     *
      * @dataProvider whereEqualsProvider
      */
-    public function testWhereEquals($operator, $value, array $arraySubject)
+    public function testWhereEquals(string $operator, $value, array $arraySubject): void
     {
         $data = $this->request->select('name')
             ->from('user')
             ->where('id', $operator, $value)
             ->fetch();
 
-        self::assertArraySubset($data, $arraySubject);
+        self::assertEquals($data, $arraySubject);
     }
 
-    public function whereEqualsProvider()
+    public function whereEqualsProvider(): \Generator
     {
         yield [ '=', '1', [] ];
         yield [ '===', '1', [] ];
         yield [ '=', 1, [ 'name' => 'DUPOND' ] ];
-        yield [ '===', '1', [ 'name' => 'DUPOND' ] ];
+        yield [ '===', '1', [] ];
         yield [ '==', '1', [ 'name' => 'DUPOND' ] ];
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\OperatorNotFound
-     */
-    public function testWhereOperatorException()
+    public function testWhereOperatorException(): void
     {
+        $this->expectException(OperatorNotFound::class);
         $this->request->select('name')
             ->from('user')
             ->where('id', 'error', '1')
@@ -298,29 +274,31 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @param numeric $value
+     *
      * @dataProvider whereNotEqualsProvider
      */
-    public function testWhereNotEqualsNoType($operator, $value)
+    public function testWhereNotEqualsNoType(string $operator, $value): void
     {
-        $data = $this->request->select('firstname')
+        $data = $this->request->select('id')
             ->from('user')
             ->where('id', $operator, $value)
             ->fetchAll();
 
         $arraySubject = [
-            [ 'firstname' => 'Mathieu' ],
-            [ 'firstname' => 'Manon' ],
-            [ 'firstname' => 'Marie' ],
-            [ 'firstname' => 'Pierre' ],
-            [ 'firstname' => 'Eva' ],
-            [ 'firstname' => null ]
+            [ 'id' => 0 ],
+            [ 'id' => 2 ],
+            [ 'id' => 3 ],
+            [ 'id' => 4 ],
+            [ 'id' => 5 ],
+            [ 'id' => 6 ]
         ];
 
         /* whereNotEquals sans prendre en compte le type */
-        self::assertArraySubset($data, $arraySubject);
+        self::assertEquals($data, $arraySubject);
     }
 
-    public function whereNotEqualsProvider()
+    public function whereNotEqualsProvider(): \Generator
     {
         yield [ '<>', '1' ];
         yield [ '<>', 1 ];
@@ -328,7 +306,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         yield [ '!=', 1 ];
     }
 
-    public function testWhereNotEqualsType()
+    public function testWhereNotEqualsType(): void
     {
         /* L'identifiant stocké est un integer, pas un string */
         $dataType1 = $this->request->select('firstname')
@@ -341,7 +319,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '!==', 1)
             ->fetchAll();
 
-        self::assertArraySubset($dataType1, [
+        self::assertEquals($dataType1, [
             [ 'firstname' => 'Mathieu' ],
             [ 'firstname' => 'Jean' ],
             [ 'firstname' => 'Manon' ],
@@ -350,7 +328,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             [ 'firstname' => 'Eva' ],
             [ 'firstname' => null ]
         ]);
-        self::assertArraySubset($dataType2, [
+        self::assertEquals($dataType2, [
             [ 'firstname' => 'Mathieu' ],
             [ 'firstname' => 'Manon' ],
             [ 'firstname' => 'Marie' ],
@@ -363,17 +341,17 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider whereLessProvider
      */
-    public function testWhereLess($operator, array $arraySubject)
+    public function testWhereLess(string $operator, array $arraySubject): void
     {
         $data = $this->request
             ->from('user')
             ->where('id', $operator, 1)
             ->fetchAll();
 
-        self::assertArraySubset($data, $arraySubject);
+        self::assertEquals($data, $arraySubject);
     }
 
-    public function whereLessProvider()
+    public function whereLessProvider(): \Generator
     {
         yield [ '<', [
                 [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]
@@ -389,17 +367,17 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider whereGreaterProvider
      */
-    public function testWhereGreater($operator, array $arraySubject)
+    public function testWhereGreater(string $operator, array $arraySubject): void
     {
         $data = $this->request
             ->from('user')
             ->where('id', $operator, 5)
             ->fetchAll();
 
-        self::assertArraySubset($data, $arraySubject);
+        self::assertEquals($data, $arraySubject);
     }
 
-    public function whereGreaterProvider()
+    public function whereGreaterProvider(): \Generator
     {
         yield [ '>', [
                 [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
@@ -412,35 +390,33 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testWhereEqualsExceptionColumn()
+    public function testWhereEqualsExceptionColumn(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request->select([ 'name' ])
             ->from('user')
             ->where('foo', '=', 'Jean')
             ->fetch();
     }
 
-    public function testWhereBetween()
+    public function testWhereBetween(): void
     {
         $data = $this->request
             ->from('user')
             ->between('id', 1, 2)
             ->fetch();
 
-        self::assertArraySubset($data, [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]);
+        self::assertEquals($data, [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]);
     }
 
-    public function testWhereNotBetween()
+    public function testWhereNotBetween(): void
     {
         $data = $this->request
             ->from('user')
             ->notBetween('id', 1, 2)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
@@ -449,7 +425,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testWhereOrBetween()
+    public function testWhereOrBetween(): void
     {
         $data = $this->request
             ->from('user')
@@ -457,7 +433,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orBetween('id', 5, 6)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -465,7 +441,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testWhereOrNotBetween()
+    public function testWhereOrNotBetween(): void
     {
         $data = $this->request
             ->from('user')
@@ -473,7 +449,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orNotBetween('id', 5, 6)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -482,38 +458,36 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testWhereBetweenExceptionColumn()
+    public function testWhereBetweenExceptionColumn(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request
             ->from('user')
             ->between('foo', 0, 2)
             ->fetch();
     }
 
-    public function testWhereIn()
+    public function testWhereIn(): void
     {
         $data = $this->request
             ->from('user')
             ->in('id', [ 0, 1 ])
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]
         ]);
     }
 
-    public function testWhereNotIn()
+    public function testWhereNotIn(): void
     {
         $data = $this->request
             ->from('user')
             ->notIn('id', [ 0, 1 ])
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
@@ -522,7 +496,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testWhereOrIn()
+    public function testWhereOrIn(): void
     {
         $data = $this->request
             ->from('user')
@@ -530,7 +504,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orIn('id', [ 5, 6 ])
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -538,7 +512,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testWhereOrNotIn()
+    public function testWhereOrNotIn(): void
     {
         $data = $this->request
             ->from('user')
@@ -546,7 +520,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orNotIn('id', [ 5, 6 ])
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -555,35 +529,33 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testWhereInExceptionColumn()
+    public function testWhereInExceptionColumn(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request
             ->from('user')
             ->in('foo', [ 0, 1 ])
             ->fetchAll();
     }
 
-    public function testWhereIsNull()
+    public function testWhereIsNull(): void
     {
         $data = $this->request
             ->from('user')
             ->isNull('firstname')
             ->fetch();
 
-        self::assertArraySubset($data, [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]);
+        self::assertEquals($data, [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]);
     }
 
-    public function testWhereIsNotNull()
+    public function testWhereIsNotNull(): void
     {
         $data = $this->request
             ->from('user')
             ->isNotNull('firstname')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -593,7 +565,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testWhereOrIsNull()
+    public function testWhereOrIsNull(): void
     {
         $data = $this->request
             ->from('user')
@@ -601,13 +573,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orIsNull('name')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
             [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
         ]);
     }
 
-    public function testWhereOrIsNotNull()
+    public function testWhereOrIsNotNull(): void
     {
         $data = $this->request
             ->from('user')
@@ -615,7 +587,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orIsNotNull('name')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -625,11 +597,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testWhereIsNullExceptionColumn()
+    public function testWhereIsNullExceptionColumn(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request
             ->from('user')
             ->isNull('foo')
@@ -637,9 +607,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @param numeric $value
+     *
      * @dataProvider whereLikeProvider
      */
-    public function testWhereLike($operator, $value, array $arraySubject)
+    public function testWhereLike(string $operator, $value, array $arraySubject): void
     {
         $data = $this->request
             ->select('id', 'name')
@@ -647,10 +619,21 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('name', $operator, $value)
             ->fetchAll();
 
-        self::assertArraySubset($data, $arraySubject);
+        self::assertEquals($data, $arraySubject);
     }
 
-    public function whereLikeProvider()
+    public function testWhereLikeId(): void
+    {
+        $data = $this->request
+            ->select('id', 'name')
+            ->from('user')
+            ->where('id', 'like', '1%')
+            ->fetch();
+
+        self::assertEquals($data, [ 'id' => 1, 'name' => 'DUPOND' ]);
+    }
+
+    public function whereLikeProvider(): \Generator
     {
         // LIKE
         yield [ 'like', 'DUP%', [
@@ -682,12 +665,12 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ]
         ];
         yield [ 'ilike', '%OnD', [
-                [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
-                [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
+                [ 'id' => 1, 'name' => 'DUPOND' ],
+                [ 'id' => 4, 'name' => 'DUPOND' ]
             ]
         ];
         yield [ 'ilike', '%ti%', [
-                [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ]
+                [ 'id' => 2, 'name' => 'MARTIN' ]
             ]
         ];
 
@@ -736,27 +719,27 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public function testWhereRegex()
+    public function testWhereRegex(): void
     {
         $data = $this->request
             ->from('user')
             ->regex('name', '/^D/')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
     }
 
-    public function testWhereNotRegex()
+    public function testWhereNotRegex(): void
     {
         $data = $this->request
             ->from('user')
             ->notRegex('name', '/^D/')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -764,7 +747,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testWhereOrNotRegex()
+    public function testWhereOrNotRegex(): void
     {
         $data = $this->request
             ->from('user')
@@ -772,14 +755,14 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orNotRegex('firstname', '/^M/')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ]
         ]);
     }
 
-    public function testWhereOrRegex()
+    public function testWhereOrRegex(): void
     {
         $data = $this->request
             ->from('user')
@@ -787,58 +770,56 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orRegex('name', '/^N/')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ] ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testWhereRegexExceptionColumns()
+    public function testWhereRegexExceptionColumns(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request
             ->from('user')
             ->regex('foo', '/^D/')
             ->fetch();
     }
 
-    public function testAndWhere()
+    public function testAndWhere(): void
     {
         $data = $this->request
             ->from('user')
-            ->where('name', 'DUPOND')
-            ->where('firstname', 'Pierre')
+            ->where('name', '=', 'DUPOND')
+            ->where('firstname', '=', 'Pierre')
             ->fetch();
 
-        self::assertArraySubset($data, [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]);
+        self::assertEquals($data, [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]);
     }
 
-    public function testOrWhere()
+    public function testOrWhere(): void
     {
         $data = $this->request
             ->from('user')
-            ->where('name', 'DUPOND')
-            ->orWhere('firstname', 'Mathieu')
+            ->where('name', '=', 'DUPOND')
+            ->orWhere('firstname', '=', 'Mathieu')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ]
         ]);
     }
 
-    public function testOrNotWhere()
+    public function testOrNotWhere(): void
     {
         $data = $this->request
             ->from('user')
-            ->where('name', 'DUPOND')
-            ->orNotWhere('firstname', 'Mathieu')
+            ->where('name', '=', 'DUPOND')
+            ->orNotWhere('firstname', '=', 'Mathieu')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
             [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
@@ -848,35 +829,35 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testWhereAndGroup()
+    public function testWhereAndGroup(): void
     {
         $data = $this->request
             ->from('user')
             ->where('id', '>=', 2)
             ->where(static function ($query) {
-                $query->where('name', 'DUPOND')
-                ->orWhere('firstname', 'Eva');
+                $query->where('name', '=', 'DUPOND')
+                ->orWhere('firstname', '=', 'Eva');
             })
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
             [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ]
         ]);
     }
 
-    public function testWhereOrGroup()
+    public function testWhereOrGroup(): void
     {
         $data = $this->request
             ->from('user')
-            ->where('name', 'DUPOND')
+            ->where('name', '=', 'DUPOND')
             ->orWhere(static function ($query) {
-                $query->where('firstname', 'Eva')
-                ->orWhere('firstname', 'Mathieu');
+                $query->where('firstname', '=', 'Eva')
+                ->orWhere('firstname', '=', 'Mathieu');
             })
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
@@ -884,49 +865,45 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testLimit()
+    public function testLimit(): void
     {
         $data = $this->request
             ->from('user')
             ->limit(1)
             ->fetchAll();
 
-        self::assertArraySubset($data, [ [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ] ]);
+        self::assertEquals($data, [ [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ] ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\QueryException
-     */
-    public function testLimitException()
+    public function testLimitException(): void
     {
+        $this->expectException(QueryException::class);
         $this->request
             ->from('user')
             ->limit(-1)
             ->fetchAll();
     }
 
-    public function testLimitOffset()
+    public function testLimitOffset(): void
     {
         $data = $this->request
             ->from('user')
             ->limit(1, 1)
             ->fetchAll();
 
-        self::assertArraySubset($data, [ [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ] ]);
+        self::assertEquals($data, [ [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ] ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\QueryException
-     */
-    public function testOffsetException()
+    public function testOffsetException(): void
     {
+        $this->expectException(QueryException::class);
         $this->request
             ->from('user')
             ->limit(1, -1)
             ->fetchAll();
     }
 
-    public function testLimitOffsetWhere()
+    public function testLimitOffsetWhere(): void
     {
         $data = $this->request
             ->from('user')
@@ -934,17 +911,17 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->limit(1, 1)
             ->fetchAll();
 
-        self::assertArraySubset($data, [ [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ] ]);
+        self::assertEquals($data, [ [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ] ]);
     }
 
-    public function testOrderByAsc()
+    public function testOrderByAsc(): void
     {
         $data = $this->request->select([ 'firstname' ])
             ->from('user')
             ->orderBy('firstname')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'firstname' => null ],
             [ 'firstname' => 'Eva' ],
             [ 'firstname' => 'Jean' ],
@@ -955,14 +932,14 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testOrderByDesc()
+    public function testOrderByDesc(): void
     {
         $data = $this->request->select([ 'firstname' ])
             ->from('user')
             ->orderBy('firstname', SORT_DESC)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'firstname' => 'Pierre' ],
             [ 'firstname' => 'Mathieu' ],
             [ 'firstname' => 'Marie' ],
@@ -973,7 +950,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testOrderByDescFetch()
+    public function testOrderByDescFetch(): void
     {
         $data = $this->request->select([ 'name' ])
             ->from('user')
@@ -981,10 +958,10 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('name', SORT_DESC)
             ->fetch();
 
-        self::assertArraySubset($data, [ 'name' => 'ROBERT' ]);
+        self::assertEquals($data, [ 'name' => 'ROBERT' ]);
     }
 
-    public function testOrderByDescLimitOffset()
+    public function testOrderByDescLimitOffset(): void
     {
         $data = $this->request->select([ 'name' ])
             ->from('user')
@@ -993,13 +970,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->limit(2, 1)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'name' => 'MEYER' ],
             [ 'name' => 'DUPOND' ]
         ]);
     }
 
-    public function testOrderByMultipleAsc()
+    public function testOrderByMultipleAsc(): void
     {
         $data = $this->request->select([ 'name', 'firstname' ])
             ->from('user')
@@ -1007,7 +984,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('firstname')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'name' => 'ROBERT', 'firstname' => null ],
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -1018,7 +995,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testOrderByMultipleDesc()
+    public function testOrderByMultipleDesc(): void
     {
         $data = $this->request->select([ 'name', 'firstname' ])
             ->from('user')
@@ -1026,7 +1003,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('firstname', SORT_DESC)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'name' => 'ROBERT', 'firstname' => null ],
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'MEYER', 'firstname' => 'Eva' ],
@@ -1037,7 +1014,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testRightJoin()
+    public function testRightJoin(): void
     {
         $data = $this->request->select('id', 'name', 'firstname', 'labelle')
             ->from('role')
@@ -1045,7 +1022,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->rightJoin('user', 'id_user', '=', 'user.id')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
@@ -1057,7 +1034,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testLeftJoin()
+    public function testLeftJoin(): void
     {
         $data = $this->request->select('id', 'name', 'firstname', 'labelle')
             ->from('user')
@@ -1065,7 +1042,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->leftJoin('role', 'id_role', '=', 'role.id_role')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
@@ -1077,22 +1054,22 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testLeftJoinWhere()
+    public function testLeftJoinWhere(): void
     {
         $data = $this->request->select('id', 'name', 'firstname')
             ->from('user')
             ->leftJoin('user_role', 'id', '=', 'user_role.id_user')
             ->leftJoin('role', 'id_role', '=', 'role.id_role')
-            ->where('labelle', 'Admin')
+            ->where('labelle', '=', 'Admin')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
         ]);
     }
 
-    public function testLeftJoinGroup()
+    public function testLeftJoinGroup(): void
     {
         $data = $this->request->select('id', 'name', 'firstname')
             ->from('user')
@@ -1100,16 +1077,16 @@ class RequestTest extends \PHPUnit\Framework\TestCase
                 $query->where('id', '=', 'user_role.id_user');
             })
             ->leftJoin('role', 'id_role', '=', 'role.id_role')
-            ->where('labelle', 'Admin')
+            ->where('labelle', '=', 'Admin')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
         ]);
     }
 
-    public function testLeftJoinGroupMultiple()
+    public function testLeftJoinGroupMultiple(): void
     {
         $data = $this->request->select('id', 'name', 'firstname', 'labelle')
             ->from('user')
@@ -1119,16 +1096,16 @@ class RequestTest extends \PHPUnit\Framework\TestCase
                     $query->where('id_role', '=', 'role.id_role');
                 });
             })
-            ->where('labelle', 'Admin')
+            ->where('labelle', '=', 'Admin')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
-            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
-            [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+        self::assertEquals($data, [
+            [ 'labelle' => 'Admin', 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
+            [ 'labelle' => 'Admin', 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
         ]);
     }
 
-    public function testRightJoinGroupe()
+    public function testRightJoinGroupe(): void
     {
         $data = $this->request->select('id', 'name', 'firstname', 'labelle')
             ->from('role')
@@ -1138,7 +1115,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             })
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu', 'labelle' => 'Admin' ],
             [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean', 'labelle' => 'Admin' ],
             [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon', 'labelle' => 'Author' ],
@@ -1150,20 +1127,18 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testLeftJoinExceptionColumn()
+    public function testLeftJoinExceptionColumn(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $this->request->select([ 'id', 'name', 'firstname' ])
             ->from('user')
             ->leftJoin('user_role', 'foo', '==', 'user_role.id_user')
             ->leftJoin('role', 'id_role', '==', 'role.id')
-            ->where('labelle', 'Admin')
+            ->where('labelle', '=', 'Admin')
             ->fetch();
     }
 
-    public function testUnion()
+    public function testUnion(): void
     {
         $union = $this->request
             ->select('name')
@@ -1176,7 +1151,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'name' => 'NOEL' ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MARTIN' ],
@@ -1186,7 +1161,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testUnionMultiple()
+    public function testUnionMultiple(): void
     {
         $union = $this->request
             ->select('name', 'firstname')
@@ -1199,7 +1174,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -1210,11 +1185,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testUnionMultipleException()
+    public function testUnionMultipleException(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $union = $this->request
             ->select('name')
             ->from('user')
@@ -1227,7 +1200,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->fetchAll();
     }
 
-    public function testUnionAll()
+    public function testUnionAll(): void
     {
         $union = $this->request
             ->select('name')
@@ -1240,7 +1213,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->unionAll($union)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'name' => 'NOEL' ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MARTIN' ],
@@ -1256,7 +1229,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testUnionAllMultiple()
+    public function testUnionAllMultiple(): void
     {
         $union = $this->request
             ->select('name', 'firstname')
@@ -1269,7 +1242,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->unionAll($union)
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             [ 'name' => 'DUPOND', 'firstname' => 'Jean' ],
             [ 'name' => 'MARTIN', 'firstname' => 'Manon' ],
@@ -1285,11 +1258,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\ColumnsNotFoundException
-     */
-    public function testUnionAllMultipleException()
+    public function testUnionAllMultipleException(): void
     {
+        $this->expectException(ColumnsNotFoundException::class);
         $union = $this->request
             ->select('name')
             ->from('user')
@@ -1302,7 +1273,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->fetchAll();
     }
 
-    public function testUnionList()
+    public function testUnionList(): void
     {
         $union = $this->request
             ->select('name')
@@ -1315,7 +1286,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union)
             ->lists('name');
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             'NOEL',
             'DUPOND',
             'MARTIN',
@@ -1325,7 +1296,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testUnionListOrder()
+    public function testUnionListOrder(): void
     {
         $union = $this->request
             ->select('name')
@@ -1339,7 +1310,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('name')
             ->lists('name');
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             null,
             'DUPOND',
             'MARTIN',
@@ -1349,20 +1320,19 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Query\BadFunctionException
-     */
-    public function testExecuteException()
+    public function testExecuteException(): void
     {
+        $this->expectException(BadFunctionException::class);
         $this->request
             ->from('user')
             ->where('id', '=', 0)
             ->execute();
     }
 
-    public function testUpdateData()
+    public function testUpdateData(): void
     {
-        $this->request->update('user', [ 'name' => 'PETIT' ])
+        $this->request
+            ->update('user', [ 'name' => 'PETIT' ])
             ->where('id', '=', 0)
             ->execute();
 
@@ -1371,12 +1341,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '=', 0)
             ->fetch();
 
-        self::assertArraySubset($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
+        self::assertEquals($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
     }
 
-    public function testUpdateDataFull()
+    public function testUpdateDataFull(): void
     {
-        $this->request->update('user', [ 'name' => 'PETIT' ])
+        $this->request
+            ->update('user', [ 'name' => 'PETIT' ])
             ->execute();
 
         $data = $this->request
@@ -1384,10 +1355,10 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('id', '=', 0)
             ->fetch();
 
-        self::assertArraySubset($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
+        self::assertEquals($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
     }
 
-    public function testDeleteData()
+    public function testDeleteData(): void
     {
         $this->request->from('user')
             ->delete()
@@ -1398,31 +1369,30 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->fetchAll();
 
-        self::assertArraySubset($data, [
+        self::assertEquals($data, [
             [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ],
             [ 'id' => 5, 'name' => 'PETIT', 'firstname' => 'Eva' ],
             [ 'id' => 6, 'name' => 'PETIT', 'firstname' => null ]
         ]);
     }
 
-    public function testDropTable()
+    public function testDropTable(): void
     {
-        $this->bdd->dropTable('user_role');
+        $hasTableUserRole = $this->bdd->dropTable('user_role');
 
-        self::assertFileNotExists(__DIR__ . '/data/user_role.json');
+        self::assertFileNotExists(self::ROOT . 'user_role.json');
     }
 
-    public function testDropSchema()
+    public function testDropSchema(): void
     {
-        $this->bdd->dropSchema();
-        self::assertFileNotExists(__DIR__ . '/data/schema.json');
+        $hasSchema = $this->bdd->dropSchema();
+
+        self::assertFileNotExists(self::ROOT . 'schema.json');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testPredicate()
+    public function testPredicate(): void
     {
+        $this->expectException(\Exception::class);
         \Queryflatfile\Where::predicate('', 'error', '');
     }
 }
