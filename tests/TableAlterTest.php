@@ -11,59 +11,53 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
      */
     protected $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new TableAlter;
     }
 
-    public function testDrop()
+    public function testDrop(): void
     {
         $this->object->dropColumn('0');
 
-        self::assertArraySubset($this->object->build(), [
-            [ 'opt' => TableAlter::OPT_DROP, 'name' => '0' ]
+        self::assertEquals($this->object->build(), [
+            '0' => [ 'opt' => TableAlter::OPT_DROP ]
         ]);
     }
 
-    public function testRename()
+    public function testRename(): void
     {
         $this->object->renameColumn('0', '1');
 
-        self::assertArraySubset($this->object->build(), [
-            [ 'opt' => TableAlter::OPT_RENAME, 'name' => '0', 'to' => '1' ]
+        self::assertEquals($this->object->build(), [
+           '0' => [ 'opt' => TableAlter::OPT_RENAME, 'to' => '1' ]
         ]);
     }
 
-    public function testModify()
+    public function testModify(): void
     {
         $this->object->char('0')->modify();
 
-        self::assertArraySubset($this->object->build(), [
+        self::assertEquals($this->object->build(), [
             '0' => [ 'type' => 'char', 'length' => 1, 'opt' => TableAlter::OPT_MODIFY ]
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testDropException()
+    public function testDropException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->dropColumn('0')->valueDefault('test');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testRenameException()
+    public function testRenameException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->renameColumn('0', '1')->valueDefault('test');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testModifyException()
+    public function testModifyException(): void
     {
+        $this->expectException(\Exception::class);
         $this->object->char('0')->modify()->valueDefault('test');
     }
 }

@@ -1,31 +1,39 @@
 <?php
 
-namespace Queryflatfile\Test;
+namespace Queryflatfile\Test\Driver;
+
+use Queryflatfile\Driver\Txt;
+use Queryflatfile\DriverInterface;
+use Queryflatfile\Exception\Driver\FileNotFoundException;
 
 class TxtTest extends \PHPUnit\Framework\TestCase
 {
-    const TEST_DIR = 'tests/txt';
+    private const TEST_DIR = 'tests/txt';
 
-    const TEST_FILE_NAME = 'driver_test';
+    private const TEST_FILE_NAME = 'driver_test';
 
     /**
      * @var DriverInterface
      */
     protected $driver;
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
-        if (count(scandir(self::TEST_DIR)) == 2) {
+        if (($nbFile = scandir(self::TEST_DIR)) === false) {
+            return;
+        }
+
+        if (count($nbFile) == 2) {
             rmdir(self::TEST_DIR);
         }
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->driver = new \Queryflatfile\Driver\Txt();
+        $this->driver = new Txt();
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $output = $this->driver->create(
             self::TEST_DIR,
@@ -37,7 +45,7 @@ class TxtTest extends \PHPUnit\Framework\TestCase
         self::assertFileExists(self::TEST_DIR . '/driver_test.txt');
     }
 
-    public function testNoCreate()
+    public function testNoCreate(): void
     {
         $output = $this->driver->create(
             self::TEST_DIR,
@@ -48,22 +56,20 @@ class TxtTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($output);
     }
 
-    public function testRead()
+    public function testRead(): void
     {
         $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
-        self::assertArraySubset($data, [ 'key_test' => 'value_test' ]);
+        self::assertEquals($data, [ 'key_test' => 'value_test' ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Driver\FileNotFoundException
-     */
-    public function testReadException()
+    public function testReadException(): void
     {
+        $this->expectException(FileNotFoundException::class);
         $this->driver->read(self::TEST_DIR, 'driver_test_error');
     }
 
-    public function testSave()
+    public function testSave(): void
     {
         $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
@@ -73,18 +79,16 @@ class TxtTest extends \PHPUnit\Framework\TestCase
         $newData = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertArraySubset($newData, $data);
+        self::assertEquals($newData, $data);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Driver\FileNotFoundException
-     */
-    public function testSaveException()
+    public function testSaveException(): void
     {
+        $this->expectException(FileNotFoundException::class);
         $this->driver->save(self::TEST_DIR, 'driver_test_error', []);
     }
 
-    public function testHas()
+    public function testHas(): void
     {
         $has    = $this->driver->has(self::TEST_DIR, self::TEST_FILE_NAME);
         $notHas = $this->driver->has(self::TEST_DIR, 'driver_test_not_found');
@@ -93,7 +97,7 @@ class TxtTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($notHas);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 

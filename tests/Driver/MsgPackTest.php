@@ -1,36 +1,44 @@
 <?php
 
-namespace Queryflatfile\Test;
+namespace Queryflatfile\Test\Driver;
+
+use Queryflatfile\Driver\MsgPack;
+use Queryflatfile\DriverInterface;
+use Queryflatfile\Exception\Driver\FileNotFoundException;
 
 class MsgPackTest extends \PHPUnit\Framework\TestCase
 {
-    const TEST_DIR = 'tests/msgpack';
+    private const TEST_DIR = 'tests/msgpack';
 
-    const TEST_FILE_NAME = 'driver_test';
+    private const TEST_FILE_NAME = 'driver_test';
 
     /**
      * @var DriverInterface
      */
     protected $driver;
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
-        if (count(scandir(self::TEST_DIR)) == 2) {
+        if (($nbFile = scandir(self::TEST_DIR)) === false) {
+            return;
+        }
+
+        if (count($nbFile) == 2) {
             rmdir(self::TEST_DIR);
         }
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         if (!extension_loaded('msgpack')) {
             $this->markTestSkipped(
                 'The msgpack extension is not available.'
             );
         }
-        $this->driver = new \Queryflatfile\Driver\MsgPack();
+        $this->driver = new MsgPack();
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $output = $this->driver->create(
             self::TEST_DIR,
@@ -42,7 +50,7 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         self::assertFileExists(self::TEST_DIR . '/driver_test.msg');
     }
 
-    public function testNoCreate()
+    public function testNoCreate(): void
     {
         $output = $this->driver->create(
             self::TEST_DIR,
@@ -53,22 +61,20 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($output);
     }
 
-    public function testRead()
+    public function testRead(): void
     {
         $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
-        self::assertArraySubset($data, [ 'key_test' => 'value_test' ]);
+        self::assertEquals($data, [ 'key_test' => 'value_test' ]);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Driver\FileNotFoundException
-     */
-    public function testReadException()
+    public function testReadException(): void
     {
+        $this->expectException(FileNotFoundException::class);
         $this->driver->read(self::TEST_DIR, 'driver_test_error');
     }
 
-    public function testSave()
+    public function testSave(): void
     {
         $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
@@ -78,18 +84,16 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         $newJson = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertArraySubset($newJson, $data);
+        self::assertEquals($newJson, $data);
     }
 
-    /**
-     * @expectedException \Queryflatfile\Exception\Driver\FileNotFoundException
-     */
-    public function testSaveException()
+    public function testSaveException(): void
     {
+        $this->expectException(FileNotFoundException::class);
         $this->driver->save(self::TEST_DIR, 'driver_test_error', []);
     }
 
-    public function testHas()
+    public function testHas(): void
     {
         $has    = $this->driver->has(self::TEST_DIR, self::TEST_FILE_NAME);
         $notHas = $this->driver->has(self::TEST_DIR, 'driver_test_not_found');
@@ -98,7 +102,7 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($notHas);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 
