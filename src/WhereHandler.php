@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Queryflatfile;
 
 use Queryflatfile\Exception\Query\OperatorNotFound;
+use Queryflatfile\Exception\Query\QueryException;
 
 /**
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
@@ -30,33 +31,19 @@ class WhereHandler
     public const EXP_OR = 'or';
 
     /**
+     * Les conditions binaires autorisées.
+     */
+    private const CONDITION = [
+        '=', '==',  '===', '!==', '!=', '<>', '<', '<=', '>', '>=',
+        'like', 'not like', 'ilike', 'not ilike'
+    ];
+
+    /**
      * Les conditions à exécuter.
      *
      * @var array
      */
     protected $where = [];
-
-    /**
-     * Les conditions binaires autorisées.
-     *
-     * @var string[]
-     */
-    protected $contidion = [
-        '=',
-        '==',
-        '===',
-        '!==',
-        '!=',
-        '<>',
-        '<',
-        '<=',
-        '>',
-        '>=',
-        'like',
-        'not like',
-        'ilike',
-        'not ilike'
-    ];
 
     /**
      * Ajoute une condition simple pour la requête.
@@ -82,30 +69,27 @@ class WhereHandler
 
             return $this;
         }
-        if ($operator !== null && $value === null) {
-            list($value, $operator) = [ $operator, '=' ];
-        }
 
-        /* Pour que l'opérateur soit insensible à la case. */
-        $condition = strtolower($operator);
+        $condition = $this->filterOperator($operator);
 
-        /* Si l'opérateur n'est pas autorisé. */
-        if (!in_array($condition, $this->contidion)) {
-            throw new OperatorNotFound("The condition $condition is not exist.");
-        }
         if (in_array($condition, [ 'like', 'ilike', 'not like', 'not ilike' ])) {
-            $this->like($column, $condition, $value, $bool);
+            if (!\is_string($value)) {
+                throw new QueryException();
+            }
+            $this->like(
+                $column,
+                $condition,
+                $value,
+                $bool,
+                strpos($condition, 'not') !== false
+            );
 
             return $this;
         }
-        $this->where[] = [
-            'type'      => __FUNCTION__,
-            'column'    => $column,
-            'condition' => $condition,
-            'value'     => $value,
-            'bool'      => $bool,
-            'not'       => $not
-        ];
+
+        $type = __FUNCTION__;
+
+        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -166,14 +150,11 @@ class WhereHandler
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
-        $this->where[] = [
-            'type'      => __FUNCTION__,
-            'column'    => $column,
-            'condition' => __FUNCTION__,
-            'value'     => [ 'min' => $min, 'max' => $max ],
-            'bool'      => $bool,
-            'not'       => $not
-        ];
+        $condition = 'between';
+        $type      = __FUNCTION__;
+        $value     = [ 'min' => $min, 'max' => $max ];
+
+        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -232,14 +213,10 @@ class WhereHandler
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
-        $this->where[] = [
-            'type'      => __FUNCTION__,
-            'column'    => $column,
-            'condition' => 'in',
-            'value'     => $value,
-            'bool'      => $bool,
-            'not'       => $not
-        ];
+        $condition = 'in';
+        $type      = __FUNCTION__;
+
+        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -287,14 +264,11 @@ class WhereHandler
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
-        $this->where[] = [
-            'type'      => __FUNCTION__,
-            'column'    => $column,
-            'condition' => '===',
-            'value'     => null,
-            'bool'      => $bool,
-            'not'       => $not
-        ];
+        $condition = '===';
+        $type      = __FUNCTION__;
+        $value     = null;
+
+        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -332,25 +306,21 @@ class WhereHandler
     /**
      * Ajoute une condition avec une expression régulière à la requête.
      *
-     * @param string $column  Nom de la colonne.
-     * @param string $pattern Expression régulière.
-     * @param string $bool    Porte logique de la condition (and|or).
-     * @param bool   $not     Inverse la condition.
+     * @param string $column Nom de la colonne.
+     * @param string $value  Expression régulière.
+     * @param string $bool   Porte logique de la condition (and|or).
+     * @param bool   $not    Inverse la condition.
      */
     public function regex(
         string $column,
-        string $pattern,
+        string $value,
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
-        $this->where[] = [
-            'type'      => __FUNCTION__,
-            'condition' => 'regex',
-            'column'    => $column,
-            'value'     => $pattern,
-            'bool'      => $bool,
-            'not'       => $not
-        ];
+        $condition = 'regex';
+        $type      = __FUNCTION__;
+
+        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -410,36 +380,58 @@ class WhereHandler
      *
      * @param string $column
      * @param string $operator
-     * @param string $value
+     * @param string $pattern
      * @param string $bool
+     * @param bool   $not
      *
      * @return void
      */
     protected function like(
         string $column,
         string $operator,
-        string $value,
-        string $bool = self::EXP_AND
+        string $pattern,
+        string $bool = self::EXP_AND,
+        bool $not = false
     ): void {
         /* Protection des caractères spéciaux des expressions rationnelles autre que celle imposée. */
-        $str = preg_quote($value, '/');
+        $str = preg_quote($pattern, '/');
 
         /* Le paterne commun au 4 conditions. */
-        $pattern = '/^' . strtr($str, [ '%' => '.*' ]);
+        $value = '/^' . strtr($str, [ '%' => '.*' ]);
 
         /* Pour rendre la regex inssencible à la case. */
-        $pattern .= $operator === 'like' || $operator === 'not like'
+        $value .= $operator === 'like' || $operator === 'not like'
             ? '$/'
             : '$/i';
 
-        $this->where[] = [
-            'type'      => __FUNCTION__,
-            'column'    => $column,
-            'condition' => 'regex',
-            'value'     => $pattern,
-            'bool'      => $bool,
-            /* Pour inverser le comportement du like. */
-            'not'       => $operator === 'not like' || $operator === 'not ilike'
-        ];
+        $type      = __FUNCTION__;
+        $condition = 'regex';
+
+        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
+    }
+
+    /**
+     * Filtre l'opérateur.
+     *
+     * @param string|null $operator
+     *
+     * @throws QueryException
+     * @throws OperatorNotFound
+     *
+     * @return string
+     */
+    private function filterOperator(?string $operator): string
+    {
+        if ($operator === null) {
+            throw new QueryException();
+        }
+
+        $condition = strtolower($operator);
+
+        if (!in_array($condition, self::CONDITION)) {
+            throw new OperatorNotFound("The condition $operator is not exist.");
+        }
+
+        return $condition;
     }
 }

@@ -80,7 +80,7 @@ class Schema
         string $name = 'schema',
         DriverInterface $driver = null
     ) {
-        if (!\is_null($host)) {
+        if ($host !== null) {
             $this->setConfig($host, $name, $driver);
         }
     }
@@ -522,7 +522,7 @@ class Schema
         $schema[ 'fields' ][ $name ] = $params;
 
         $increment = $params[ 'type' ] === TableBuilder::TYPE_INCREMENT
-            ? 1
+            ? 0
             : null;
 
         try {
@@ -534,7 +534,7 @@ class Schema
         foreach ($dataTable as &$data) {
             $data[ $name ] = $increment === null
                 ? $valueDefault
-                : $increment++;
+                : ++$increment;
         }
 
         if ($params[ 'type' ] === TableBuilder::TYPE_INCREMENT) {

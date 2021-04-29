@@ -194,7 +194,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function union(RequestInterface $request, string $type = self::UNION_SIMPLE)
     {
-        $this->union[] = [ 'request' => $request, 'type' => $type ];
+        $this->union[] = compact('request', 'type');
 
         return $this;
     }
@@ -264,15 +264,12 @@ abstract class RequestHandler implements RequestInterface
      */
     private function join(string $type, string $table, $column, ?string $operator = null, ?string $value = null): void
     {
-        if ($column instanceof \Closure) {
-            $where = new Where();
-            call_user_func_array($column, [ &$where ]);
-        } else {
-            $where = ( new Where() )
-                ->where($column, $operator, $value);
-        }
-        $this->joins[] = [
-            'type'  => $type, 'table' => $table, 'where' => $where
-        ];
+        $where = new Where();
+
+        $column instanceof \Closure
+            ? call_user_func_array($column, [ &$where ])
+            : $where->where($column, $operator, $value);
+
+        $this->joins[] = compact('type', 'table', 'where');
     }
 }
