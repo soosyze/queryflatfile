@@ -10,7 +10,7 @@ use Queryflatfile\TableBuilder;
 
 class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 {
-    const DATA_DIR = 'data2';
+    private const DATA_DIR = __DIR__ . '/data2/';
 
     /**
      * @var Schema
@@ -22,7 +22,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
      */
     protected $request;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->bdd = (new Schema)
             ->setConfig(self::DATA_DIR, 'schema', new Json());
@@ -53,14 +53,14 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             ->execute();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (!file_exists(self::DATA_DIR)) {
             return;
         }
         $dir = new \DirectoryIterator(self::DATA_DIR);
         foreach ($dir as $fileInfo) {
-            if ($fileInfo->isDot()) {
+            if ($fileInfo->isDot() || $fileInfo->getRealPath() === false) {
                 continue;
             }
             unlink($fileInfo->getRealPath());
@@ -70,9 +70,9 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function testGetSchema()
+    public function testGetSchema(): void
     {
-        self::assertArraySubset($this->bdd->getSchema(), [
+        self::assertEquals($this->bdd->getSchema(), [
             'test'        => [
                 'fields'     => [
                     'id'        => [ 'type' => 'increments' ],
@@ -91,9 +91,9 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testGetSchemaTable()
+    public function testGetSchemaTable(): void
     {
-        self::assertArraySubset($this->bdd->getSchemaTable('test'), [
+        self::assertEquals($this->bdd->getSchemaTable('test'), [
             'fields'     => [
                 'id'        => [ 'type' => 'increments' ],
                 'name'      => [ 'type' => 'string', 'length' => 255 ],
@@ -103,13 +103,13 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testHasTable()
+    public function testHasTable(): void
     {
         self::assertTrue($this->bdd->hasTable('test'));
         self::assertFalse($this->bdd->hasTable('error'));
     }
 
-    public function testHasColumns()
+    public function testHasColumns(): void
     {
         self::assertTrue($this->bdd->hasColumn('test', 'id'));
         self::assertFalse($this->bdd->hasColumn('test', 'error'));
@@ -117,23 +117,19 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($this->bdd->hasColumn('error', 'error'));
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testSetIncrementsableNotFoundException()
+    public function testSetIncrementsableNotFoundException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->setIncrement('error', 1);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testSetIncrementsException()
+    public function testSetIncrementsException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->setIncrement('test_void', 1);
     }
 
-    public function testAlterTableAdd()
+    public function testAlterTableAdd(): void
     {
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table
@@ -142,7 +138,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
                 ->string('field_s');
         });
 
-        self::assertArraySubset($this->bdd->getSchemaTable('test')[ 'fields' ], [
+        self::assertEquals($this->bdd->getSchemaTable('test')[ 'fields' ], [
             'id'              => [ 'type' => 'increments' ],
             'name'            => [ 'type' => 'string', 'length' => 255 ],
             'firstname'       => [ 'type' => 'string', 'length' => 255 ],
@@ -150,7 +146,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             'field_s_null'    => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
             'field_s'         => [ 'type' => 'string', 'length' => 255 ]
         ]);
-        self::assertArraySubset($this->bdd->read('test'), [
+        self::assertEquals($this->bdd->read('test'), [
             [
                 'id'              => 1,
                 'name'            => 'NOEL',
@@ -176,39 +172,50 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testAlterTableAddIncrement()
+    public function testAlterTableAddIncrement(): void
     {
         $this->bdd->alterTable('test_second', static function (TableAlter $table) {
             $table->increments('id');
         });
 
-        self::assertArraySubset($this->bdd->getSchemaTable('test_second'), [
+        self::assertEquals($this->bdd->getSchemaTable('test_second'), [
             'fields'     => [
                 'id'      => [ 'type' => 'increments' ],
                 'value_i' => [ 'type' => 'integer' ],
                 'value_s' => [ 'type' => 'string', 'length' => 255 ]
             ],
-            'increments' => 4
+            'increments' => 3
         ]);
-        self::assertArraySubset($this->bdd->read('test_second'), [
+        self::assertEquals($this->bdd->read('test_second'), [
             [ 'id' => 1, 'value_i' => 10, 'value_s' => 'value1' ],
             [ 'id' => 2, 'value_i' => 20, 'value_s' => 'value2' ],
             [ 'id' => 3, 'value_i' => 30, 'value_s' => 'value3' ]
         ]);
+
+        $this->request->insertInto('test_second', [ 'value_i', 'value_s' ])
+            ->values([ 40, 'value4' ])
+            ->execute();
+
+        self::assertEquals($this->bdd->read('test_second'), [
+            [ 'id' => 1, 'value_i' => 10, 'value_s' => 'value1' ],
+            [ 'id' => 2, 'value_i' => 20, 'value_s' => 'value2' ],
+            [ 'id' => 3, 'value_i' => 30, 'value_s' => 'value3' ],
+            [ 'id' => 4, 'value_i' => 40, 'value_s' => 'value4' ]
+        ]);
     }
 
-    public function testAlterTableRename()
+    public function testAlterTableRename(): void
     {
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->renameColumn('name', '_name');
         });
 
-        self::assertArraySubset($this->bdd->getSchemaTable('test')[ 'fields' ], [
+        self::assertEquals($this->bdd->getSchemaTable('test')[ 'fields' ], [
             'id'        => [ 'type' => 'increments' ],
             '_name'     => [ 'type' => 'string', 'length' => 255 ],
             'firstname' => [ 'type' => 'string', 'length' => 255 ]
         ]);
-        self::assertArraySubset($this->bdd->read('test'), [
+        self::assertEquals($this->bdd->read('test'), [
             [
                 'id'        => 1,
                 '_name'     => 'NOEL',
@@ -225,167 +232,147 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testAlterTableModify()
+    public function testAlterTableModify(): void
     {
         $this->bdd->alterTable('test_second', static function (TableAlter $table) {
             $table->float('value_i')->valueDefault(1.0)->modify();
         });
 
-        self::assertArraySubset($this->bdd->getSchemaTable('test_second')[ 'fields' ], [
+        self::assertEquals($this->bdd->getSchemaTable('test_second')[ 'fields' ], [
             'value_i' => [ 'type' => 'float', 'default' => 1.0 ],
             'value_s' => [ 'type' => 'string', 'length' => 255 ]
         ]);
-        self::assertArraySubset($this->bdd->read('test_second'), [
-            [ 'id' => 1, 'value_i' => 1.0, 'value_s' => 'value1' ],
-            [ 'id' => 2, 'value_i' => 1.0, 'value_s' => 'value2' ],
-            [ 'id' => 3, 'value_i' => 1.0, 'value_s' => 'value3' ]
+        self::assertEquals($this->bdd->read('test_second'), [
+            [ 'value_i' => 1, 'value_s' => 'value1' ],
+            [ 'value_i' => 1, 'value_s' => 'value2' ],
+            [ 'value_i' => 1, 'value_s' => 'value3' ]
         ]);
     }
 
-    public function testAlterTableModifyIncrement()
+    public function testAlterTableModifyIncrement(): void
     {
         $this->bdd->alterTable('test_second', static function (TableAlter $table) {
             $table->increments('value_i')->modify();
         });
 
-        self::assertArraySubset($this->bdd->getSchemaTable('test_second'), [
+        self::assertEquals($this->bdd->getSchemaTable('test_second'), [
             'fields'     => [
                 'value_i' => [ 'type' => 'increments' ],
                 'value_s' => [ 'type' => 'string', 'length' => 255 ]
             ],
             'increments' => 0
         ]);
-        self::assertArraySubset($this->bdd->read('test_second'), [
+        self::assertEquals($this->bdd->read('test_second'), [
             [ 'value_i' => 10, 'value_s' => 'value1' ],
             [ 'value_i' => 20, 'value_s' => 'value2' ],
             [ 'value_i' => 30, 'value_s' => 'value3' ]
         ]);
     }
 
-    public function testAlterTableDrop()
+    public function testAlterTableDrop(): void
     {
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->dropColumn('id')
                 ->dropColumn('firstname');
         });
 
-        self::assertArraySubset($this->bdd->getSchemaTable('test'), [
+        self::assertEquals($this->bdd->getSchemaTable('test'), [
             'fields'     => [
                 'name' => [ 'type' => 'string', 'length' => 255 ]
             ],
             'increments' => null
         ]);
-        self::assertArraySubset($this->bdd->read('test'), [
+        self::assertEquals($this->bdd->read('test'), [
             [ 'name' => 'NOEL' ],
             [ 'name' => 'DUPOND' ],
             [ 'name' => 'MARTIN' ]
         ]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableException()
+    public function testAlterTableException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('error', static function () {
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableAddException()
+    public function testAlterTableAddException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->string('id');
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableModifyException()
+    public function testAlterTableModifyException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->string('error')->modify();
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableModifyTypeIntegerException()
+    public function testAlterTableModifyTypeIntegerException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test_second', static function (TableAlter $table) {
             $table->integer('value_s')->modify();
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableModifyTypeStringException()
+    public function testAlterTableModifyTypeStringException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test_second', static function (TableAlter $table) {
             $table->string('value_i')->modify();
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableModifyColumnsValueException()
+    public function testAlterTableModifyColumnsValueException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->increments('name')->modify();
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableRenameColumnsNotFoundException()
+    public function testAlterTableRenameColumnsNotFoundException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->renameColumn('error', 'error');
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableRenameException()
+    public function testAlterTableRenameException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->renameColumn('name', 'id');
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableDropException()
+    public function testAlterTableDropException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->dropColumn('error');
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testAlterTableAddIncrementsException()
+    public function testAlterTableAddIncrementsException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->alterTable('test', static function (TableAlter $table) {
             $table->increments('error');
         });
     }
 
-    public function testTruncateTable()
+    public function testTruncateTable(): void
     {
         $output = $this->bdd->truncateTable('test');
 
-        self::assertArraySubset($this->bdd->getSchemaTable('test'), [
+        self::assertEquals($this->bdd->getSchemaTable('test'), [
             'fields'     => [
                 'id'        => [ 'type' => 'increments' ],
                 'name'      => [ 'type' => 'string', 'length' => 255 ],
@@ -393,36 +380,32 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             ],
             'increments' => 0
         ]);
-        self::assertArraySubset($this->bdd->read('test'), []);
+        self::assertEquals($this->bdd->read('test'), []);
         self::assertTrue($output);
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testTruncateTableException()
+    public function testTruncateTableException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->truncateTable('error');
     }
 
-    public function testDropTable()
+    public function testDropTable(): void
     {
         $output = $this->bdd->dropTable('test');
 
         self::assertTrue($output);
-        self::assertFileNotExists(__DIR__ . '/data2/test.json');
+        self::assertFileNotExists(self::DATA_DIR . 'test.json');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testDropTableException()
+    public function testDropTableException(): void
     {
+        $this->expectException(\Exception::class);
         $this->bdd->dropTable('test');
         $this->bdd->dropTable('test');
     }
 
-    public function testDropTableIfExists()
+    public function testDropTableIfExists(): void
     {
         $this->bdd->dropTable('test');
         $output = $this->bdd->dropTableIfExists('test');
@@ -430,9 +413,9 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($output);
     }
 
-    public function testDropSchema()
+    public function testDropSchema(): void
     {
         $this->bdd->dropSchema();
-        self::assertFileNotExists(__DIR__ . '/data2/schema.json');
+        self::assertFileNotExists(self::DATA_DIR . 'schema.json');
     }
 }
