@@ -466,7 +466,7 @@ class Request extends RequestHandler
                 }
             }
 
-            /* @var int $sorted */
+            /** @var int $sorted */
             return $sorted;
         });
     }
