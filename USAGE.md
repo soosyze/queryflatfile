@@ -354,14 +354,6 @@ Résultat(s) de la requête :
 |--------|
 | DUPOND |
 
-Si vous ne précisez pas la condition elle sera par défaut à `=`
-```php
-$request->select( 'name' )
-    ->from('user')
-    ->where('firstname', 'Jean')
-    ->fetch();
-```
-
 ### Where not equals
 
 Requête au format SQL :
@@ -788,13 +780,15 @@ Résultat(s) de la requête :
 
 ```php
 /**
- * @param string $table le nom de la table à joindre
- * @param string|Closure $column le nom de la colonne d'une des tables précédentes
- * ou une closure pour affiner les conditions
- * @param string|null $operator l'opérateur logique ou null pour une closure
- * @param string|null $value valeur
- * ou une colonne de la table jointe (au format nom_table.colonne)
- * ou null pour une closure
+ *
+ * @param string          $type     Type de la jointure.
+ * @param string          $table    Nom de la table à joindre
+ * @param string|\Closure $column   Nom de la colonne d'une des tables précédentes
+ *                                  ou une closure pour affiner les conditions.
+ * @param string|null     $operator Opérateur logique ou null pour une closure.
+ * @param string|null     $value    Valeur
+ *                                  ou une colonne de la table jointe (au format nom_table.colonne)
+ *                                  ou null pour une closure.
  */
 public function leftJoin( $table, $column, $operator = null, $value = null );
 public function rightJoin( $table, $column, $operator = null, $value = null );
@@ -1151,33 +1145,10 @@ interface DriverInterface
 Une fois votre propre driver créé, utiliser le à l'instanciation de votre base de données.
 ```php
 $bdd = new Queryflatfile\Schema();
-// En ne renseignant pas le dernier paramètre (le driver) les données seront stockées au format JSON par défaut
 $bdd->setConfig('data', 'schema', new Queryflatfile\DriverFormatX());
 ```
 
-Vous pouvez choisir d'hériter de la class `Queryflatfile\Dirver` au lieu d'implémenter l'interface.
-Cette class fournit un ensemble de méthode qui facilitera votre développement.
-```php
-
-# Queryflatfile\Dirver
-
-/* Implementation avec unlink() */
-$this->delete( $path, $fileName );
-/* Implementation avec getFile() */
-$this->has( $path, $fileName );
-/* Concatène le chemin, le nom du fichier et l'extension */
-$this->getFile( $path, $file );
-/* Déclenche une exception si le fichier n'existe pas */
-$this->isExist( $file )
-/* Déclenche une exception si le fichier n'a pas le droit d'écriture */
-$this->isWrite( $file );
-/* Déclenche une exception si le fichier n'a pas le droit d'être lu */
-$this->isRead( $file );
-```
-
-Il existe une deux autres implementations :
+Il existe une trois autres implementations :
 - `Txt` enregistrent le données dans un fichier texte,
 - `MsgPack` enregistrent le données en binaire grâce à l'extension `MsgPack`,
 - `Igbinary` enregistrent le données en binaire grâce à l'extension `Igbinary`.
-
-Cette interface sérialise vos données et les enregistres sous le format texte.
