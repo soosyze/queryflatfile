@@ -29,11 +29,13 @@ Manipulate your data with a QueryBuilder similar to SQL syntax.
 
 Support more than [85% of current PHP versions](https://w3techs.com/technologies/details/pl-php)
 
-| Version PHP                 | QueryFlatFile 1.4.x |
-|-----------------------------|---------------------|
-| <= 5.5                      | ✗ Unsupported       |
-| 5.6                         | ✓ Supported         |
-| 7.0 / 7.1 / 7.2 / 7.3 / 7.4 | ✓ Supported         |
+| Version PHP     | QueryFlatFile 1.4.x | QueryFlatFile 2.x |
+|-----------------|---------------------|-------------------|
+| <= 5.5          | ✗ Unsupported       | ✗ Unsupported     |
+| 5.6             | ✓ Supported         | ✗ Unsupported     |
+| 7.0 / 7.1       | ✓ Supported         | ✗ Unsupported     |
+| 7.2 / 7.3 / 7.4 | ✓ Supported         | ✓ Supported       |
+| 8.0             | ✗ Unsupported       | ✓ Supported       |
 
 ## Extensions
 
@@ -45,7 +47,6 @@ Support more than [85% of current PHP versions](https://w3techs.com/technologies
 ## Memory required
 
 The minimum amount of memory required depends on the amount of data you are going to process and the type of operations.
-To gain performance use the PHP 7.x versions and the `MsgPack` or `Igbinary` driver.
 
 ## Permission of files and directory
 
@@ -76,7 +77,7 @@ use Queryflatfile\Request;
 use Queryflatfile\TableBuilder;
 use Queryflatfile\Driver\Json;
 
-$bdd = new Schema('data', 'schema', new Json());
+$bdd = new Schema(__DIR__ . 'data', 'schema', new Json());
 $req = new Request($bdd);
 
 $bdd->createTableIfNotExists('user', function(TableBuilder $table){

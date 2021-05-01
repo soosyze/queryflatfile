@@ -29,11 +29,13 @@ Manipulez vos données avec un QueryBuilder similaire à la syntaxe SQL.
 
 Support plus de [85% des versions PHP actuelles](https://w3techs.com/technologies/details/pl-php)
 
-| Version PHP                 | QueryFlatFile 1.4.x |
-|-----------------------------|---------------------|
-| <= 5.5                      | ✗ Non supporté      |
-| 5.6                         | ✓ Supporté          |
-| 7.0 / 7.1 / 7.2 / 7.3 / 7.4 | ✓ Supporté          |
+| Version PHP     | QueryFlatFile 1.4.x | QueryFlatFile 2.x |
+|-----------------|---------------------|-------------------|
+| <= 5.5          | ✗ Non supporté      | ✗ Non supporté    |
+| 5.6             | ✓ Supporté          | ✗ Non supporté    |
+| 7.0 / 7.1       | ✓ Supporté          | ✗ Non supporté    |
+| 7.2 / 7.3 / 7.4 | ✓ Supporté          | ✓ Supporté        |
+| 8.0             | ✗ Non supporté      | ✓ Supporté        |
 
 ## Extensions PHP
 
