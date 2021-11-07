@@ -38,6 +38,7 @@
         }
     },
     "config": {
+        "bin-dir": "bin",
         "sort-packages": true,
         "optimize-autoloader": true
     }
