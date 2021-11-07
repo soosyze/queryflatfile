@@ -18,12 +18,12 @@
         "php": ">=7.2"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.2",
         "phpstan/phpstan": "^0.12.85",
         "phpstan/phpstan-phpunit": "^0.12.18",
         "phpunit/phpunit": "^8.5"
     },
     "suggest": {
-        "friendsofphp/php-cs-fixer": "To normalize the PHP code.",
         "phpdocumentor/phpdocumentor": "To generate documentation.",
         "phpmetrics/phpmetrics": "To generate a code status report in HTML format."
     },

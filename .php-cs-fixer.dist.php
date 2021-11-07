@@ -5,8 +5,8 @@ $finder = PhpCsFixer\Finder::create()
     ->exclude('build')
     ->in(__DIR__);
 
-return PhpCsFixer\Config::create()
-        ->setRules([
+$config = new PhpCsFixer\Config();
+return $config->setRules([
             '@PSR2'                                      => true,
             /* Force la déclaration des tableaux sous leur forme courte. */
             'array_syntax'                               => [ 'syntax' => 'short' ],
@@ -24,7 +24,6 @@ return PhpCsFixer\Config::create()
             'concat_space'                               => [ 'spacing' => 'one' ],
             /* Remplace les commentaires simples # par //. */
             'fully_qualified_strict_types'               => true,
-            'hash_to_slash_comment'                      => true,
             /* Retire les parenthèses des include/require. */
             'include'                                    => true,
             /* Ne pas avoir de code à l'ouverture d'une balise php */
@@ -55,22 +54,18 @@ return PhpCsFixer\Config::create()
             'no_mixed_echo_print'                        => true,
             /* Supprime les espaces d'une seule ligne avant la fermeture du point-virgule. */
             'no_singleline_whitespace_before_semicolons' => true,
-            /* Supprimes les espaces autour des accolades des tableaux. */
-            'no_spaces_around_offset'                    => [ 'outside' ],
             /* Remplace les éléments elseif superflus par if. */
             'no_superfluous_elseif'                      => true,
             /* Supprime les accolades superflus. */
             'no_unneeded_curly_braces'                   => true,
             /* Supprime les parenthèses superflus. */
             'no_unneeded_control_parentheses'            => true,
-            /* Une class final ne doit pas avoir de méthodes finales. */
-            'no_unneeded_final_method'                   => true,
             /* Supprimez les virgules de fin dans les listes. */
             'no_trailing_comma_in_list_call'             => true,
             /* Supprimez les virgules de fin dans les array. */
             'no_trailing_comma_in_singleline_array'      => true,
             /* Remplace les <?= par des <?php echo. */
-            'no_short_echo_tag'                          => true,
+            'echo_tag_syntax'                          => true,
             /* Les annotations PHPUnit doivent être un FQCN, y compris un espace de noms racine. */
             'php_unit_fqcn_annotation'                   => true,
             /* Appliquez la camelCase aux méthodes de test PHPUnit, après la configuration. */
