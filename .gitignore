@@ -8,5 +8,4 @@
 /*.lock
 /*.phar
 /*.properties
-/.php_cs.cache
-/.phpunit.result.cache
+/*.cache
