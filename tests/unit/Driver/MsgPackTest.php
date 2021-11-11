@@ -1,14 +1,14 @@
 <?php
 
-namespace Queryflatfile\Test\Driver;
+namespace Queryflatfile\Tests\unit\Driver;
 
-use Queryflatfile\Driver\Igbinary;
+use Queryflatfile\Driver\MsgPack;
 use Queryflatfile\DriverInterface;
 use Queryflatfile\Exception\Driver\FileNotFoundException;
 
-class IgbinaryTest extends \PHPUnit\Framework\TestCase
+class MsgPackTest extends \PHPUnit\Framework\TestCase
 {
-    private const TEST_DIR = 'tests/igbinary';
+    private const TEST_DIR = 'tests/msgpack';
 
     private const TEST_FILE_NAME = 'driver_test';
 
@@ -30,12 +30,12 @@ class IgbinaryTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        if (!extension_loaded('igbinary')) {
+        if (!extension_loaded('msgpack')) {
             $this->markTestSkipped(
-                'The igbinary extension is not available.'
+                'The msgpack extension is not available.'
             );
         }
-        $this->driver = new Igbinary();
+        $this->driver = new MsgPack();
     }
 
     public function testCreate(): void
@@ -47,7 +47,7 @@ class IgbinaryTest extends \PHPUnit\Framework\TestCase
         );
 
         self::assertTrue($output);
-        self::assertFileExists(self::TEST_DIR . '/driver_test.ig');
+        self::assertFileExists(self::TEST_DIR . '/driver_test.msg');
     }
 
     public function testNoCreate(): void
@@ -81,10 +81,10 @@ class IgbinaryTest extends \PHPUnit\Framework\TestCase
         $data[ 'key_test_2' ] = 'value_test_2';
 
         $output  = $this->driver->save(self::TEST_DIR, self::TEST_FILE_NAME, $data);
-        $newData = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
+        $newJson = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertEquals($newData, $data);
+        self::assertEquals($newJson, $data);
     }
 
     public function testSaveException(): void
@@ -107,6 +107,6 @@ class IgbinaryTest extends \PHPUnit\Framework\TestCase
         $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::TEST_DIR . '/driver_test.ig');
+        self::assertFileNotExists(self::TEST_DIR . '/driver_test.msg');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Queryflatfile\Test;
+namespace Queryflatfile\Tests\unit;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use Queryflatfile\DriverInterface;
@@ -1679,7 +1679,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     private function loadFixtures(string $filename): array
     {
-        $json = (string) file_get_contents(__DIR__ . "/fixtures/$filename.json");
+        $json = (string) file_get_contents(dirname(__DIR__) . "/fixtures/$filename.json");
 
         return json_decode($json, true);
     }

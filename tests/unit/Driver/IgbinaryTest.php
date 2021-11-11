@@ -1,14 +1,14 @@
 <?php
 
-namespace Queryflatfile\Test\Driver;
+namespace Queryflatfile\Tests\unit\Driver;
 
-use Queryflatfile\Driver\Txt;
+use Queryflatfile\Driver\Igbinary;
 use Queryflatfile\DriverInterface;
 use Queryflatfile\Exception\Driver\FileNotFoundException;
 
-class TxtTest extends \PHPUnit\Framework\TestCase
+class IgbinaryTest extends \PHPUnit\Framework\TestCase
 {
-    private const TEST_DIR = 'tests/txt';
+    private const TEST_DIR = 'tests/igbinary';
 
     private const TEST_FILE_NAME = 'driver_test';
 
@@ -30,7 +30,12 @@ class TxtTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        $this->driver = new Txt();
+        if (!extension_loaded('igbinary')) {
+            $this->markTestSkipped(
+                'The igbinary extension is not available.'
+            );
+        }
+        $this->driver = new Igbinary();
     }
 
     public function testCreate(): void
@@ -42,7 +47,7 @@ class TxtTest extends \PHPUnit\Framework\TestCase
         );
 
         self::assertTrue($output);
-        self::assertFileExists(self::TEST_DIR . '/driver_test.txt');
+        self::assertFileExists(self::TEST_DIR . '/driver_test.ig');
     }
 
     public function testNoCreate(): void
@@ -102,6 +107,6 @@ class TxtTest extends \PHPUnit\Framework\TestCase
         $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::TEST_DIR . '/driver_test.txt');
+        self::assertFileNotExists(self::TEST_DIR . '/driver_test.ig');
     }
 }

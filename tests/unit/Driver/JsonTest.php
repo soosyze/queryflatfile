@@ -1,14 +1,14 @@
 <?php
 
-namespace Queryflatfile\Test\Driver;
+namespace Queryflatfile\Tests\unit\Driver;
 
-use Queryflatfile\Driver\MsgPack;
+use Queryflatfile\Driver\Json;
 use Queryflatfile\DriverInterface;
 use Queryflatfile\Exception\Driver\FileNotFoundException;
 
-class MsgPackTest extends \PHPUnit\Framework\TestCase
+class JsonTest extends \PHPUnit\Framework\TestCase
 {
-    private const TEST_DIR = 'tests/msgpack';
+    private const TEST_DIR = 'tests/json';
 
     private const TEST_FILE_NAME = 'driver_test';
 
@@ -30,12 +30,12 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        if (!extension_loaded('msgpack')) {
+        if (!extension_loaded('json')) {
             $this->markTestSkipped(
-                'The msgpack extension is not available.'
+                'The json extension is not available.'
             );
         }
-        $this->driver = new MsgPack();
+        $this->driver = new Json();
     }
 
     public function testCreate(): void
@@ -47,7 +47,7 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         );
 
         self::assertTrue($output);
-        self::assertFileExists(self::TEST_DIR . '/driver_test.msg');
+        self::assertFileExists(self::TEST_DIR . '/driver_test.json');
     }
 
     public function testNoCreate(): void
@@ -81,10 +81,10 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         $data[ 'key_test_2' ] = 'value_test_2';
 
         $output  = $this->driver->save(self::TEST_DIR, self::TEST_FILE_NAME, $data);
-        $newJson = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
+        $newData = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertEquals($newJson, $data);
+        self::assertEquals($newData, $data);
     }
 
     public function testSaveException(): void
@@ -107,6 +107,6 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::TEST_DIR . '/driver_test.msg');
+        self::assertFileNotExists(self::TEST_DIR . '/driver_test.json');
     }
 }

@@ -34,7 +34,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Queryflatfile\\Test\\": "tests"
+            "Queryflatfile\\Tests\\": "tests"
         }
     },
     "config": {
