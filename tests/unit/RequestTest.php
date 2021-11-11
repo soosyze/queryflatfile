@@ -10,6 +10,7 @@ use Queryflatfile\Exception\Query\QueryException;
 use Queryflatfile\Exception\Query\TableNotFoundException;
 use Queryflatfile\Request;
 use Queryflatfile\Schema;
+use Queryflatfile\WhereHandler;
 
 class RequestTest extends \PHPUnit\Framework\TestCase
 {
@@ -960,7 +961,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request
             ->from('user')
             ->where('id', '>=', 2)
-            ->where(static function ($query) {
+            ->where(static function (WhereHandler $query): void {
                 $query->where('name', '=', 'DUPOND')
                 ->orWhere('firstname', '=', 'Eva');
             });
@@ -983,7 +984,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request
             ->from('user')
             ->where('name', '=', 'DUPOND')
-            ->orWhere(static function ($query) {
+            ->orWhere(static function (WhereHandler $query): void {
                 $query->where('firstname', '=', 'Eva')
                 ->orWhere('firstname', '=', 'Mathieu');
             });
@@ -1300,7 +1301,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request
             ->select('id', 'name', 'firstname')
             ->from('user')
-            ->leftJoin('user_role', static function ($query) {
+            ->leftJoin('user_role', static function (WhereHandler $query): void {
                 $query->where('id', '=', 'user_role.id_user');
             })
             ->leftJoin('role', 'id_role', '=', 'role.id_role')
@@ -1328,8 +1329,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->select('id', 'name', 'firstname', 'labelle')
             ->from('user')
             ->leftJoin('user_role', 'id', '=', 'user_role.id_user')
-            ->leftJoin('role', static function ($query) {
-                $query->where(static function ($query) {
+            ->leftJoin('role', static function (WhereHandler $query): void {
+                $query->where(static function (WhereHandler $query): void {
                     $query->where('id_role', '=', 'role.id_role');
                 });
             })
@@ -1357,7 +1358,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->select('id', 'name', 'firstname', 'labelle')
             ->from('role')
             ->rightJoin('user_role', 'id_role', '=', 'user_role.id_role')
-            ->rightJoin('user', static function ($query) {
+            ->rightJoin('user', static function (WhereHandler $query): void {
                 $query->where('id_user', '=', 'user.id');
             });
 
