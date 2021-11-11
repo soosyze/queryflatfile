@@ -55,16 +55,16 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateTable(): void
     {
-        $this->bdd->createTable('user', static function (TableBuilder $table) {
+        $this->bdd->createTable('user', static function (TableBuilder $table): void {
             $table->increments('id')
                 ->string('name')->nullable()
                 ->string('firstname')->nullable();
         });
-        $this->bdd->createTable('user_role', static function (TableBuilder $table) {
+        $this->bdd->createTable('user_role', static function (TableBuilder $table): void {
             $table->integer('id_user')
                 ->integer('id_role');
         });
-        $this->bdd->createTable('role', static function (TableBuilder $table) {
+        $this->bdd->createTable('role', static function (TableBuilder $table): void {
             $table->increments('id_role')
                 ->string('labelle');
         });

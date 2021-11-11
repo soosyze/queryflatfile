@@ -29,7 +29,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
         $this->request = new Request($this->bdd);
 
-        $this->bdd->createTableIfNotExists('test', static function (TableBuilder $table) {
+        $this->bdd->createTableIfNotExists('test', static function (TableBuilder $table): void {
             $table->increments('id')
                 ->string('name')
                 ->string('firstname');
@@ -41,7 +41,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             ->values([ 'MARTIN', 'Manon' ])
             ->execute();
 
-        $this->bdd->createTable('test_second', static function (TableBuilder $table) {
+        $this->bdd->createTable('test_second', static function (TableBuilder $table): void {
             $table->integer('value_i')
                 ->string('value_s');
         });
@@ -131,7 +131,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
     public function testAlterTableAdd(): void
     {
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table
                 ->string('field_s_default')->valueDefault('foo')
                 ->string('field_s_null')->nullable()
@@ -174,7 +174,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
     public function testAlterTableAddIncrement(): void
     {
-        $this->bdd->alterTable('test_second', static function (TableAlter $table) {
+        $this->bdd->alterTable('test_second', static function (TableAlter $table): void {
             $table->increments('id');
         });
 
@@ -206,7 +206,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
     public function testAlterTableRename(): void
     {
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->renameColumn('name', '_name');
         });
 
@@ -234,7 +234,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
     public function testAlterTableModify(): void
     {
-        $this->bdd->alterTable('test_second', static function (TableAlter $table) {
+        $this->bdd->alterTable('test_second', static function (TableAlter $table): void {
             $table->float('value_i')->valueDefault(1.0)->modify();
         });
 
@@ -251,7 +251,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
     public function testAlterTableModifyIncrement(): void
     {
-        $this->bdd->alterTable('test_second', static function (TableAlter $table) {
+        $this->bdd->alterTable('test_second', static function (TableAlter $table): void {
             $table->increments('value_i')->modify();
         });
 
@@ -271,7 +271,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 
     public function testAlterTableDrop(): void
     {
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->dropColumn('id')
                 ->dropColumn('firstname');
         });
@@ -299,7 +299,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableAddException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->string('id');
         });
     }
@@ -307,7 +307,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModifyException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->string('error')->modify();
         });
     }
@@ -315,7 +315,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModifyTypeIntegerException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test_second', static function (TableAlter $table) {
+        $this->bdd->alterTable('test_second', static function (TableAlter $table): void {
             $table->integer('value_s')->modify();
         });
     }
@@ -323,7 +323,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModifyTypeStringException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test_second', static function (TableAlter $table) {
+        $this->bdd->alterTable('test_second', static function (TableAlter $table): void {
             $table->string('value_i')->modify();
         });
     }
@@ -331,7 +331,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModifyColumnsValueException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->increments('name')->modify();
         });
     }
@@ -339,7 +339,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableRenameColumnsNotFoundException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->renameColumn('error', 'error');
         });
     }
@@ -347,7 +347,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableRenameException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->renameColumn('name', 'id');
         });
     }
@@ -355,7 +355,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableDropException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->dropColumn('error');
         });
     }
@@ -363,7 +363,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableAddIncrementsException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->alterTable('test', static function (TableAlter $table) {
+        $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->increments('error');
         });
     }
