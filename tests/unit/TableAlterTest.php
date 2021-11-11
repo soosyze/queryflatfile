@@ -1,6 +1,6 @@
 <?php
 
-namespace Queryflatfile\Test;
+namespace Queryflatfile\Tests\unit;
 
 use Queryflatfile\TableAlter;
 
