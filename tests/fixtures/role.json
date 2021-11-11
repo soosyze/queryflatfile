@@ -1,0 +1,12 @@
+[
+    {
+        "id_role": 0,
+        "labelle": "Admin"
+    }, {
+        "id_role": 1,
+        "labelle": "Author"
+    }, {
+        "id_role": 2,
+        "labelle": "User"
+    }
+]

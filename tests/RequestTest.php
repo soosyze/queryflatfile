@@ -2,14 +2,14 @@
 
 namespace Queryflatfile\Test;
 
-use Queryflatfile\Exception\Query\BadFunctionException;
+use PHPUnit\Framework\MockObject\MockObject;
+use Queryflatfile\DriverInterface;
 use Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Queryflatfile\Exception\Query\OperatorNotFound;
 use Queryflatfile\Exception\Query\QueryException;
 use Queryflatfile\Exception\Query\TableNotFoundException;
 use Queryflatfile\Request;
 use Queryflatfile\Schema;
-use Queryflatfile\TableBuilder;
 
 class RequestTest extends \PHPUnit\Framework\TestCase
 {
@@ -28,148 +28,16 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     /**
      * @var Request
      */
-    protected $request2;
-
-    public static function tearDownAfterClass(): void
-    {
-        if (!file_exists(self::ROOT)) {
-            return;
-        }
-        $dir = new \DirectoryIterator(self::ROOT);
-        foreach ($dir as $fileInfo) {
-            if ($fileInfo->isDot() || $fileInfo->getRealPath() === false) {
-                continue;
-            }
-            unlink($fileInfo->getRealPath());
-        }
-        if (file_exists(self::ROOT)) {
-            rmdir(self::ROOT);
-        }
-    }
+    protected $secondRequest;
 
     protected function setUp(): void
     {
-        $this->bdd  = (new Schema)
-            ->setConfig('data', 'schema', new \Queryflatfile\Driver\Json())
+        $this->bdd = (new Schema)
+            ->setConfig('data', 'schema', $this->getDriverMock())
             ->setPathRoot(__DIR__ . '/');
 
         $this->request  = new Request($this->bdd);
-        $this->request2 = new Request($this->bdd);
-    }
-
-    public function testCreateTable(): void
-    {
-        $this->bdd->createTable('user', static function (TableBuilder $table) {
-            $table->increments('id')
-                ->string('name')->nullable()
-                ->string('firstname')->nullable();
-        });
-        $this->bdd->createTable('user_role', static function (TableBuilder $table) {
-            $table->integer('id_user')
-                ->integer('id_role');
-        });
-        $this->bdd->createTable('role', static function (TableBuilder $table) {
-            $table->increments('id_role')
-                ->string('labelle');
-        });
-
-        self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
-        self::assertFileExists(self::ROOT . 'user_role.' . $this->bdd->getExtension());
-        self::assertFileExists(self::ROOT . 'role.' . $this->bdd->getExtension());
-    }
-
-    public function testCreateTableException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->bdd->createTable('user');
-    }
-
-    public function testCreateTableIfNotExists(): void
-    {
-        $this->bdd->createTableIfNotExists('user');
-
-        self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
-    }
-
-    public function testInsertInto(): void
-    {
-        $this->request->insertInto('user', [ 'id', 'name', 'firstname' ])
-            ->values([ 0, 'NOEL', 'Mathieu' ])
-            ->values([ 1, 'DUPOND', 'Jean' ])
-            ->execute();
-
-        $this->request->insertInto('user', [ 'name', 'firstname' ])
-            ->values([ 'MARTIN', 'Manon' ])
-            ->values([ null, 'Marie' ])
-            ->values([ 'DUPOND', 'Pierre' ])
-            ->execute();
-
-        $this->request->insertInto('user', [ 'id', 'name', 'firstname' ])
-            ->values([ 5, 'MEYER', 'Eva' ])
-            ->values([ 6, 'ROBERT', null ])
-            ->execute();
-
-        $this->request->insertInto('role', [ 'id_role', 'labelle' ])
-            ->values([ 0, 'Admin' ])
-            ->values([ 1, 'Author' ])
-            ->values([ 2, 'User' ])
-            ->execute();
-
-        $this->request->insertInto('user_role', [ 'id_user', 'id_role' ])
-            ->values([ 0, 0 ])
-            ->values([ 1, 0 ])
-            ->values([ 2, 1 ])
-            ->values([ 3, 1 ])
-            ->values([ 4, 2 ])
-            ->values([ 5, 2 ])
-            ->execute();
-
-        self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
-    }
-
-    public function testGetIncrement(): void
-    {
-        self::assertEquals($this->bdd->getIncrement('user'), 6);
-        self::assertEquals($this->bdd->getIncrement('role'), 2);
-    }
-
-    public function testGetIncrementNoFound(): void
-    {
-        $this->expectException(TableNotFoundException::class);
-        self::assertEquals($this->bdd->getIncrement('error'), 1);
-    }
-
-    public function testGetIncrementNoExist(): void
-    {
-        $this->expectException(\Exception::class);
-        self::assertEquals($this->bdd->getIncrement('user_role'), 1);
-    }
-
-    public function testCreateTableIfNotExistsData(): void
-    {
-        $this->bdd->createTableIfNotExists('user');
-
-        self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
-    }
-
-    public function testInsertIntoExceptionTable(): void
-    {
-        $this->expectException(TableNotFoundException::class);
-        $this->request->insertInto('foo', [ 'id', 'name', 'firstname' ])->execute();
-    }
-
-    public function testInsertIntoExceptionColumn(): void
-    {
-        $this->expectException(ColumnsNotFoundException::class);
-        $this->request->insertInto('user', [])->values([ 0, 'NOEL' ])->execute();
-    }
-
-    public function testInsertIntoExceptionValue(): void
-    {
-        $this->expectException(ColumnsNotFoundException::class);
-        $this->request->insertInto('user', [ 'id', 'name', 'firstname' ])
-            ->values([ 0, 'NOEL' ])
-            ->execute();
+        $this->secondRequest = new Request($this->bdd);
     }
 
     public function testSelect(): void
@@ -1145,7 +1013,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->between('id', 1, 5);
 
-        $data = $this->request2
+        $data = $this->secondRequest
             ->select('name')
             ->from('user')
             ->union($union)
@@ -1168,7 +1036,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->between('id', 1, 5);
 
-        $data = $this->request2
+        $data = $this->secondRequest
             ->select('name', 'firstname')
             ->from('user')
             ->union($union)
@@ -1193,7 +1061,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->between('id', 1, 5);
 
-        $this->request2
+        $this->secondRequest
             ->select('name', 'firstname')
             ->from('user')
             ->union($union)
@@ -1207,7 +1075,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->between('id', 1, 5);
 
-        $data = $this->request2
+        $data = $this->secondRequest
             ->select('name')
             ->from('user')
             ->unionAll($union)
@@ -1236,7 +1104,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->between('id', 1, 5);
 
-        $data = $this->request2
+        $data = $this->secondRequest
             ->select('name', 'firstname')
             ->from('user')
             ->unionAll($union)
@@ -1266,7 +1134,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->between('id', 1, 5);
 
-        $this->request2
+        $this->secondRequest
             ->select('name', 'firstname')
             ->from('user')
             ->unionAll($union)
@@ -1280,7 +1148,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->between('id', 1, 5);
 
-        $data = $this->request2
+        $data = $this->secondRequest
             ->select('name')
             ->from('user')
             ->union($union)
@@ -1303,7 +1171,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->between('id', 1, 5);
 
-        $data = $this->request2
+        $data = $this->secondRequest
             ->select('name')
             ->from('user')
             ->union($union)
@@ -1320,79 +1188,62 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function testExecuteException(): void
-    {
-        $this->expectException(BadFunctionException::class);
-        $this->request
-            ->from('user')
-            ->where('id', '=', 0)
-            ->execute();
-    }
-
-    public function testUpdateData(): void
-    {
-        $this->request
-            ->update('user', [ 'name' => 'PETIT' ])
-            ->where('id', '=', 0)
-            ->execute();
-
-        $data = $this->request
-            ->from('user')
-            ->where('id', '=', 0)
-            ->fetch();
-
-        self::assertEquals($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
-    }
-
-    public function testUpdateDataFull(): void
-    {
-        $this->request
-            ->update('user', [ 'name' => 'PETIT' ])
-            ->execute();
-
-        $data = $this->request
-            ->from('user')
-            ->where('id', '=', 0)
-            ->fetch();
-
-        self::assertEquals($data, [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ]);
-    }
-
-    public function testDeleteData(): void
-    {
-        $this->request->from('user')
-            ->delete()
-            ->between('id', 1, 4)
-            ->execute();
-
-        $data = $this->request
-            ->from('user')
-            ->fetchAll();
-
-        self::assertEquals($data, [
-            [ 'id' => 0, 'name' => 'PETIT', 'firstname' => 'Mathieu' ],
-            [ 'id' => 5, 'name' => 'PETIT', 'firstname' => 'Eva' ],
-            [ 'id' => 6, 'name' => 'PETIT', 'firstname' => null ]
-        ]);
-    }
-
-    public function testDropTable(): void
-    {
-        $hasTableUserRole = $this->bdd->dropTable('user_role');
-
-        self::assertFileNotExists(self::ROOT . 'user_role.json');
-    }
-
-    public function testDropSchema(): void
-    {
-        $hasSchema = $this->bdd->dropSchema();
-
-        self::assertFileNotExists(self::ROOT . 'schema.json');
-    }
-
     public function testPredicate(): void
     {
         $this->expectException(\Exception::class);
         \Queryflatfile\Where::predicate('', 'error', '');
+    }
+
+    /**
+     * @return DriverInterface&MockObject
+     */
+    private function getDriverMock()
+    {
+        $mock = $this->createMock(DriverInterface::class);
+        $mock->expects(self::any())
+            ->method('create')
+            ->willReturnCallback(
+                function (string $path, string $filename): bool {
+                    return in_array($filename, [ 'schema', 'user', 'user_role', 'role' ]);
+                }
+            );
+
+        $mock->expects(self::any())
+            ->method('has')
+            ->willReturnCallback(
+                function (string $path, string $filename): bool {
+                    return in_array($filename, [ 'schema', 'user', 'user_role', 'role' ]);
+                }
+            );
+
+        $mock->expects(self::any())
+            ->method('read')
+            ->willReturnCallback(
+                function (string $path, string $filename): array {
+                    if ($filename === 'schema') {
+                        return $this->loadFixtures('schema');
+                    }
+                    if ($filename === 'user') {
+                        return $this->loadFixtures('user');
+                    }
+                    if ($filename === 'user_role') {
+                        return $this->loadFixtures('user_role');
+                    }
+                    if ($filename === 'role') {
+                        return $this->loadFixtures('role');
+                    }
+
+                    throw new \Exception("Table $filename not found");
+                }
+            );
+
+        return $mock;
+    }
+
+    private function loadFixtures(string $filename): array
+    {
+        $json = (string) file_get_contents(__DIR__ . "/fixtures/$filename.json");
+
+        return json_decode($json, true);
     }
 }

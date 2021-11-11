@@ -1,0 +1,43 @@
+{
+    "user": {
+        "fields": {
+            "id": {
+                "type": "increments"
+            },
+            "name": {
+                "type": "string",
+                "length": 255,
+                "nullable": true
+            },
+            "firstname": {
+                "type": "string",
+                "length": 255,
+                "nullable": true
+            }
+        },
+        "increments": 6
+    },
+    "user_role": {
+        "fields": {
+            "id_user": {
+                "type": "integer"
+            },
+            "id_role": {
+                "type": "integer"
+            }
+        },
+        "increments": null
+    },
+    "role": {
+        "fields": {
+            "id_role": {
+                "type": "increments"
+            },
+            "labelle": {
+                "type": "string",
+                "length": 255
+            }
+        },
+        "increments": 2
+    }
+}
