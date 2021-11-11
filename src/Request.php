@@ -102,41 +102,40 @@ class Request extends RequestHandler
      */
     public function __toString(): string
     {
-        $output = 'SELECT * ';
-        if ($this->columns) {
-            $output = 'SELECT ' . implode(', ', $this->columns) . ' ';
+        $output = '';
+        if ($this->execute) {
+            $output .= strtoupper($this->execute) . ' ';
+        } else {
+            $output .= sprintf('SELECT %s ', $this->columns ? implode(', ', $this->columns) : '*');
         }
         if ($this->from) {
-            $output .= "FROM $this->from ";
+            $output .= sprintf('FROM %s ', $this->from);
         }
         foreach ($this->joins as $value) {
-            $output .= strtoupper($value[ 'type' ]) . " JOIN {$value[ 'table' ]} ON {$value[ 'where' ]}";
+            $output .= sprintf('%s JOIN %s ON %s ', strtoupper($value[ 'type' ]), $value[ 'table' ], (string) $value[ 'where' ]);
         }
         if ($this->where) {
-            $output .= 'WHERE ' . (string) $this->where;
+            $output .= sprintf('WHERE %s ', (string) $this->where);
         }
         foreach ($this->union as $union) {
-            $output .= $union[ 'type' ] === self::UNION_SIMPLE
-                ? 'UNION'
-                : 'UNION ALL';
-            $output .= " ({$union[ 'request' ]}) ";
+            $type = $union[ 'type' ] === self::UNION_SIMPLE ? 'UNION' : 'UNION ALL';
+            $subRequest = trim((string) $union[ 'request' ], ';');
+            $output .= sprintf('%s %s ', $type, $subRequest);
         }
         if ($this->orderBy) {
             $output .= 'ORDER BY ';
             foreach ($this->orderBy as $field => $order) {
-                $output .= $field . ' ' . ($order === SORT_ASC
-                    ? 'ASC,'
-                    : 'DESC,');
+                $output .= sprintf('%s %s, ', $field, $order === SORT_ASC ? 'ASC' : 'DESC');
             }
-            $output = substr($output, 0, -1) . ' ';
+            $output = trim($output, ', ') . ' ';
         }
         if ($this->limit) {
-            $output .= "LIMIT $this->limit ";
+            $output .= sprintf('LIMIT %s ', (string) $this->limit);
         }
         if ($this->offset) {
-            $output .= "OFFSET $this->offset ";
+            $output .= sprintf('OFFSET %s ', (string) $this->offset);
         }
-        $output = substr($output, 0, -1) . ';';
+        $output = trim($output) . ';';
 
         return htmlspecialchars($output);
     }
