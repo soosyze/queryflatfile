@@ -28,57 +28,53 @@ class Where extends WhereHandler
     {
         $output = '';
         foreach ($this->where as $where) {
+            $output .= $where[ 'bool' ] === self::EXP_AND
+                ? 'AND '
+                : 'OR ';
+
             $not = $where[ 'not' ]
-                ? 'NOT'
+                ? 'NOT '
                 : '';
             switch ($where[ 'type' ]) {
                 case 'where':
                     $value  = \is_int($where[ 'value' ])
                         ? $where[ 'value' ]
                         : "'{$where[ 'value' ]}'";
-                    $output .= "{$where[ 'column' ]} $not " . strtoupper($where[ 'condition' ]) . " $value ";
+                    $output .= sprintf('%s%s %s %s ', $not, $where[ 'column' ], $where[ 'condition' ], $value);
 
                     break;
                 case 'like':
-                    $output .= "{$where[ 'column' ]} $not LIKE '{$where[ 'value' ]}' ";
+                    $output .= sprintf('%s %sLIKE %s ', $where[ 'column' ], $not, $where[ 'value' ]);
 
                     break;
                 case 'isNull':
-                    $output .= "{$where[ 'column' ]} IS $not NULL ";
+                    $output .= sprintf('%s IS %sNULL ', $where[ 'column' ], $not);
 
                     break;
                 case 'in':
-                    $output .= "{$where[ 'column' ]} $not IN " . implode(', ', $where[ 'value' ]) . ' ';
+                    $output .= sprintf('%s %sIN %s ', $where[ 'column' ], $not, implode(', ', $where[ 'value' ]));
 
                     break;
                 case 'whereCallback':
-                    $output .= "$not ({$where[ 'value' ]}) ";
+                    $output .= sprintf('%s(%s) ', $not, $where[ 'value' ]);
 
                     break;
                 case 'between':
-                    $output .= "{$where[ 'column' ]} $not BETWEEN {$where[ 'value' ][ 'min' ]} AND {$where[ 'value' ][ 'max' ]} ";
+                    $output .= sprintf('%s %sBETWEEN %s AND %s ', $where[ 'column' ], $not, $where[ 'value' ][ 'min' ], $where[ 'value' ][ 'max' ]);
 
                     break;
                 case 'regex':
-                    $output .= "{$where[ 'column' ]} $not REGEX {$where[ 'value' ]} ";
+                    $output .= sprintf('%s %sREGEX %s ', $where[ 'column' ], $not, $where[ 'value' ]);
 
                     break;
             }
-
-            $output .= $where[ 'bool' ] === self::EXP_AND
-                ? ' AND '
-                : ' OR ';
         }
-        /* Cherche si la dernière occurence est AND ou OR. */
-        $nb = 0;
-        if (strrchr($output, 'AND') !== false) {
-            $nb = substr(strrchr($output, 'AND'), 0) === 'AND '
-                ? -4
-                : -3;
-        }
+        $output = trim($output, ' ');
+        $str    = strpos($output, 'AND ') === 0
+            ? 'AND '
+            : 'OR ';
 
-        /* Supprime la dernière occurence et renvoie la chaine. */
-        return htmlspecialchars(substr($output, 0, $nb));
+        return substr_replace($output, '', 0, strlen($str));
     }
 
     /**
