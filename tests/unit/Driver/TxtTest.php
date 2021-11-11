@@ -1,14 +1,14 @@
 <?php
 
-namespace Queryflatfile\Test\Driver;
+namespace Queryflatfile\Tests\unit\Driver;
 
-use Queryflatfile\Driver\Json;
+use Queryflatfile\Driver\Txt;
 use Queryflatfile\DriverInterface;
 use Queryflatfile\Exception\Driver\FileNotFoundException;
 
-class JsonTest extends \PHPUnit\Framework\TestCase
+class TxtTest extends \PHPUnit\Framework\TestCase
 {
-    private const TEST_DIR = 'tests/json';
+    private const TEST_DIR = 'tests/txt';
 
     private const TEST_FILE_NAME = 'driver_test';
 
@@ -30,12 +30,7 @@ class JsonTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        if (!extension_loaded('json')) {
-            $this->markTestSkipped(
-                'The json extension is not available.'
-            );
-        }
-        $this->driver = new Json();
+        $this->driver = new Txt();
     }
 
     public function testCreate(): void
@@ -47,7 +42,7 @@ class JsonTest extends \PHPUnit\Framework\TestCase
         );
 
         self::assertTrue($output);
-        self::assertFileExists(self::TEST_DIR . '/driver_test.json');
+        self::assertFileExists(self::TEST_DIR . '/driver_test.txt');
     }
 
     public function testNoCreate(): void
@@ -107,6 +102,6 @@ class JsonTest extends \PHPUnit\Framework\TestCase
         $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::TEST_DIR . '/driver_test.json');
+        self::assertFileNotExists(self::TEST_DIR . '/driver_test.txt');
     }
 }
