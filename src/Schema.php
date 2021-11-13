@@ -144,11 +144,13 @@ class Schema
     public function setIncrement(string $table, int $increment): bool
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("Table $table is not exist.");
+            throw new TableNotFoundException($table);
         }
 
         if (!isset($this->schema[ $table ][ 'increments' ])) {
-            throw new Exception("Table $table does not have an incremental value.");
+            throw new Exception(
+                sprintf('Table %s does not have an incremental value.', $table)
+            );
         }
 
         $this->schema[ $table ][ 'increments' ] = $increment;
@@ -169,11 +171,13 @@ class Schema
     public function getIncrement(string $table): int
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("Table $table is not exist.");
+            throw new TableNotFoundException($table);
         }
 
         if ($this->schema[ $table ][ 'increments' ] === null) {
-            throw new Exception("Table $table does not have an incremental value.");
+            throw new Exception(
+                sprintf('Table %s does not have an incremental value.', $table)
+            );
         }
 
         return $this->schema[ $table ][ 'increments' ];
@@ -207,7 +211,7 @@ class Schema
     public function getSchemaTable(string $table): array
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("The $table table is missing in the schema.");
+            throw new TableNotFoundException($table);
         }
 
         return $this->getSchema()[ $table ];
@@ -256,7 +260,7 @@ class Schema
     public function createTable(string $table, ?callable $callback = null): self
     {
         if ($this->hasTable($table)) {
-            throw new Exception("Table $table exist.");
+            throw new Exception(sprintf('Table %s exist.', $table));
         }
 
         $builder = self::tableBuilder($callback);
@@ -355,7 +359,9 @@ class Schema
             return null;
         }
 
-        throw new ColumnsValueException("$name not nullable or not default.");
+        throw new ColumnsValueException(
+            sprintf('%s not nullable or not default.', $name)
+        );
     }
 
     /**
@@ -395,7 +401,7 @@ class Schema
     public function truncateTable(string $table): bool
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("Table $table is not exist.");
+            throw new TableNotFoundException($table);
         }
 
         $deleteSchema = true;
@@ -421,7 +427,7 @@ class Schema
     public function dropTable(string $table): bool
     {
         if (!$this->hasTable($table)) {
-            throw new TableNotFoundException("Table $table is not exist.");
+            throw new TableNotFoundException($table);
         }
 
         unset($this->schema[ $table ]);
@@ -695,11 +701,16 @@ class Schema
     ): void {
         /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
         if (isset($fields[ $name ])) {
-            throw new Exception("$name field does not exists in $table table.");
+            throw new Exception(
+                sprintf('%s field does not exists in %s table.', $name, $table)
+            );
         }
         if ($type === TableBuilder::TYPE_INCREMENT && self::isFieldIncrement($fields)) {
             throw new ColumnsValueException(
-                "The $table table can not have multiple incremental values."
+                sprintf(
+                    'The %s table can not have multiple incremental values.',
+                    $table
+                )
             );
         }
     }
@@ -722,12 +733,17 @@ class Schema
     ): void {
         if (!isset($fields[ $name ])) {
             throw new ColumnsNotFoundException(
-                "$name field does not exists in $table table."
+                sprintf(
+                   "%s field does not exists in %s table.", $name, $table
+                )
             );
         }
         if ($type === TableBuilder::TYPE_INCREMENT && self::isFieldIncrement($fields)) {
             throw new ColumnsValueException(
-                "The $table table can not have multiple incremental values."
+                sprintf(
+                    'The %s table can not have multiple incremental values.',
+                    $table
+                )
             );
         }
 
@@ -740,7 +756,14 @@ class Schema
             !in_array($fields[ $name ][ 'type' ], [ 'date', 'datetime', 'string', 'text' ]);
 
         if ($modifyString || $modifyNumber || $modifyDate) {
-            throw new Exception("The $name column type {$fields[ $name ][ 'type' ]} can not be changed with the $type type");
+            throw new Exception(
+                sprintf(
+                    'The %s column type %s can not be changed with the %s type.',
+                    $name,
+                    $fields[ $name ][ 'type' ],
+                    $type
+                )
+            );
         }
     }
 
@@ -761,13 +784,13 @@ class Schema
     ): void {
         if (!isset($fields[ $name ])) {
             throw new ColumnsNotFoundException(
-                "$name field does not exists in $table table."
+                sprintf('%s field does not exists in %s table.', $name, $table)
             );
         }
         /* Si le champ à renommer existe dans le schema. */
         if (isset($fields[ $to ])) {
             throw new Exception(
-                "$name field does exists in $table table."
+                sprintf('%s field does exists in %s table.', $name, $table)
             );
         }
     }
@@ -788,7 +811,7 @@ class Schema
     ): void {
         if (!isset($fields[ $name ])) {
             throw new ColumnsNotFoundException(
-                "$name field does not exists in $table table."
+                sprintf('%s field does not exists in %s table.', $name, $table)
             );
         }
     }

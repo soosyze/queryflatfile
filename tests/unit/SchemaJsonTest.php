@@ -3,6 +3,7 @@
 namespace Queryflatfile\Tests\unit;
 
 use Queryflatfile\Driver\Json;
+use Queryflatfile\Exception\Query\TableNotFoundException;
 use Queryflatfile\Request;
 use Queryflatfile\Schema;
 use Queryflatfile\TableAlter;
@@ -117,16 +118,18 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($this->bdd->hasColumn('error', 'error'));
     }
 
-    public function testSetIncrementsableNotFoundException(): void
+    public function testSetIncrementsTableNotFoundException(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(TableNotFoundException::class);
+        $this->expectExceptionMessage('The error table is missing.');
         $this->bdd->setIncrement('error', 1);
     }
 
     public function testSetIncrementsException(): void
     {
         $this->expectException(\Exception::class);
-        $this->bdd->setIncrement('test_void', 1);
+        $this->expectExceptionMessage('Table test_second does not have an incremental value.');
+        $this->bdd->setIncrement('test_second', 1);
     }
 
     public function testAlterTableAdd(): void
@@ -292,6 +295,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The error table is missing.');
         $this->bdd->alterTable('error', static function () {
         });
     }
@@ -299,6 +303,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableAddException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('id field does not exists in test table.');
         $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->string('id');
         });
@@ -307,6 +312,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModifyException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('error field does not exists in test table.');
         $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->string('error')->modify();
         });
@@ -315,6 +321,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModifyTypeIntegerException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The value_s column type string can not be changed with the integer type.');
         $this->bdd->alterTable('test_second', static function (TableAlter $table): void {
             $table->integer('value_s')->modify();
         });
@@ -323,6 +330,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModifyTypeStringException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The value_i column type integer can not be changed with the string type.');
         $this->bdd->alterTable('test_second', static function (TableAlter $table): void {
             $table->string('value_i')->modify();
         });
@@ -331,6 +339,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModifyColumnsValueException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The test table can not have multiple incremental values.');
         $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->increments('name')->modify();
         });
@@ -339,6 +348,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableRenameColumnsNotFoundException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('error field does not exists in test table.');
         $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->renameColumn('error', 'error');
         });
@@ -347,6 +357,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableRenameException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('name field does exists in test table.');
         $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->renameColumn('name', 'id');
         });
@@ -355,6 +366,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableDropException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('error field does not exists in test table.');
         $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->dropColumn('error');
         });
@@ -363,6 +375,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableAddIncrementsException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The test table can not have multiple incremental values.');
         $this->bdd->alterTable('test', static function (TableAlter $table): void {
             $table->increments('error');
         });
@@ -387,6 +400,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testTruncateTableException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The error table is missing.');
         $this->bdd->truncateTable('error');
     }
 
@@ -401,6 +415,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testDropTableException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The test table is missing.');
         $this->bdd->dropTable('test');
         $this->bdd->dropTable('test');
     }

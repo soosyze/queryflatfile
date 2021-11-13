@@ -66,6 +66,7 @@ class TxtTest extends \PHPUnit\Framework\TestCase
     public function testReadException(): void
     {
         $this->expectException(FileNotFoundException::class);
+        $this->expectExceptionMessage('tests/txt/driver_test_error.txt file is missing.');
         $this->driver->read(self::TEST_DIR, 'driver_test_error');
     }
 
@@ -85,6 +86,7 @@ class TxtTest extends \PHPUnit\Framework\TestCase
     public function testSaveException(): void
     {
         $this->expectException(FileNotFoundException::class);
+        $this->expectExceptionMessage('tests/txt/driver_test_error.txt file is missing.');
         $this->driver->save(self::TEST_DIR, 'driver_test_error', []);
     }
 

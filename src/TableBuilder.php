@@ -251,7 +251,9 @@ class TableBuilder
     {
         $current = $this->checkPreviousBuild('unsigned');
         if ($current[ 'type' ] !== self::TYPE_INT) {
-            throw new ColumnsValueException("Impossiblie of unsigned type {$current[ 'type' ]} only integer).");
+            throw new ColumnsValueException(
+                sprintf('Impossiblie of unsigned type %s only integer.', $current[ 'type' ])
+            );
         }
 
         $this->builder[ key($this->builder) ][ 'unsigned' ] = true;
@@ -300,7 +302,12 @@ class TableBuilder
      */
     public static function filterValue(string $name, string $type, $value, array $args = [])
     {
-        $error = 'The default value (' . $value . ') for column ' . $name . ' does not correspond to type ' . $type . '.';
+        $error = sprintf(
+            'The default value (%s) for column %s does not correspond to type %s.',
+            $value,
+            $name,
+            $type
+        );
 
         switch (strtolower($type)) {
             case self::TYPE_STRING:
@@ -357,7 +364,9 @@ class TableBuilder
 
                 throw new ColumnsValueException($error);
             default:
-                throw new ColumnsValueException("Type $type not supported");
+                throw new ColumnsValueException(
+                    sprintf('Type %s not supported', $type)
+                );
         }
 
         return $value;
@@ -401,7 +410,9 @@ class TableBuilder
     {
         $current = end($this->builder);
         if (!$current) {
-            throw new ColumnsNotFoundException("No column selected for $opt.");
+            throw new ColumnsNotFoundException(
+                sprintf('No column selected for %s.', $opt)
+            );
         }
 
         return $current;
