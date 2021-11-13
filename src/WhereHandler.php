@@ -429,7 +429,9 @@ class WhereHandler
         $condition = strtolower($operator);
 
         if (!in_array($condition, self::CONDITION)) {
-            throw new OperatorNotFound("The condition $operator is not exist.");
+            throw new OperatorNotFound(
+                sprintf('The condition %s is not exist.', $operator)
+            );
         }
 
         return $condition;

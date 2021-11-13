@@ -77,6 +77,7 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
     public function testCreateTableException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Table user exist.');
         $this->bdd->createTable('user');
     }
 
@@ -132,12 +133,14 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
     public function testGetIncrementNoFound(): void
     {
         $this->expectException(TableNotFoundException::class);
+        $this->expectExceptionMessage('The error table is missing.');
         $this->bdd->getIncrement('error');
     }
 
     public function testGetIncrementNoExist(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Table user_role does not have an incremental value.');
         $this->bdd->getIncrement('user_role');
     }
 
@@ -151,18 +154,21 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
     public function testInsertIntoExceptionTable(): void
     {
         $this->expectException(TableNotFoundException::class);
+        $this->expectExceptionMessage('The foo table is missing.');
         $this->request->insertInto('foo', [ 'id', 'name', 'firstname' ])->execute();
     }
 
     public function testInsertIntoExceptionColumn(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage('The number of fields in the selections are different:  != 0, NOEL');
         $this->request->insertInto('user', [])->values([ 0, 'NOEL' ])->execute();
     }
 
     public function testInsertIntoExceptionValue(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage('The number of fields in the selections are different: id, name, firstname != 0, NOEL');
         $this->request->insertInto('user', [ 'id', 'name', 'firstname' ])
             ->values([ 0, 'NOEL' ])
             ->execute();

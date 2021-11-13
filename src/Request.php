@@ -156,7 +156,7 @@ class Request extends RequestHandler
         $this->where = $this->where ?? new Where();
 
         if (!method_exists($this->where, $name)) {
-            throw new BadMethodCallException("The $name method not exist");
+            throw new BadMethodCallException(sprintf('The %s method is missing.', $name));
         }
 
         $this->where->$name(...$args);
@@ -488,13 +488,25 @@ class Request extends RequestHandler
         foreach ($this->values as $values) {
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
             if ($count !== count($values)) {
-                throw new ColumnsNotFoundException('keys : ' . implode(',', $this->columns) . ' != ' . implode(',', $values));
+                throw new ColumnsNotFoundException(
+                    sprintf(
+                        'The number of fields in the selections are different: %s != %s',
+                        implode(', ', $this->columns),
+                        implode(', ', $values)
+                    )
+                );
             }
 
             /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
             $row = array_combine($this->columns, $values);
             if ($row == false) {
-                throw new ColumnsNotFoundException('keys : ' . implode(',', $this->columns) . ' != ' . implode(',', $values));
+                throw new ColumnsNotFoundException(
+                    sprintf(
+                        'The number of fields in the selections are different: %s != %s',
+                        implode(', ', $this->columns),
+                        implode(', ', $values)
+                    )
+                );
             }
 
             $data = [];
@@ -595,7 +607,7 @@ class Request extends RequestHandler
     private function filterFrom(): void
     {
         if (empty($this->from)) {
-            throw new TableNotFoundException("Table {$this->from} is missing.");
+            throw new TableNotFoundException();
         }
     }
 
@@ -662,7 +674,9 @@ class Request extends RequestHandler
 
         foreach ($this->orderBy as $field => $order) {
             if ($order !== SORT_ASC && $order !== SORT_DESC) {
-                throw new OperatorNotFound("The sort type of the $field field is not valid.");
+                throw new OperatorNotFound(
+                    sprintf('The sort type of the %s field is not valid.', $field)
+                );
             }
         }
     }
@@ -677,10 +691,13 @@ class Request extends RequestHandler
         $count = count($this->columns);
         foreach ($this->union as $request) {
             if ($count != count($request[ 'request' ]->columns)) {
-                throw new ColumnsNotFoundException('The number of fields in the selections are different : '
-                . implode(',', $this->columns)
-                . ' != '
-                . implode(',', $request[ 'request' ]->columns));
+                throw new ColumnsNotFoundException(
+                    sprintf(
+                        'The number of fields in the selections are different: %s != %s',
+                        implode(', ', $this->columns),
+                        implode(', ', $request[ 'request' ]->columns)
+                    )
+                );
             }
         }
     }
@@ -703,7 +720,13 @@ class Request extends RequestHandler
         if ($diff) {
             $columnsDiff = array_flip($diff);
 
-            throw new ColumnsNotFoundException('Column ' . implode(',', $columnsDiff) . ' is absent : ' . $this);
+            throw new ColumnsNotFoundException(
+                sprintf(
+                    'Column %s is absent: %s',
+                    implode(',', $columnsDiff),
+                    $this
+                )
+            );
         }
     }
 

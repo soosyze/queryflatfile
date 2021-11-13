@@ -15,4 +15,17 @@ namespace Queryflatfile\Exception\Query;
  */
 class TableNotFoundException extends QueryException
 {
+    public function __construct(
+        string $tableName = '',
+        int $code = 0,
+        \Throwable $previous = null
+    ) {
+        parent::__construct(
+            $tableName === ''
+                ? 'Table is missing.'
+                : sprintf('The %s table is missing.', $tableName),
+            $code,
+            $previous
+        );
+    }
 }

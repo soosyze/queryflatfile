@@ -84,7 +84,9 @@ class TableAlter extends TableBuilder
     {
         $current = parent::checkPreviousBuild($opt);
         if (isset($current[ 'opt' ])) {
-            throw new ColumnsNotFoundException("No column selected for $opt.");
+            throw new ColumnsNotFoundException(
+                sprintf('No column selected for %s.', $opt)
+            );
         }
 
         return $current;

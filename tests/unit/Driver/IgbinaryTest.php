@@ -71,6 +71,7 @@ class IgbinaryTest extends \PHPUnit\Framework\TestCase
     public function testReadException(): void
     {
         $this->expectException(FileNotFoundException::class);
+        $this->expectExceptionMessage('tests/igbinary/driver_test_error.ig file is missing.');
         $this->driver->read(self::TEST_DIR, 'driver_test_error');
     }
 
@@ -90,6 +91,7 @@ class IgbinaryTest extends \PHPUnit\Framework\TestCase
     public function testSaveException(): void
     {
         $this->expectException(FileNotFoundException::class);
+        $this->expectExceptionMessage('tests/igbinary/driver_test_error.ig file is missing.');
         $this->driver->save(self::TEST_DIR, 'driver_test_error', []);
     }
 

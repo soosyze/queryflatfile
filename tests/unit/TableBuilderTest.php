@@ -28,6 +28,9 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     public function testIncrementsException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'Only one incremental column is allowed per table.'
+        );
         $this->object
             ->increments('id')
             ->increments('error');
@@ -48,6 +51,9 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     public function testCharException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The length passed in parameter is not of numeric type.'
+        );
         $this->object->char('id2', -1);
     }
 
@@ -75,6 +81,9 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     public function testStringException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The length passed in parameter is not of numeric type.'
+        );
         $this->object->string('id', -1);
     }
 
@@ -152,6 +161,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     public function testNullableException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No column selected for nullable.');
         $this->object->nullable();
     }
 
@@ -167,12 +177,16 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     public function testUnsignedException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No column selected for unsigned.');
         $this->object->unsigned();
     }
 
     public function testUnsignedTypeException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'Impossiblie of unsigned type string only integer.'
+        );
         $this->object->string('id')->unsigned();
     }
 
@@ -188,6 +202,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     public function testCommentException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No column selected for comment.');
         $this->object->comment('identifiant');
     }
 
@@ -224,72 +239,104 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     public function testValueDefaultException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No column selected for value default.');
         $this->object->valueDefault('1');
     }
 
     public function testValueDefaultIncrementException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'An incremental type column can not have a default value.'
+        );
         $this->object->increments('0')->valueDefault(2);
     }
 
     public function testValueDefaultCharException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value (1) for column 0 does not correspond to type char.'
+        );
         $this->object->char('0')->valueDefault(1);
     }
 
     public function testValueDefaultCharLenghtException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value is larger than the specified size.'
+        );
         $this->object->char('0')->valueDefault('error');
     }
 
     public function testValueDefaultTextException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value (1) for column 0 does not correspond to type text.'
+        );
         $this->object->text('0')->valueDefault(1);
     }
 
     public function testValueDefaultStringException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value (1) for column 0 does not correspond to type string.'
+        );
         $this->object->string('0')->valueDefault(1);
     }
 
     public function testValueDefaultIntegerException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value (error) for column 0 does not correspond to type integer.'
+        );
         $this->object->integer('0')->valueDefault('error');
     }
 
     public function testValueDefaultFloatException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value (error) for column 0 does not correspond to type float.'
+        );
         $this->object->float('0')->valueDefault('error');
     }
 
     public function testValueDefaultBoolException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value (1) for column 0 does not correspond to type boolean.'
+        );
         $this->object->boolean('0')->valueDefault('1');
     }
 
     public function testValueDefaultDateException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value (1) for column 0 does not correspond to type date.'
+        );
         $this->object->date('0')->valueDefault('1');
     }
 
     public function testValueDefaultDatetimesException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            'The default value (1) for column 0 does not correspond to type datetime.'
+        );
         $this->object->datetime('0')->valueDefault('1');
     }
 
     public function testCheckValueException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Type error not supported');
         TableBuilder::filterValue('testName', 'error', 'testValue');
     }
 }
