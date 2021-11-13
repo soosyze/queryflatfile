@@ -134,25 +134,22 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testSelectExceptionValue(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage('Column foo is absent: SELECT foo FROM user LIMIT 1;');
         $this->request->select('foo')->from('user')->fetch();
     }
 
     public function testSelectExceptionFrom(): void
     {
         $this->expectException(TableNotFoundException::class);
+        $this->expectExceptionMessage('The foo table is missing.');
         $this->request->select('firstname')->from('foo')->fetch();
     }
 
     public function testFromException(): void
     {
         $this->expectException(TableNotFoundException::class);
+        $this->expectExceptionMessage('Table is missing.');
         $this->request->select('firstname')->fetch();
-    }
-
-    public function testSelectAlternativeExceptionFrom(): void
-    {
-        $this->expectException(TableNotFoundException::class);
-        $this->request->from('foo')->fetch();
     }
 
     /**
@@ -207,6 +204,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testWhereOperatorException(): void
     {
         $this->expectException(OperatorNotFound::class);
+        $this->expectExceptionMessage('The condition error is not exist.');
         $this->request
             ->select('name')
             ->from('user')
@@ -365,6 +363,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testWhereEqualsExceptionColumn(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage('Column foo is absent: SELECT name FROM user WHERE foo = \'Jean\' LIMIT 1;');
         $this->request
             ->select('name')
             ->from('user')
@@ -458,6 +457,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testWhereBetweenExceptionColumn(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage('Column foo is absent: SELECT * FROM user WHERE foo BETWEEN 0 AND 2 LIMIT 1;');
         $this->request
             ->from('user')
             ->between('foo', 0, 2)
@@ -553,6 +553,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testWhereInExceptionColumn(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage('Column foo is absent: SELECT * FROM user WHERE foo IN 0, 1;');
         $this->request
             ->from('user')
             ->in('foo', [ 0, 1 ])
@@ -645,6 +646,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testWhereIsNullExceptionColumn(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage('Column foo is absent: SELECT * FROM user WHERE foo IS NULL LIMIT 1;');
         $this->request
             ->from('user')
             ->isNull('foo')
@@ -894,6 +896,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testWhereRegexExceptionColumns(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage('Column foo is absent: SELECT * FROM user WHERE foo REGEX /^D/ LIMIT 1;');
         $this->request
             ->from('user')
             ->regex('foo', '/^D/')
@@ -1022,6 +1025,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testLimitException(): void
     {
         $this->expectException(QueryException::class);
+        $this->expectExceptionMessage('The limit must be a non-zero positive integer.');
         $this->request
             ->from('user')
             ->limit(-1)
@@ -1046,6 +1050,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testOffsetException(): void
     {
         $this->expectException(QueryException::class);
+        $this->expectExceptionMessage('The offset must be a non-zero positive integer.');
         $this->request
             ->from('user')
             ->limit(1, -1)
@@ -1386,6 +1391,14 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testLeftJoinExceptionColumn(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage(
+            'Column foo is absent: '
+            . 'SELECT id, name, firstname FROM user '
+            . 'LEFT JOIN user_role ON foo == \'user_role.id_user\' '
+            . 'LEFT JOIN role ON id_role == \'role.id\' '
+            . 'WHERE labelle = \'Admin\' '
+            . 'LIMIT 1;'
+        );
         $this->request
             ->select('id', 'name', 'firstname')
             ->from('user')
@@ -1461,6 +1474,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testUnionMultipleException(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage(
+            'The number of fields in the selections are different: name, firstname != name'
+        );
         $union = $this->request
             ->select('name')
             ->from('user')
@@ -1550,6 +1566,9 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testUnionAllMultipleException(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
+        $this->expectExceptionMessage(
+            'The number of fields in the selections are different: name, firstname != name'
+        );
         $union = $this->request
             ->select('name')
             ->from('user')
@@ -1629,6 +1648,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testPredicate(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The error operator is not supported.');
         \Queryflatfile\Where::predicate('', 'error', '');
     }
 

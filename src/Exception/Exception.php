@@ -17,18 +17,4 @@ namespace Queryflatfile\Exception;
  */
 class Exception extends \Exception
 {
-    /**
-     * Les balises autorisées.
-     *
-     * @var string
-     */
-    protected $balise = '<b><cite><code><em><i><span><sub><sup><strong><u>';
-
-    public function __construct(string $message = '', int $code = 0, \Throwable $previous = null)
-    {
-        $msgEntities = htmlentities($message, ENT_QUOTES, 'UTF-8');
-        $msgDecode   = htmlspecialchars_decode($msgEntities);
-        $msgTags     = strip_tags($msgDecode, $this->balise);
-        parent::__construct($msgTags, $code, $previous);
-    }
 }

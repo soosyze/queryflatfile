@@ -15,4 +15,11 @@ namespace Queryflatfile\Exception\Driver;
  */
 class FileNotFoundException extends DriverException
 {
+    public function __construct(
+        string $message = '',
+        int $code = 0,
+        \Throwable $previous = null
+    ) {
+        parent::__construct(str_replace('\\', '/', $message), $code, $previous);
+    }
 }

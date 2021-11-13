@@ -46,18 +46,21 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
     public function testDropException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No column selected for value default.');
         $this->object->dropColumn('0')->valueDefault('test');
     }
 
     public function testRenameException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No column selected for value default.');
         $this->object->renameColumn('0', '1')->valueDefault('test');
     }
 
     public function testModifyException(): void
     {
         $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No column selected for value default.');
         $this->object->char('0')->modify()->valueDefault('test');
     }
 }

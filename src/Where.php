@@ -216,7 +216,9 @@ class Where extends WhereHandler
                 return $columns >= $value[ 'min' ] && $columns <= $value[ 'max' ];
         }
 
-        throw new OperatorNotFound("The $operator operator is not supported.");
+        throw new OperatorNotFound(
+            sprintf('The %s operator is not supported.', $operator)
+        );
     }
 
     /**

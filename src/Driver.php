@@ -70,7 +70,7 @@ abstract class Driver implements DriverInterface
 
         $handle = fopen($file, 'w+');
         if ($handle === false) {
-            throw new DriverException("$file file cannot be opened");
+            throw new DriverException(sprintf('The %s file cannot be opened', $file));
         }
         fwrite($handle, $this->serializeData($data));
 
@@ -108,7 +108,7 @@ abstract class Driver implements DriverInterface
 
         $handle = fopen($file, 'w');
         if ($handle === false) {
-            throw new DriverException("$file file cannot be opened");
+            throw new DriverException(sprintf('The %s file cannot be opened', $file));
         }
         fwrite($handle, $this->serializeData($data));
 
@@ -158,7 +158,7 @@ abstract class Driver implements DriverInterface
     protected function isExist(string $file): void
     {
         if (!file_exists($file)) {
-            throw new FileNotFoundException("The $file file is missing.");
+            throw new FileNotFoundException(sprintf('The %s file is missing.', $file));
         }
     }
 
@@ -176,7 +176,7 @@ abstract class Driver implements DriverInterface
     protected function isWrite(string $file): void
     {
         if (!\is_writable($file)) {
-            throw new FileNotWritableException("The $file file is not writable.");
+            throw new FileNotWritableException(sprintf('The %s file is not writable.', $file));
         }
     }
 
@@ -194,7 +194,7 @@ abstract class Driver implements DriverInterface
     protected function isRead(string $file): void
     {
         if (!\is_readable($file)) {
-            throw new FileNotReadableException("The $file file is not readable.");
+            throw new FileNotReadableException(sprintf('The %s file is not readable.', $file));
         }
     }
 }
