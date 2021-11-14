@@ -246,11 +246,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         yield [
             '<>', '1',
-            'SELECT id FROM user WHERE id &lt;&gt; \'1\';'
+            'SELECT id FROM user WHERE id <> \'1\';'
         ];
         yield [
             '<>', 1,
-            'SELECT id FROM user WHERE id &lt;&gt; 1;'
+            'SELECT id FROM user WHERE id <> 1;'
         ];
         yield [
             '!=', '1',
@@ -330,14 +330,14 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         yield [
             '<', 1,
-            'SELECT * FROM user WHERE id &lt; 1;',
+            'SELECT * FROM user WHERE id < 1;',
             [
                 [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ]
             ]
         ];
         yield [
             '<=', 1,
-            'SELECT * FROM user WHERE id &lt;= 1;',
+            'SELECT * FROM user WHERE id <= 1;',
             [
                 [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
                 [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ]
@@ -345,14 +345,14 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             '>', 5,
-            'SELECT * FROM user WHERE id &gt; 5;',
+            'SELECT * FROM user WHERE id > 5;',
             [
                 [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
             ]
         ];
         yield [
             '>=', 5,
-            'SELECT * FROM user WHERE id &gt;= 5;',
+            'SELECT * FROM user WHERE id >= 5;',
             [
                 [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ],
                 [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
@@ -970,7 +970,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             });
 
         self::assertEquals(
-            'SELECT * FROM user WHERE id &gt;= 2 AND (name = \'DUPOND\' OR firstname = \'Eva\');',
+            'SELECT * FROM user WHERE id >= 2 AND (name = \'DUPOND\' OR firstname = \'Eva\');',
             (string) $data
         );
         self::assertEquals(
@@ -1135,7 +1135,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('name', SORT_DESC);
 
         self::assertEquals(
-            'SELECT name FROM user WHERE id &gt;= 4 ORDER BY name DESC;',
+            'SELECT name FROM user WHERE id >= 4 ORDER BY name DESC;',
             (string) $data
         );
         self::assertEquals(
@@ -1154,7 +1154,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->limit(2, 1);
 
         self::assertEquals(
-            'SELECT name FROM user WHERE id &gt;= 3 ORDER BY name DESC LIMIT 2 OFFSET 1;',
+            'SELECT name FROM user WHERE id >= 3 ORDER BY name DESC LIMIT 2 OFFSET 1;',
             (string) $data
         );
         self::assertEquals(

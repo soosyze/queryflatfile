@@ -49,7 +49,7 @@ class WhereHandler
      * Ajoute une condition simple pour la requête.
      * Si la valeur du champ est égal (non égale, supérieur à, ...)  par rapport à une valeur.
      *
-     * @param callable|string     $column   Sous condition ou une colonne.
+     * @param \Closure|string     $column   Sous condition ou une colonne.
      * @param null|string         $operator Type de condition.
      * @param null|numeric|string $value    Valeur de teste.
      * @param string              $bool     Porte logique de la condition (and|or).
@@ -64,7 +64,7 @@ class WhereHandler
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
-        if (\is_callable($column)) {
+        if ($column instanceof \Closure) {
             $this->whereCallback($column, $bool, $not);
 
             return $this;
@@ -97,7 +97,7 @@ class WhereHandler
     /**
      * Alias inverse de la fonction where().
      *
-     * @param callable|string $column Sous condition ou une colonne.
+     * @param \Closure|string $column Sous condition ou une colonne.
      * @param mixed           $value  Valeur de teste.
      */
     public function notWhere($column, ?string $operator = null, $value = null): self
@@ -110,7 +110,7 @@ class WhereHandler
     /**
      * Alias avec la porte logique 'OR' de la fonction where().
      *
-     * @param callable|string $column Sous condition ou une colonne.
+     * @param \Closure|string $column Sous condition ou une colonne.
      * @param mixed           $value  Valeur de teste.
      */
     public function orWhere($column, ?string $operator = null, $value = null): self
@@ -123,7 +123,7 @@ class WhereHandler
     /**
      * Alias inverse avec la porte logique 'OR' de la fonction where().
      *
-     * @param callable|string $column Sous condition ou une colonne.
+     * @param \Closure|string $column Sous condition ou une colonne.
      * @param mixed           $value  Valeur de teste.
      */
     public function orNotWhere($column, ?string $operator = null, $value = null): self

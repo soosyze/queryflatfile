@@ -23,30 +23,30 @@ use Queryflatfile\Exception\Query\TableNotFoundException;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  *
- * @method Request where( callable|string $column, null|string $operator = null, mixed $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notWhere( callable|string $column, null|string $operator = null, mixed $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orWhere( callable|string $column, null|string $operator = null, mixed $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotWhere( callable|string $column, null|string $operator = null, mixed $value = null ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request where(\Closure|string $column, null|string $operator = null, mixed $value = null)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notWhere(\Closure|string $column, null|string $operator = null, mixed $value = null)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orWhere(\Closure|string $column, null|string $operator = null, mixed $value = null)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotWhere(\Closure|string $column, null|string $operator = null, mixed $value = null) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request between( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orBetween( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notBetween( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotBetween( string $column, mixed $min, mixed $max ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request between(string $column, mixed $min, mixed $max)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orBetween(string $column, mixed $min, mixed $max)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notBetween(string $column, mixed $min, mixed $max)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotBetween(string $column, mixed $min, mixed $max) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request in( string $column, array $values) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orIn( string $column, array $values ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notIn( string $column, array $values ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotIn( string $column, array $values ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request in(string $column, array $values)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIn(string $column, array $values)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notIn(string $column, array $values)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotIn(string $column, array $values) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request isNull( string $column, string $condition = '===' ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orIsNull( string $column ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request isNotNull( string $column ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orIsNotNull( string $column ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request isNull(string $column)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIsNull(string $column)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request isNotNull(string $column)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIsNotNull(string $column) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request regex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orRegex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notRegex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotRegex( string $column, string $pattern ) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request regex(string $column, string $pattern)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orRegex(string $column, string $pattern)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notRegex(string $column, string $pattern)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotRegex(string $column, string $pattern) Alias de la fonction de l'objet Queryflatfile\Where
  */
 class Request extends RequestHandler
 {
@@ -106,13 +106,18 @@ class Request extends RequestHandler
         if ($this->execute) {
             $output .= strtoupper($this->execute) . ' ';
         } else {
-            $output .= sprintf('SELECT %s ', $this->columns ? implode(', ', $this->columns) : '*');
+            $output .= sprintf('SELECT %s ', $this->columns ? addslashes(implode(', ', $this->columns)) : '*');
         }
         if ($this->from) {
-            $output .= sprintf('FROM %s ', $this->from);
+            $output .= sprintf('FROM %s ', addslashes($this->from));
         }
         foreach ($this->joins as $value) {
-            $output .= sprintf('%s JOIN %s ON %s ', strtoupper($value[ 'type' ]), $value[ 'table' ], (string) $value[ 'where' ]);
+            $output .= sprintf(
+                '%s JOIN %s ON %s ',
+                strtoupper($value[ 'type' ]),
+                addslashes($value[ 'table' ]),
+                (string) $value[ 'where' ]
+            );
         }
         if ($this->where) {
             $output .= sprintf('WHERE %s ', (string) $this->where);
@@ -125,19 +130,22 @@ class Request extends RequestHandler
         if ($this->orderBy) {
             $output .= 'ORDER BY ';
             foreach ($this->orderBy as $field => $order) {
-                $output .= sprintf('%s %s, ', $field, $order === SORT_ASC ? 'ASC' : 'DESC');
+                $output .= sprintf(
+                    '%s %s, ',
+                    addslashes($field),
+                    $order === SORT_ASC ? 'ASC' : 'DESC'
+                );
             }
             $output = trim($output, ', ') . ' ';
         }
         if ($this->limit) {
-            $output .= sprintf('LIMIT %s ', (string) $this->limit);
+            $output .= sprintf('LIMIT %d ', (string) $this->limit);
         }
         if ($this->offset) {
-            $output .= sprintf('OFFSET %s ', (string) $this->offset);
+            $output .= sprintf('OFFSET %d ', (string) $this->offset);
         }
-        $output = trim($output) . ';';
 
-        return htmlspecialchars($output);
+        return trim($output) . ';';
     }
 
     /**

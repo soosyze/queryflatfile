@@ -39,20 +39,25 @@ class Where extends WhereHandler
                 case 'where':
                     $value  = \is_int($where[ 'value' ])
                         ? $where[ 'value' ]
-                        : "'{$where[ 'value' ]}'";
-                    $output .= sprintf('%s%s %s %s ', $not, $where[ 'column' ], $where[ 'condition' ], $value);
+                        : sprintf('\'%s\'', addslashes($where[ 'value' ]));
+                    $output .= sprintf('%s%s %s %s ', $not, addslashes($where[ 'column' ]), $where[ 'condition' ], $value);
 
                     break;
                 case 'like':
-                    $output .= sprintf('%s %sLIKE %s ', $where[ 'column' ], $not, $where[ 'value' ]);
+                    $output .= sprintf('%s %sLIKE %s ', addslashes($where[ 'column' ]), $not, addslashes($where[ 'value' ]));
 
                     break;
                 case 'isNull':
-                    $output .= sprintf('%s IS %sNULL ', $where[ 'column' ], $not);
+                    $output .= sprintf('%s IS %sNULL ', addslashes($where[ 'column' ]), $not);
 
                     break;
                 case 'in':
-                    $output .= sprintf('%s %sIN %s ', $where[ 'column' ], $not, implode(', ', $where[ 'value' ]));
+                    $output .= sprintf(
+                        '%s %sIN %s ',
+                        addslashes($where[ 'column' ]),
+                        $not,
+                        addslashes(implode(', ', $where[ 'value' ]))
+                    );
 
                     break;
                 case 'whereCallback':
@@ -60,11 +65,17 @@ class Where extends WhereHandler
 
                     break;
                 case 'between':
-                    $output .= sprintf('%s %sBETWEEN %s AND %s ', $where[ 'column' ], $not, $where[ 'value' ][ 'min' ], $where[ 'value' ][ 'max' ]);
+                    $output .= sprintf(
+                        '%s %sBETWEEN %s AND %s ',
+                        addslashes($where[ 'column' ]),
+                        $not,
+                        addslashes((string) $where[ 'value' ][ 'min' ]),
+                        addslashes((string) $where[ 'value' ][ 'max' ])
+                    );
 
                     break;
                 case 'regex':
-                    $output .= sprintf('%s %sREGEX %s ', $where[ 'column' ], $not, $where[ 'value' ]);
+                    $output .= sprintf('%s %sREGEX %s ', addslashes($where[ 'column' ]), $not, $where[ 'value' ]);
 
                     break;
             }
