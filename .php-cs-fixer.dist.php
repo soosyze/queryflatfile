@@ -78,8 +78,6 @@ return $config->setRules([
             'phpdoc_no_access'                           => true,
             /* Ordonne les annotations PHPDoc. */
             'phpdoc_order'                               => true,
-            /* Les docblocks ne doivent être utilisés que sur des éléments structurels. */
-            'phpdoc_to_comment'                          => true,
             /* Supprime les lignes vides au début et fin de la PHPDoc. */
             'phpdoc_trim'                                => true,
             /* Les variables locales, dynamiques et directement référencées ne doivent pas être affectées ni directement renvoyées par une fonction ou une méthode. */

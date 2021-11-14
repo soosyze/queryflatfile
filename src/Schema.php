@@ -734,7 +734,9 @@ class Schema
         if (!isset($fields[ $name ])) {
             throw new ColumnsNotFoundException(
                 sprintf(
-                   "%s field does not exists in %s table.", $name, $table
+                    '%s field does not exists in %s table.',
+                    $name,
+                    $table
                 )
             );
         }
