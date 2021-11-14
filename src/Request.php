@@ -106,13 +106,18 @@ class Request extends RequestHandler
         if ($this->execute) {
             $output .= strtoupper($this->execute) . ' ';
         } else {
-            $output .= sprintf('SELECT %s ', $this->columns ? implode(', ', $this->columns) : '*');
+            $output .= sprintf('SELECT %s ', $this->columns ? addslashes(implode(', ', $this->columns)) : '*');
         }
         if ($this->from) {
-            $output .= sprintf('FROM %s ', $this->from);
+            $output .= sprintf('FROM %s ', addslashes($this->from));
         }
         foreach ($this->joins as $value) {
-            $output .= sprintf('%s JOIN %s ON %s ', strtoupper($value[ 'type' ]), $value[ 'table' ], (string) $value[ 'where' ]);
+            $output .= sprintf(
+                '%s JOIN %s ON %s ',
+                strtoupper($value[ 'type' ]),
+                addslashes($value[ 'table' ]),
+                (string) $value[ 'where' ]
+            );
         }
         if ($this->where) {
             $output .= sprintf('WHERE %s ', (string) $this->where);
@@ -125,19 +130,22 @@ class Request extends RequestHandler
         if ($this->orderBy) {
             $output .= 'ORDER BY ';
             foreach ($this->orderBy as $field => $order) {
-                $output .= sprintf('%s %s, ', $field, $order === SORT_ASC ? 'ASC' : 'DESC');
+                $output .= sprintf(
+                    '%s %s, ',
+                    addslashes($field),
+                    $order === SORT_ASC ? 'ASC' : 'DESC'
+                );
             }
             $output = trim($output, ', ') . ' ';
         }
         if ($this->limit) {
-            $output .= sprintf('LIMIT %s ', (string) $this->limit);
+            $output .= sprintf('LIMIT %d ', (string) $this->limit);
         }
         if ($this->offset) {
-            $output .= sprintf('OFFSET %s ', (string) $this->offset);
+            $output .= sprintf('OFFSET %d ', (string) $this->offset);
         }
-        $output = trim($output) . ';';
 
-        return htmlspecialchars($output);
+        return trim($output) . ';';
     }
 
     /**

@@ -1,6 +1,6 @@
 # Queryflatfile
 
-[![Build Status](https://travis-ci.org/soosyze/queryflatfile.svg?branch=master)](https://travis-ci.org/soosyze/queryflatfile "Travis")
+[![Build Status](https://github.com/soosyze/queryflatfile/workflows/Tests/badge.svg?branch=master)](https://github.com/soosyze/queryflatfile/actions?query=branch:master "Tests")
 [![Coverage Status](https://coveralls.io/repos/github/soosyze/queryflatfile/badge.svg?branch=master)](https://coveralls.io/github/soosyze/queryflatfile?branch=master "Coveralls")
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/soosyze/queryflatfile/blob/master/LICENSE "LICENSE")
 [![Packagist](https://img.shields.io/packagist/v/soosyze/queryflatfile.svg)](https://packagist.org/packages/soosyze/queryflatfile "Packagist")
