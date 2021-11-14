@@ -157,8 +157,8 @@ interface RequestInterface
      * Enregistre une union 'simple' entre 2 ensembles.
      * Le résultat de l'union ne possède pas de doublon de ligne.
      *
-     * @param \Queryflatfile\Request $request Seconde requête.
-     * @param string                 $type    (simple|all) Type d'union.
+     * @param RequestInterface $request Seconde requête.
+     * @param string           $type    (simple|all) Type d'union.
      *
      * @return $this
      */
@@ -168,7 +168,7 @@ interface RequestInterface
      * Enregistre une union all entre 2 ensembles.
      * Les doublons de lignes figure dans le resultat de l'union.
      *
-     * @param \Queryflatfile\Request $request
+     * @param RequestInterface $request
      *
      * @return $this
      */
