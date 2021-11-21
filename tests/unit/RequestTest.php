@@ -14,8 +14,6 @@ use Queryflatfile\WhereHandler;
 
 class RequestTest extends \PHPUnit\Framework\TestCase
 {
-    private const ROOT = __DIR__ . '/data/';
-
     /**
      * @var Schema
      */
@@ -43,7 +41,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testSelect(): void
     {
-        $data1 = $this->request->select([ 'firstname' ])->from('user');
+        $data1 = $this->request->select('firstname')->from('user');
 
         self::assertEquals(
             'SELECT firstname FROM user;',
@@ -54,18 +52,18 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             $data1->fetch()
         );
 
-        $data2 = $this->request->select('firstname')->from('user');
+        $data2 = $this->request->select()->from('user');
 
         self::assertEquals(
-            'SELECT firstname FROM user;',
+            'SELECT * FROM user;',
             (string) $data2
         );
         self::assertEquals(
-            [ 'firstname' => 'Mathieu' ],
+            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             $data2->fetch()
         );
 
-        $data3 = $this->request->select()->from('user');
+        $data3 = $this->request->from('user');
 
         self::assertEquals(
             'SELECT * FROM user;',
@@ -74,17 +72,6 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(
             [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
             $data3->fetch()
-        );
-
-        $data4 = $this->request->from('user');
-
-        self::assertEquals(
-            'SELECT * FROM user;',
-            (string) $data4
-        );
-        self::assertEquals(
-            [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
-            $data4->fetch()
         );
     }
 
@@ -1645,13 +1632,6 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testPredicate(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('The error operator is not supported.');
-        \Queryflatfile\Where::predicate('', 'error', '');
-    }
-
     /**
      * @return DriverInterface&MockObject
      */
@@ -1661,7 +1641,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $mock->expects(self::any())
             ->method('create')
             ->willReturnCallback(
-                function (string $path, string $filename): bool {
+                static function (string $path, string $filename): bool {
                     return in_array($filename, [ 'schema', 'user', 'user_role', 'role' ]);
                 }
             );
@@ -1669,7 +1649,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $mock->expects(self::any())
             ->method('has')
             ->willReturnCallback(
-                function (string $path, string $filename): bool {
+                static function (string $path, string $filename): bool {
                     return in_array($filename, [ 'schema', 'user', 'user_role', 'role' ]);
                 }
             );
@@ -1702,6 +1682,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $json = (string) file_get_contents(dirname(__DIR__) . "/fixtures/$filename.json");
 
-        return json_decode($json, true);
+        $data = json_decode($json, true);
+        if (!\is_array($data)) {
+            throw new \Exception('An error occurred in deserializing the data.');
+        }
+
+        return $data;
     }
 }

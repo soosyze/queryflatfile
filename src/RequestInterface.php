@@ -49,11 +49,11 @@ interface RequestInterface
      * Enregistre les champs sélectionnées par la requête.
      * En cas d'absence de selection, la requêtes retournera toutes les champs.
      *
-     * @param mixed $columns Liste ou tableau des noms des colonnes.
+     * @param string $columns Liste ou tableau des noms des colonnes.
      *
      * @return $this
      */
-    public function select(...$columns);
+    public function select(string ...$columns);
 
     /**
      * Enregistre le nom de la source des données principale de la requête.

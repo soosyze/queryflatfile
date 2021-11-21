@@ -42,7 +42,12 @@ final class Igbinary extends \Queryflatfile\Driver
      */
     public function serializeData(array $data): string
     {
-        return igbinary_serialize($data);
+        $serializeData = igbinary_serialize($data);
+        if (!is_string($serializeData)) {
+            throw new \Exception('An error occurred in serializing the data.');
+        }
+
+        return $serializeData;
     }
 
     /**
@@ -50,6 +55,11 @@ final class Igbinary extends \Queryflatfile\Driver
      */
     public function unserializeData(string $data): array
     {
-        return igbinary_unserialize($data);
+        $dataUnserialize = igbinary_unserialize($data);
+        if (!is_array($dataUnserialize)) {
+            throw new \Exception('An error occurred in deserializing the data.');
+        }
+
+        return $dataUnserialize;
     }
 }
