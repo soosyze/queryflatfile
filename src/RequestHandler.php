@@ -121,7 +121,7 @@ abstract class RequestHandler implements RequestInterface
     public function insertInto(string $table, array $columns)
     {
         $this->execute = self::INSERT;
-        $this->from($table)->select($columns);
+        $this->from($table)->select(...$columns);
 
         return $this;
     }
@@ -171,19 +171,10 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function select(...$columns)
+    public function select(string ...$columns)
     {
         foreach ($columns as $column) {
-            /* Dans le cas ou les colonnes sont normales. */
-            if (!\is_array($column)) {
-                $this->columns[] = $column;
-
-                continue;
-            }
-            /* Dans le cas ou les colonnes sont dans un tableau. */
-            foreach ($column as $fields) {
-                $this->columns[] = $fields;
-            }
+            $this->columns[] = $column;
         }
 
         return $this;
@@ -213,7 +204,7 @@ abstract class RequestHandler implements RequestInterface
     public function update(string $table, array $columns)
     {
         $this->execute = self::UPDATE;
-        $this->from($table)->select(array_keys($columns));
+        $this->from($table)->select(...array_keys($columns));
         $this->values  = $columns;
 
         return $this;

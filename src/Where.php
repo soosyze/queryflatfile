@@ -185,15 +185,15 @@ class Where extends WhereHandler
     /**
      * Retourne TRUE si la condition est validée.
      *
-     * @param mixed  $columns  Valeur à tester.
-     * @param string $operator Condition à réaliser.
-     * @param mixed  $value    Valeur de comparaison.
+     * @param bool|null|numeric|string       $columns  Valeur à tester.
+     * @param string                         $operator Condition à réaliser.
+     * @param array|bool|null|numeric|string $value    Valeur de comparaison.
      *
      * @throws \Exception
      *
      * @return bool
      */
-    public static function predicate($columns, string $operator, $value): bool
+    protected static function predicate($columns, string $operator, $value): bool
     {
         switch ($operator) {
             case '==':
@@ -216,14 +216,16 @@ class Where extends WhereHandler
             case '>=':
                 return $columns >= $value;
             case 'in':
+                /** @var array $value */
                 return in_array($columns, $value);
             case 'regex':
                 if ($columns === null) {
                     return false;
                 }
-
-                return preg_match((string) $value, (string) $columns) === 1;
+                /** @var string $value */
+                return preg_match($value, (string) $columns) === 1;
             case 'between':
+                /** @var array{min: string|numeric, max: string|numeric} $value */
                 return $columns >= $value[ 'min' ] && $columns <= $value[ 'max' ];
         }
 

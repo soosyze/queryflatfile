@@ -265,7 +265,7 @@ class TableBuilder
      * Enregistre une valeur par défaut au champ précédent.
      * Lève une exception si la valeur par défaut ne correspond pas au type de valeur passée en paramètre.
      *
-     * @param mixed $value Valeur à tester.
+     * @param bool|null|numeric|string $value Valeur à tester.
      *
      * @throws TableBuilderException
      *
@@ -291,14 +291,14 @@ class TableBuilder
      * Retourne la valeur s'il correspond au type déclaré.
      * Sinon déclenche une exception.
      *
-     * @param string $name  Nom du champ.
-     * @param string $type  Type de donnée (string|text|int|float|bool|char|date|datetime).
-     * @param mixed  $value Valeur à tester.
-     * @param array  $args  Arguments de tests optionnels (length).
+     * @param string                   $name  Nom du champ.
+     * @param string                   $type  Type de donnée (string|text|int|float|bool|char|date|datetime).
+     * @param bool|null|numeric|string $value Valeur à tester.
+     * @param array                    $args  Arguments de tests optionnels (length).
      *
      * @throws ColumnsValueException
      *
-     * @return mixed
+     * @return bool|null|numeric|string
      */
     public static function filterValue(string $name, string $type, $value, array $args = [])
     {
@@ -346,6 +346,10 @@ class TableBuilder
 
                 break;
             case self::TYPE_DATE:
+                if (!\is_string($value)) {
+                    throw new ColumnsValueException($error);
+                }
+                $value = (string) $value;
                 if (strtolower($value) === self::CURRENT_DATE_DEFAULT) {
                     return self::CURRENT_DATE_DEFAULT;
                 }
@@ -355,6 +359,10 @@ class TableBuilder
 
                 throw new ColumnsValueException($error);
             case self::TYPE_DATETIME:
+                if (!\is_string($value)) {
+                    throw new ColumnsValueException($error);
+                }
+                $value = (string) $value;
                 if (strtolower($value) === self::CURRENT_DATETIME_DEFAULT) {
                     return self::CURRENT_DATETIME_DEFAULT;
                 }

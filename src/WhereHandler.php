@@ -97,8 +97,8 @@ class WhereHandler
     /**
      * Alias inverse de la fonction where().
      *
-     * @param \Closure|string $column Sous condition ou une colonne.
-     * @param mixed           $value  Valeur de teste.
+     * @param \Closure|string     $column Sous condition ou une colonne.
+     * @param null|numeric|string $value  Valeur de teste.
      */
     public function notWhere($column, ?string $operator = null, $value = null): self
     {
@@ -110,8 +110,8 @@ class WhereHandler
     /**
      * Alias avec la porte logique 'OR' de la fonction where().
      *
-     * @param \Closure|string $column Sous condition ou une colonne.
-     * @param mixed           $value  Valeur de teste.
+     * @param \Closure|string     $column Sous condition ou une colonne.
+     * @param null|numeric|string $value  Valeur de teste.
      */
     public function orWhere($column, ?string $operator = null, $value = null): self
     {
@@ -123,8 +123,8 @@ class WhereHandler
     /**
      * Alias inverse avec la porte logique 'OR' de la fonction where().
      *
-     * @param \Closure|string $column Sous condition ou une colonne.
-     * @param mixed           $value  Valeur de teste.
+     * @param \Closure|string     $column Sous condition ou une colonne.
+     * @param null|numeric|string $value  Valeur de teste.
      */
     public function orNotWhere($column, ?string $operator = null, $value = null): self
     {
@@ -137,11 +137,11 @@ class WhereHandler
      * Ajoute une condition between à la requête.
      * Si la valeur du champ est compris entre 2 valeurs.
      *
-     * @param string $column Nom de la colonne.
-     * @param mixed  $min    Valeur minimum ou égale.
-     * @param mixed  $max    Valeur maximum ou égale.
-     * @param string $bool   Porte logique de la condition (and|or).
-     * @param bool   $not    Inverse la condition.
+     * @param string         $column Nom de la colonne.
+     * @param numeric|string $min    Valeur minimum ou égale.
+     * @param numeric|string $max    Valeur maximum ou égale.
+     * @param string         $bool   Porte logique de la condition (and|or).
+     * @param bool           $not    Inverse la condition.
      */
     public function between(
         string $column,
@@ -162,8 +162,8 @@ class WhereHandler
     /**
      * Alias inverse de la fonction between().
      *
-     * @param mixed $min Valeur minimum ou égale.
-     * @param mixed $max Valeur maximum ou égale.
+     * @param numeric|string $min Valeur minimum ou égale.
+     * @param numeric|string $max Valeur maximum ou égale.
      */
     public function notBetween(string $column, $min, $max): self
     {
@@ -175,8 +175,8 @@ class WhereHandler
     /**
      * Alias avec la porte logique 'OR' de la fonction between().
      *
-     * @param mixed $min Valeur minimum ou égale.
-     * @param mixed $max Valeur maximum ou égale.
+     * @param numeric|string $min Valeur minimum ou égale.
+     * @param numeric|string $max Valeur maximum ou égale.
      */
     public function orBetween(string $column, $min, $max): self
     {
@@ -188,8 +188,8 @@ class WhereHandler
     /**
      * Alias inverse avec la porte logique 'OR' de la fonction between().
      *
-     * @param mixed $min Valeur minimum ou égale.
-     * @param mixed $max Valeur maximum ou égale.
+     * @param numeric|string $min Valeur minimum ou égale.
+     * @param numeric|string $max Valeur maximum ou égale.
      */
     public function orNotBetween(string $column, $min, $max): self
     {
