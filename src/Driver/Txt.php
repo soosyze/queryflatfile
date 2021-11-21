@@ -45,6 +45,11 @@ final class Txt extends \Queryflatfile\Driver
      */
     public function unserializeData(string $data): array
     {
-        return unserialize($data);
+        $dataUnserialize = unserialize($data);
+        if (!is_array($dataUnserialize)) {
+            throw new \Exception('An error occurred in deserializing the data.');
+        }
+
+        return $dataUnserialize;
     }
 }

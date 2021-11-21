@@ -23,15 +23,15 @@ use Queryflatfile\Exception\Query\TableNotFoundException;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  *
- * @method Request where(\Closure|string $column, null|string $operator = null, mixed $value = null)      Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notWhere(\Closure|string $column, null|string $operator = null, mixed $value = null)   Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orWhere(\Closure|string $column, null|string $operator = null, mixed $value = null)    Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotWhere(\Closure|string $column, null|string $operator = null, mixed $value = null) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request where(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request between(string $column, mixed $min, mixed $max)      Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orBetween(string $column, mixed $min, mixed $max)    Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notBetween(string $column, mixed $min, mixed $max)   Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotBetween(string $column, mixed $min, mixed $max) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request between(string $column, numeric|string $min, numeric|string $max)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orBetween(string $column, numeric|string $min, numeric|string $max)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notBetween(string $column, numeric|string $min, numeric|string $max)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotBetween(string $column, numeric|string $min, numeric|string $max) Alias de la fonction de l'objet Queryflatfile\Where
  *
  * @method Request in(string $column, array $values)      Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orIn(string $column, array $values)    Alias de la fonction de l'objet Queryflatfile\Where

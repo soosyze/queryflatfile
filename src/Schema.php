@@ -340,7 +340,7 @@ class Schema
      *
      * @throws ColumnsValueException
      *
-     * @return mixed Valeur par defaut.
+     * @return bool|null|numeric|string Valeur par defaut.
      */
     public static function getValueDefault(string $name, array &$params)
     {

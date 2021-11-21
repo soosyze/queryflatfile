@@ -42,11 +42,12 @@ final class Json extends \Queryflatfile\Driver
      */
     public function serializeData(array $data): string
     {
-        $encode = json_encode($data, JSON_UNESCAPED_UNICODE);
+        $serializeData = json_encode($data, JSON_UNESCAPED_UNICODE);
+        if (!is_string($serializeData)) {
+            throw new \Exception('An error occurred in serializing the data.');
+        }
 
-        return $encode === false
-            ? '{}'
-            :$encode;
+        return $serializeData;
     }
 
     /**
@@ -54,6 +55,11 @@ final class Json extends \Queryflatfile\Driver
      */
     public function unserializeData(string $data): array
     {
-        return json_decode($data, true, 512, JSON_UNESCAPED_UNICODE);
+        $dataUnserialize = json_decode($data, true, 512, JSON_UNESCAPED_UNICODE);
+        if (!is_array($dataUnserialize)) {
+            throw new \Exception('An error occurred in deserializing the data.');
+        }
+
+        return $dataUnserialize;
     }
 }
