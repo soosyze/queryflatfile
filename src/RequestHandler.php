@@ -10,10 +10,37 @@ declare(strict_types=1);
 
 namespace Queryflatfile;
 
+use BadMethodCallException;
+
 /**
  * Met en forme et stock les données pour lancer une requête.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
+ *
+ * @method Request where(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request between(string $column, numeric|string $min, numeric|string $max)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orBetween(string $column, numeric|string $min, numeric|string $max)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notBetween(string $column, numeric|string $min, numeric|string $max)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotBetween(string $column, numeric|string $min, numeric|string $max) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request in(string $column, array $values)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIn(string $column, array $values)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notIn(string $column, array $values)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotIn(string $column, array $values) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request isNull(string $column)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIsNull(string $column)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request isNotNull(string $column)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIsNotNull(string $column) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request regex(string $column, string $pattern)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orRegex(string $column, string $pattern)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notRegex(string $column, string $pattern)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotRegex(string $column, string $pattern) Alias de la fonction de l'objet Queryflatfile\Where
  */
 abstract class RequestHandler implements RequestInterface
 {
@@ -92,6 +119,37 @@ abstract class RequestHandler implements RequestInterface
      * @var array
      */
     protected $values = [];
+
+    /**
+     * Les conditions de la requête.
+     *
+     * @var Where|null
+     */
+    protected $where = null;
+
+    /**
+     * Permet d'utiliser les méthodes de l'objet \Queryflatfile\Where
+     * et de personnaliser les closures pour certaines méthodes.
+     *
+     * @param string $name Nom de la méthode appelée.
+     * @param array  $args Pararètre de la méthode.
+     *
+     * @throws BadMethodCallException
+     *
+     * @return $this
+     */
+    public function __call(string $name, array $args): self
+    {
+        $this->where = $this->where ?? new Where();
+
+        if (!method_exists($this->where, $name)) {
+            throw new BadMethodCallException(sprintf('The %s method is missing.', $name));
+        }
+
+        $this->where->$name(...$args);
+
+        return $this;
+    }
 
     /**
      * {@inheritdoc}
