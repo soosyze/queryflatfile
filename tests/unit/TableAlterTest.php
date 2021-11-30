@@ -2,6 +2,7 @@
 
 namespace Queryflatfile\Tests\unit;
 
+use Queryflatfile\Field;
 use Queryflatfile\TableAlter;
 
 class TableAlterTest extends \PHPUnit\Framework\TestCase
@@ -13,15 +14,18 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        $this->object = new TableAlter;
+        $this->object = new TableAlter('test');
     }
 
     public function testDrop(): void
     {
         $this->object->dropColumn('0');
 
-        self::assertEquals($this->object->build(), [
-            '0' => [ 'opt' => TableAlter::OPT_DROP ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                '0' => [ 'opt' => Field::OPT_DROP ]
+            ],
+            'increments' => null
         ]);
     }
 
@@ -29,8 +33,11 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->renameColumn('0', '1');
 
-        self::assertEquals($this->object->build(), [
-           '0' => [ 'opt' => TableAlter::OPT_RENAME, 'to' => '1' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                '0' => [ 'opt' => Field::OPT_RENAME, 'to' => '1' ]
+            ],
+            'increments' => null
         ]);
     }
 
@@ -38,29 +45,11 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->char('0')->modify();
 
-        self::assertEquals($this->object->build(), [
-            '0' => [ 'type' => 'char', 'length' => 1, 'opt' => TableAlter::OPT_MODIFY ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                '0' => [ 'type' => 'char', 'length' => 1 ]
+            ],
+            'increments' => null
         ]);
-    }
-
-    public function testDropException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('No column selected for value default.');
-        $this->object->dropColumn('0')->valueDefault('test');
-    }
-
-    public function testRenameException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('No column selected for value default.');
-        $this->object->renameColumn('0', '1')->valueDefault('test');
-    }
-
-    public function testModifyException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('No column selected for value default.');
-        $this->object->char('0')->modify()->valueDefault('test');
     }
 }
