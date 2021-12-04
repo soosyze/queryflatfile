@@ -946,12 +946,12 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testWhereAndGroup(): void
+    public function testWhereGroup(): void
     {
         $data = $this->request
             ->from('user')
             ->where('id', '>=', 2)
-            ->where(static function (WhereHandler $query): void {
+            ->whereGroup(static function (WhereHandler $query): void {
                 $query->where('name', '=', 'DUPOND')
                 ->orWhere('firstname', '=', 'Eva');
             });
@@ -969,12 +969,36 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testWhereOrGroup(): void
+    public function testNotWhereGroup(): void
+    {
+        $data = $this->request
+            ->from('user')
+            ->where('id', '>=', 2)
+            ->notWhereGroup(static function (WhereHandler $query): void {
+                $query->where('name', '=', 'DUPOND')
+                ->orWhere('firstname', '=', 'Eva');
+            });
+
+        self::assertEquals(
+            'SELECT * FROM user WHERE id >= 2 AND NOT (name = \'DUPOND\' OR firstname = \'Eva\');',
+            (string) $data
+        );
+        self::assertEquals(
+            [
+                [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+                [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+                [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
+            ],
+            $data->fetchAll()
+        );
+    }
+
+    public function testOrWhereGroup(): void
     {
         $data = $this->request
             ->from('user')
             ->where('name', '=', 'DUPOND')
-            ->orWhere(static function (WhereHandler $query): void {
+            ->orWhereGroup(static function (WhereHandler $query): void {
                 $query->where('firstname', '=', 'Eva')
                 ->orWhere('firstname', '=', 'Mathieu');
             });
@@ -989,6 +1013,32 @@ class RequestTest extends \PHPUnit\Framework\TestCase
                 [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
                 [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
                 [ 'id' => 5, 'name' => 'MEYER', 'firstname' => 'Eva' ]
+            ],
+            $data->fetchAll()
+        );
+    }
+
+    public function testOrNotWhereGroup(): void
+    {
+        $data = $this->request
+            ->from('user')
+            ->where('name', '=', 'DUPOND')
+            ->orNotWhereGroup(static function (WhereHandler $query): void {
+                $query->where('firstname', '=', 'Eva')
+                ->orWhere('firstname', '=', 'Mathieu');
+            });
+
+        self::assertEquals(
+            'SELECT * FROM user WHERE name = \'DUPOND\' OR NOT (firstname = \'Eva\' OR firstname = \'Mathieu\');',
+            (string) $data
+        );
+        self::assertEquals(
+            [
+                [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
+                [ 'id' => 2, 'name' => 'MARTIN', 'firstname' => 'Manon' ],
+                [ 'id' => 3, 'name' => null, 'firstname' => 'Marie' ],
+                [ 'id' => 4, 'name' => 'DUPOND', 'firstname' => 'Pierre' ],
+                [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ]
             ],
             $data->fetchAll()
         );
@@ -1322,7 +1372,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->leftJoin('user_role', 'id', '=', 'user_role.id_user')
             ->leftJoin('role', static function (WhereHandler $query): void {
-                $query->where(static function (WhereHandler $query): void {
+                $query->whereGroup(static function (WhereHandler $query): void {
                     $query->where('id_role', '=', 'role.id_role');
                 });
             })

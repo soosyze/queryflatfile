@@ -70,14 +70,14 @@ interface RequestInterface
      * @param string          $table    Nom de la table à joindre.
      * @param string|\Closure $column   Nom de la colonne d'une des tables précédentes
      *                                  ou une closure pour affiner les conditions.
-     * @param string|null     $operator Opérateur logique ou null pour une closure.
-     * @param string|null     $value    Valeur
+     * @param string          $operator Opérateur logique ou null pour une closure.
+     * @param scalar|null     $value    Valeur
      *                                  ou une colonne de la table jointe (au format nom_table.colonne)
      *                                  ou null pour une closure.
      *
      * @return $this
      */
-    public function leftJoin(string $table, $column, ?string $operator = null, ?string $value = null);
+    public function leftJoin(string $table, $column, string $operator = '', $value = null);
 
     /**
      * Enregistre une jointure droite.
@@ -85,14 +85,14 @@ interface RequestInterface
      * @param string          $table    Nom de la table à joindre
      * @param string|\Closure $column   Nom de la colonne d'une des tables précédentes
      *                                  ou une closure pour affiner les conditions.
-     * @param string|null     $operator Opérateur logique ou null pour une closure.
-     * @param string|null     $value    Valeur
+     * @param string          $operator Opérateur logique ou null pour une closure.
+     * @param scalar|null     $value    Valeur
      *                                  ou une colonne de la table jointe (au format nom_table.colonne)
      *                                  ou null pour une closure.
      *
      * @return $this
      */
-    public function rightJoin(string $table, $column, ?string $operator = null, ?string $value = null);
+    public function rightJoin(string $table, $column, string $operator = '', $value = null);
 
     /**
      * Enregistre une limitation et un décalage au retour de la requête.
