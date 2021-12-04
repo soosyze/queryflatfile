@@ -17,10 +17,10 @@ use BadMethodCallException;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  *
- * @method Request where(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)      Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)   Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null)    Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotWhere(\Closure|string $column, null|string $operator = null, null|numeric|string $value = null) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request where(string $column, string $operator, null|scalar $value)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notWhere(string $column, string $operator, null|scalar $value)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orWhere(string $column, string $operator, null|scalar $value)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotWhere(string $column, string $operator, null|scalar $value) Alias de la fonction de l'objet Queryflatfile\Where
  *
  * @method Request between(string $column, numeric|string $min, numeric|string $max)      Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orBetween(string $column, numeric|string $min, numeric|string $max)    Alias de la fonction de l'objet Queryflatfile\Where
@@ -41,6 +41,11 @@ use BadMethodCallException;
  * @method Request orRegex(string $column, string $pattern)    Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request notRegex(string $column, string $pattern)   Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orNotRegex(string $column, string $pattern) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @method Request whereGroup(\Closure $callable)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notWhereGroup(\Closure $callable)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orWhereGroup(\Closure $callable)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotWhereGroup(\Closure $callable) Alias de la fonction de l'objet Queryflatfile\Where
  */
 abstract class RequestHandler implements RequestInterface
 {
@@ -187,8 +192,13 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function leftJoin(string $table, $column, ?string $operator = null, ?string $value = null)
+    public function leftJoin(string $table, $column, string $operator = '', $value = null)
     {
+        if ($column instanceof \Closure) {
+            $this->joinGroup(self::JOIN_LEFT, $table, $column);
+
+            return $this;
+        }
         $this->join(self::JOIN_LEFT, $table, $column, $operator, $value);
 
         return $this;
@@ -219,8 +229,13 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function rightJoin(string $table, $column, ?string $operator = null, ?string $value = null)
+    public function rightJoin(string $table, $column, string $operator = '', $value = null)
     {
+        if ($column instanceof \Closure) {
+            $this->joinGroup(self::JOIN_RIGHT, $table, $column);
+
+            return $this;
+        }
         $this->join(self::JOIN_RIGHT, $table, $column, $operator, $value);
 
         return $this;
@@ -302,22 +317,23 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Enregistre une jointure.
      *
-     * @param string          $type     Type de la jointure.
-     * @param string          $table    Nom de la table à joindre
-     * @param string|\Closure $column   Nom de la colonne d'une des tables précédentes
-     *                                  ou une closure pour affiner les conditions.
-     * @param string|null     $operator Opérateur logique ou null pour une closure.
-     * @param string|null     $value    Valeur
-     *                                  ou une colonne de la table jointe (au format nom_table.colonne)
-     *                                  ou null pour une closure.
+     * @param string      $type     Type de la jointure.
+     * @param string      $table    Nom de la table à joindre
+     * @param string      $column   Nom de la colonne d'une des tables précédentes.
+     * @param string      $operator Opérateur logique ou null pour une closure.
+     * @param null|scalar $value    Valeur ou une colonne de la table jointe (au format nom_table.colonne)
      */
-    private function join(string $type, string $table, $column, ?string $operator = null, ?string $value = null): void
+    private function join(string $type, string $table, string $column, string $operator, $value): void
+    {
+        $where = (new Where())->where($column, $operator, $value);
+
+        $this->joins[] = compact('type', 'table', 'where');
+    }
+
+    private function joinGroup(string $type, string $table, \Closure $callable): void
     {
         $where = new Where();
-
-        $column instanceof \Closure
-            ? call_user_func_array($column, [ &$where ])
-            : $where->where($column, $operator, $value);
+        call_user_func_array($callable, [ &$where ]);
 
         $this->joins[] = compact('type', 'table', 'where');
     }

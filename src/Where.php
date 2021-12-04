@@ -60,7 +60,7 @@ class Where extends WhereHandler
                     );
 
                     break;
-                case 'whereCallback':
+                case 'whereGroup':
                     $output .= sprintf('%s(%s) ', $not, $where[ 'value' ]);
 
                     break;
@@ -121,7 +121,7 @@ class Where extends WhereHandler
         $output = true;
         foreach ($this->where as $key => $value) {
             /* Si la clause est standard ou une sous clause. */
-            $predicate = $value[ 'type' ] === 'whereCallback'
+            $predicate = $value[ 'type' ] === 'whereGroup'
                 ? $value[ 'value' ]->execute($row)
                 : self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ]);
             /* Si la clause est inversé. */
@@ -161,7 +161,7 @@ class Where extends WhereHandler
         foreach ($this->where as $key => $value) {
             $predicate = true;
 
-            if ($value[ 'type' ] === 'whereCallback') {
+            if ($value[ 'type' ] === 'whereGroup') {
                 $predicate = $value[ 'value' ]->executeJoin($row, $rowTable);
             } else {
                 $val = $rowTable[ self::getColumn($value[ 'value' ]) ];

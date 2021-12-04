@@ -49,27 +49,21 @@ class WhereHandler
      * Ajoute une condition simple pour la requête.
      * Si la valeur du champ est égal (non égale, supérieur à, ...)  par rapport à une valeur.
      *
-     * @param \Closure|string     $column   Sous condition ou une colonne.
-     * @param null|string         $operator Type de condition.
-     * @param null|numeric|string $value    Valeur de teste.
-     * @param string              $bool     Porte logique de la condition (and|or).
-     * @param bool                $not      Inverse la condition.
+     * @param string      $column   Nom d'une colonne.
+     * @param string      $operator Type de condition.
+     * @param null|scalar $value    Valeur de teste.
+     * @param string      $bool     Porte logique de la condition (and|or).
+     * @param bool        $not      Inverse la condition.
      *
      * @throws OperatorNotFound The condition is not exist.
      */
     public function where(
-        $column,
-        ?string $operator = null,
-        $value = null,
+        string $column,
+        string $operator,
+        $value,
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
-        if ($column instanceof \Closure) {
-            $this->whereCallback($column, $bool, $not);
-
-            return $this;
-        }
-
         $condition = $this->filterOperator($operator);
 
         if (in_array($condition, [ 'like', 'ilike', 'not like', 'not ilike' ])) {
@@ -97,10 +91,9 @@ class WhereHandler
     /**
      * Alias inverse de la fonction where().
      *
-     * @param \Closure|string     $column Sous condition ou une colonne.
-     * @param null|numeric|string $value  Valeur de teste.
+     * @param null|scalar $value Valeur de teste.
      */
-    public function notWhere($column, ?string $operator = null, $value = null): self
+    public function notWhere(string $column, string $operator, $value): self
     {
         $this->where($column, $operator, $value, self::EXP_AND, true);
 
@@ -110,10 +103,9 @@ class WhereHandler
     /**
      * Alias avec la porte logique 'OR' de la fonction where().
      *
-     * @param \Closure|string     $column Sous condition ou une colonne.
-     * @param null|numeric|string $value  Valeur de teste.
+     * @param null|scalar $value Valeur de teste.
      */
-    public function orWhere($column, ?string $operator = null, $value = null): self
+    public function orWhere(string $column, string $operator, $value): self
     {
         $this->where($column, $operator, $value, self::EXP_OR);
 
@@ -123,10 +115,9 @@ class WhereHandler
     /**
      * Alias inverse avec la porte logique 'OR' de la fonction where().
      *
-     * @param \Closure|string     $column Sous condition ou une colonne.
-     * @param null|numeric|string $value  Valeur de teste.
+     * @param null|scalar $value Valeur de teste.
      */
-    public function orNotWhere($column, ?string $operator = null, $value = null): self
+    public function orNotWhere(string $column, string $operator, $value): self
     {
         $this->where($column, $operator, $value, self::EXP_OR, true);
 
@@ -358,13 +349,13 @@ class WhereHandler
     /**
      * Ajoute une sous-condition pour la requête.
      */
-    protected function whereCallback(
-        callable $column,
+    public function whereGroup(
+        \Closure $callable,
         string $bool = self::EXP_AND,
         bool $not = false
     ): void {
         $where = new Where();
-        call_user_func_array($column, [ &$where ]);
+        call_user_func_array($callable, [ &$where ]);
 
         $this->where[] = [
             'type'   => __FUNCTION__,
@@ -373,6 +364,36 @@ class WhereHandler
             'bool'   => $bool,
             'not'    => $not
         ];
+    }
+
+    /**
+     * Alias inverse de la fonction whereGroup().
+     */
+    public function notWhereGroup(\Closure $callable): self
+    {
+        $this->whereGroup($callable, self::EXP_AND, true);
+
+        return $this;
+    }
+
+    /**
+     * Alias avec la porte logique 'OR' de la fonction whereGroup().
+     */
+    public function orWhereGroup(\Closure $callable): self
+    {
+        $this->whereGroup($callable, self::EXP_OR);
+
+        return $this;
+    }
+
+    /**
+     * Alias inverse avec la porte logique 'OR' de la fonction whereGroup().
+     */
+    public function orNotWhereGroup(\Closure $callable): self
+    {
+        $this->whereGroup($callable, self::EXP_OR, true);
+
+        return $this;
     }
 
     /**
@@ -413,19 +434,14 @@ class WhereHandler
     /**
      * Filtre l'opérateur.
      *
-     * @param string|null $operator
+     * @param string $operator
      *
-     * @throws QueryException
      * @throws OperatorNotFound
      *
      * @return string
      */
-    private function filterOperator(?string $operator): string
+    private function filterOperator(string $operator): string
     {
-        if ($operator === null) {
-            throw new QueryException();
-        }
-
         $condition = strtolower($operator);
 
         if (!in_array($condition, self::CONDITION)) {
