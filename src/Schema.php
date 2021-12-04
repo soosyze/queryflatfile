@@ -14,10 +14,12 @@ namespace Queryflatfile;
 
 use Queryflatfile\DriverInterface;
 use Queryflatfile\Exception\Exception;
-use Queryflatfile\Exception\Query\ColumnsValueException;
 use Queryflatfile\Exception\Query\TableNotFoundException;
 use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
-use Queryflatfile\TableBuilder;
+use Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Queryflatfile\Field\DropType;
+use Queryflatfile\Field\IncrementType;
+use Queryflatfile\Field\RenameType;
 
 /**
  * Pattern fluent pour la gestion d'un schéma de données.
@@ -64,7 +66,7 @@ class Schema
     /**
      * Schéma des tables.
      *
-     * @var array
+     * @var array<string, Table>
      */
     protected $schema = [];
 
@@ -134,7 +136,7 @@ class Schema
      * Modifie la valeur incrémentale d'une table.
      *
      * @param string $table     Nom de la table.
-     * @param int    $increment Tableau associatif des valeurs incrémentales.
+     * @param int    $increment Nouvelle valeur incrémentale.
      *
      * @throws TableNotFoundException
      * @throws Exception
@@ -147,15 +149,15 @@ class Schema
             throw new TableNotFoundException($table);
         }
 
-        if (!isset($this->schema[ $table ][ 'increments' ])) {
+        if (!$this->schema[ $table ]->hasIncrement()) {
             throw new Exception(
                 sprintf('Table %s does not have an incremental value.', $table)
             );
         }
 
-        $this->schema[ $table ][ 'increments' ] = $increment;
+        $this->schema[ $table ]->setIncrement($increment);
 
-        return $this->save($this->name, $this->schema);
+        return $this->save($this->name, $this->toArray());
     }
 
     /**
@@ -174,19 +176,19 @@ class Schema
             throw new TableNotFoundException($table);
         }
 
-        if ($this->schema[ $table ][ 'increments' ] === null) {
+        if ($this->schema[ $table ]->getIncrement() === null) {
             throw new Exception(
                 sprintf('Table %s does not have an incremental value.', $table)
             );
         }
 
-        return $this->schema[ $table ][ 'increments' ];
+        return $this->schema[ $table ]->getIncrement();
     }
 
     /**
-     * Génère le schéma s'il n'existe pas en fonction du fichier de configuration.
+     * Retourne le schema des tables.
      *
-     * @return array Schéma de la base de données.
+     * @return array<Table> Schéma de la base de données.
      */
     public function getSchema(): array
     {
@@ -194,7 +196,12 @@ class Schema
             return $this->schema;
         }
         $this->create($this->name);
-        $this->schema = $this->read($this->name);
+        $schema = $this->read($this->name);
+
+        /** @var string $tableName */
+        foreach ($schema as $tableName => $table) {
+            $this->schema[ $tableName ] = TableBuilder::createTableFromArray($tableName, $table);
+        }
 
         return $this->schema;
     }
@@ -206,9 +213,9 @@ class Schema
      *
      * @throws TableNotFoundException
      *
-     * @return array Schéma de la table.
+     * @return Table Schéma de la table.
      */
-    public function getSchemaTable(string $table): array
+    public function getTableSchema(string $table): Table
     {
         if (!$this->hasTable($table)) {
             throw new TableNotFoundException($table);
@@ -263,11 +270,9 @@ class Schema
             throw new Exception(sprintf('Table %s exist.', $table));
         }
 
-        $builder = self::tableBuilder($callback);
+        $this->schema[ $table ] = self::tableBuilder($table, $callback)->getTable();
 
-        $this->schema[ $table ] = $builder->getTableSchema();
-
-        $this->save($this->name, $this->schema);
+        $this->save($this->name, $this->toArray());
         $this->create($table);
 
         return $this;
@@ -298,70 +303,37 @@ class Schema
      * Modifie les champs du schéma de données.
      *
      * @param string   $table    Nom de la table.
-     * @param callable $callback fonction(TableBuilder $table) pour créer les champs.
+     * @param callable $callback fonction(TableAleter $tableAlter) pour manipuler les champs.
      *
      * @return $this
      */
     public function alterTable(string $table, callable $callback): self
     {
-        $schema       = $this->getSchemaTable($table);
-        $fields       = $schema[ 'fields' ];
-        $tableBuilder = self::tableAlterBuilder($callback)->build();
-        $dataTable    = $this->read($table);
+        $tableSchema  = $this->getTableSchema($table);
+        $tableBuilder = self::tableAlterBuilder($table, $callback)->getTable();
+        $tableData    = $this->read($table);
 
-        foreach ($tableBuilder as $name => $params) {
-            if (!isset($params[ 'opt' ])) {
-                self::filterFieldAdd($table, $fields, $name, $params[ 'type' ]);
-                self::add($schema, $dataTable, $name, $params);
-            } elseif ($params[ 'opt' ] === TableAlter::OPT_RENAME) {
-                self::filterFieldRename($table, $fields, $name, $params[ 'to' ]);
-                self::rename($schema, $dataTable, $name, $params[ 'to' ]);
-            } elseif ($params[ 'opt' ] === TableAlter::OPT_MODIFY) {
-                self::filterFieldModify($table, $fields, $name, $params[ 'type' ]);
-                self::modify($schema, $dataTable, $name, $params);
-            } elseif ($params[ 'opt' ] === TableAlter::OPT_DROP) {
-                self::filterFieldDrop($table, $fields, $name);
-                self::drop($schema, $dataTable, $name);
+        foreach ($tableBuilder->getFields() as $field) {
+            if ($field->getOpt() === Field::OPT_CREATE) {
+                self::filterFieldAdd($tableSchema, $field);
+                self::add($tableSchema, $field, $tableData);
+            } elseif ($field->getOpt() === Field::OPT_RENAME) {
+                self::filterFieldRename($tableSchema, $field);
+                self::rename($tableSchema, $field, $tableData);
+            } elseif ($field->getOpt() === Field::OPT_MODIFY) {
+                self::filterFieldModify($tableSchema, $field);
+                self::modify($tableSchema, $field, $tableData);
+            } elseif ($field->getOpt() === Field::OPT_DROP) {
+                self::filterFieldDrop($tableSchema, $field);
+                self::drop($tableSchema, $field, $tableData);
             }
         }
 
-        $this->schema[ $table ] = $schema;
-        $this->save($this->name, $this->schema);
-        $this->save($table, $dataTable);
+        $this->schema[ $table ] = $tableSchema;
+        $this->save($this->name, $this->toArray());
+        $this->save($table, $tableData);
 
         return $this;
-    }
-
-    /**
-     * Retourne la valeur par defaut du champ passé en paramêtre.
-     *
-     * @param string $name   Nom du champ.
-     * @param array  $params Différente configurations.
-     *
-     * @throws ColumnsValueException
-     *
-     * @return bool|null|numeric|string Valeur par defaut.
-     */
-    public static function getValueDefault(string $name, array &$params)
-    {
-        if (isset($params[ 'default' ])) {
-            if ($params[ 'type' ] === TableBuilder::TYPE_DATE && $params[ 'default' ] === TableBuilder::CURRENT_DATE_DEFAULT) {
-                return date('Y-m-d', time());
-            }
-            if ($params[ 'type' ] === TableBuilder::TYPE_DATETIME && $params[ 'default' ] === TableBuilder::CURRENT_DATETIME_DEFAULT) {
-                return date('Y-m-d H:i:s', time());
-            }
-
-            /* Si les variables magiques ne sont pas utilisé alors la vrais valeur par defaut est retourné. */
-            return $params[ 'default' ];
-        }
-        if (isset($params[ 'nullable' ])) {
-            return null;
-        }
-
-        throw new ColumnsValueException(
-            sprintf('%s not nullable or not default.', $name)
-        );
     }
 
     /**
@@ -386,7 +358,9 @@ class Schema
      */
     public function hasColumn(string $table, string $column): bool
     {
-        return isset($this->getSchema()[ $table ][ 'fields' ][ $column ]) && $this->driver->has($this->root . $this->path, $table);
+        return isset($this->getSchema()[ $table ]) &&
+            $this->getSchema()[ $table ]->hasField($column) &&
+            $this->driver->has($this->root . $this->path, $table);
     }
 
     /**
@@ -405,10 +379,10 @@ class Schema
         }
 
         $deleteSchema = true;
-        if ($this->schema[ $table ][ 'increments' ] !== null) {
-            $this->schema[ $table ][ 'increments' ] = 0;
+        if ($this->schema[ $table ]->hasIncrement()) {
+            $this->schema[ $table ]->setIncrement(0);
 
-            $deleteSchema = $this->save($this->name, $this->schema);
+            $deleteSchema = $this->save($this->name, $this->toArray());
         }
         $deleteData = $this->save($table, []);
 
@@ -432,7 +406,7 @@ class Schema
 
         unset($this->schema[ $table ]);
         $deleteData   = $this->delete($table);
-        $deleteSchema = $this->save($this->name, $this->schema);
+        $deleteSchema = $this->save($this->name, $this->toArray());
 
         return $deleteSchema && $deleteData;
     }
@@ -512,154 +486,130 @@ class Schema
     /**
      * Ajoute un champ dans les paramètre de la table et ses données.
      *
-     * @param array  $schema    Schéma de la table.
-     * @param array  $dataTable Les données de la table.
-     * @param string $name      Nom du champ.
-     * @param array  $params    Nouveaux paramètres.
+     * @param Table $table     Schéma de la table.
+     * @param Field $field     Nouveau champ.
+     * @param array $tableData Les données de la table.
      *
      * @return void
      */
     protected static function add(
-        array &$schema,
-        array &$dataTable,
-        string $name,
-        array $params
+        Table &$table,
+        Field $field,
+        array &$tableData
     ): void {
-        $schema[ 'fields' ][ $name ] = $params;
+        $table->addField($field);
 
-        $increment = $params[ 'type' ] === TableBuilder::TYPE_INCREMENT
+        $increment = $field instanceof IncrementType
             ? 0
             : null;
 
         try {
-            $valueDefault = self::getValueDefault($name, $params);
-        } catch (ColumnsValueException $e) {
+            $valueDefault = $field->getValueDefault();
+        } catch (ColumnsValueException|\InvalidArgumentException $e) {
             $valueDefault = '';
         }
 
-        foreach ($dataTable as &$data) {
-            $data[ $name ] = $increment === null
+        foreach ($tableData as &$data) {
+            $data[ $field->getName() ] = $increment === null
                 ? $valueDefault
                 : ++$increment;
         }
 
-        if ($params[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
-            $schema[ 'increments' ] = $increment;
+        if ($increment !== null) {
+            $table->setIncrement($increment);
         }
     }
 
     /**
      * Modifie un champ dans les paramètre de la table et ses données.
      *
-     * @param array  $schema    Schéma de la table.
-     * @param array  $dataTable Les données de la table.
-     * @param string $name      Nom du champ.
-     * @param array  $params    Nouveaux paramètres.
+     * @param Table $table     Schéma de la table.
+     * @param Field $field     Champ modifié.
+     * @param array $tableData Les données de la table.
      *
      * @return void
      */
     protected static function modify(
-        array &$schema,
-        array &$dataTable,
-        string $name,
-        array $params
+        Table &$table,
+        Field $field,
+        array &$tableData
     ): void {
-        unset($params[ 'opt' ]);
-        $schema[ 'fields' ][ $name ] = $params;
+        $table->addField($field);
 
-        $increment = $params[ 'type' ] === TableBuilder::TYPE_INCREMENT
+        $increment = $field instanceof IncrementType
             ? 0
             : null;
 
         try {
-            $valueDefault = self::getValueDefault($name, $params);
-            foreach ($dataTable as &$data) {
-                $data[ $name ] = $valueDefault;
+            $valueDefault = $field->getValueDefault();
+            foreach ($tableData as &$data) {
+                $data[ $field->getName() ] = $valueDefault;
             }
-        } catch (ColumnsValueException $e) {
+        } catch (ColumnsValueException | \InvalidArgumentException $e) {
         }
 
-        if ($params[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
-            $schema[ 'increments' ] = $increment;
+        if ($increment !== null) {
+            $table->setIncrement($increment);
         }
     }
 
     /**
      * Renomme un champ dans les paramètre de la table et ses données.
      *
-     * @param array  $schema    Les champs de la table.
-     * @param array  $dataTable Les données de la table.
-     * @param string $name      Nom du champ.
-     * @param string $to        Nouveau nom du champ.
+     * @param Table      $table       Schéma de la table.
+     * @param RenameType $fieldRename champ à renommer
+     * @param array      $tableData   Les données de la table.
      *
      * @return void
      */
     protected static function rename(
-        array &$schema,
-        array &$dataTable,
-        string $name,
-        string $to
+        Table &$table,
+        RenameType $fieldRename,
+        array &$tableData
     ): void {
-        $schema[ 'fields' ][ $to ] = $schema[ 'fields' ][ $name ];
-        unset($schema[ 'fields' ][ $name ]);
-        foreach ($dataTable as &$data) {
-            $data[ $to ] = $data[ $name ];
-            unset($data[ $name ]);
+        $table->renameField($fieldRename->getName(), $fieldRename->getTo());
+
+        foreach ($tableData as &$data) {
+            $data[ $fieldRename->getTo() ] = $data[ $fieldRename->getName() ];
+            unset($data[ $fieldRename->getName() ]);
         }
     }
 
     /**
      * Supprime un champ dans les paramètre de la table et ses données.
      *
-     * @param array  $schema    Les champs de la table.
-     * @param array  $dataTable Les données de la table.
-     * @param string $name      Nom du champ.
+     * @param Table    $table     Schéma de la table.
+     * @param DropType $fieldDrop Champ à supprimer
+     * @param array    $tableData Les données de la table.
      *
      * @return void
      */
     protected static function drop(
-        array &$schema,
-        array &$dataTable,
-        string $name
+        Table &$table,
+        DropType $fieldDrop,
+        array &$tableData
     ): void {
-        foreach (array_keys($dataTable) as $key) {
-            unset($dataTable[ $key ][ $name ]);
+        foreach (array_keys($tableData) as $key) {
+            unset($tableData[ $key ][ $fieldDrop->getName() ]);
         }
 
-        if ($schema[ 'fields' ][ $name ][ 'type' ] === TableBuilder::TYPE_INCREMENT) {
-            $schema[ 'increments' ] = null;
+        if ($table->getField($fieldDrop->getName()) instanceof IncrementType) {
+            $table->setIncrement(null);
         }
-        unset($schema[ 'fields' ][ $name ]);
-    }
-
-    /**
-     * Retour true si l'un des champs est de type incrementale.
-     *
-     * @param array $fields
-     *
-     * @return bool
-     */
-    protected static function isFieldIncrement(array $fields): bool
-    {
-        foreach ($fields as $field) {
-            if ($field[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
-                return true;
-            }
-        }
-
-        return false;
+        $table->unsetField($fieldDrop->getName());
     }
 
     /**
      * Passe en premier paramètre d'une fonction anonyme un objet TableBuilder et le retourne.
      *
+     * @param string   $table    Nom de la table.
      * @param callable $callback Fonction anonyme.
      *
      * @return TableBuilder
      */
-    protected static function tableAlterBuilder(callable $callback): TableBuilder
+    protected static function tableAlterBuilder(string $table, callable $callback): TableBuilder
     {
-        $builder = new TableAlter();
+        $builder = new TableAlter($table);
         call_user_func_array($callback, [ &$builder ]);
 
         return $builder;
@@ -668,13 +618,14 @@ class Schema
     /**
      * Passe en premier paramètre d'une fonction anonyme un objet TableBuilder et le retourne.
      *
+     * @param string        $table    Nom de la table.
      * @param callable|null $callback Fonction anonyme.
      *
      * @return TableBuilder
      */
-    protected static function tableBuilder(?callable $callback = null): TableBuilder
+    protected static function tableBuilder(string $table, ?callable $callback = null): TableBuilder
     {
-        $builder = new TableBuilder();
+        $builder = new TableBuilder($table);
         if ($callback !== null) {
             call_user_func_array($callback, [ &$builder ]);
         }
@@ -683,138 +634,138 @@ class Schema
     }
 
     /**
-     * Vérifie si les opérations du champ sont conformes.
+     * Vérifie si les opérations d'ajout du champ sont conformes.
      *
-     * @param string $table  Nom de la table.
-     * @param array  $fields Paramètres du champ en base.
-     * @param string $name   Nom du champ.
-     * @param string $type   Type de donnée.
+     * @param Table $tableSchema Le schéma de la table.
+     * @param Field $field       Nouveau champ.
      *
      * @throws Exception
      * @throws ColumnsNotFoundException
      */
-    private static function filterFieldAdd(
-        string $table,
-        array $fields,
-        string $name,
-        string $type
-    ): void {
+    private static function filterFieldAdd(Table $tableSchema, Field $field): void
+    {
         /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
-        if (isset($fields[ $name ])) {
+        if ($tableSchema->hasField($field->getName())) {
             throw new Exception(
-                sprintf('%s field does not exists in %s table.', $name, $table)
+                sprintf(
+                    '%s field does not exists in %s table.',
+                    $field->getName(),
+                    $tableSchema->getName()
+                )
             );
         }
-        if ($type === TableBuilder::TYPE_INCREMENT && self::isFieldIncrement($fields)) {
+        if ($tableSchema->hasIncrement() && $field instanceof IncrementType) {
             throw new ColumnsValueException(
                 sprintf(
                     'The %s table can not have multiple incremental values.',
-                    $table
+                    $tableSchema->getName()
                 )
             );
         }
     }
 
     /**
-     * @param string $table  Nom de la table.
-     * @param array  $fields Paramètres du champ en base.
-     * @param string $name   Nom du champ.
-     * @param string $type   Type de donnée.
+     * Vérifie si les opérations de modification du champ sont conformes.
+     *
+     * @param Table $tableSchema Le schéma de la table.
+     * @param Field $field       Champ à modifier.
      *
      * @throws ColumnsNotFoundException
      * @throws ColumnsValueException
      * @throws Exception
      */
-    private static function filterFieldModify(
-        string $table,
-        array $fields,
-        string $name,
-        string $type
-    ): void {
-        if (!isset($fields[ $name ])) {
-            throw new ColumnsNotFoundException(
+    private static function filterFieldModify(Table $tableSchema, Field $field): void
+    {
+        if (!$tableSchema->hasField($field->getName())) {
+            throw new Exception(
                 sprintf(
                     '%s field does not exists in %s table.',
-                    $name,
-                    $table
+                    $field->getName(),
+                    $tableSchema->getName()
                 )
             );
         }
-        if ($type === TableBuilder::TYPE_INCREMENT && self::isFieldIncrement($fields)) {
+        if ($tableSchema->hasIncrement() && $field instanceof IncrementType) {
             throw new ColumnsValueException(
                 sprintf(
                     'The %s table can not have multiple incremental values.',
-                    $table
+                    $tableSchema->getName()
                 )
             );
         }
 
+        $fieldOld = $tableSchema->getField($field->getName());
+
         /* Si le type change, les données présents doivent être d'un type équivalent. */
-        $modifyNumber = in_array($type, [ 'integer', 'float', 'increments' ]) &&
-            !in_array($fields[ $name ][ 'type' ], [ 'integer', 'float', 'increments' ]);
-        $modifyString = in_array($type, [ 'text', 'string', 'char' ]) &&
-            !in_array($fields[ $name ][ 'type' ], [ 'text', 'string', 'char' ]);
-        $modifyDate   = in_array($type, [ 'date', 'datetime' ]) &&
-            !in_array($fields[ $name ][ 'type' ], [ 'date', 'datetime', 'string', 'text' ]);
+        $modifyNumber = in_array($field::TYPE, [ 'integer', 'float', 'increments' ]) &&
+            !in_array($fieldOld::TYPE, [ 'integer', 'float', 'increments' ]);
+        $modifyString = in_array($field::TYPE, [ 'text', 'string', 'char' ]) &&
+            !in_array($fieldOld::TYPE, [ 'text', 'string', 'char' ]);
+        $modifyDate   = in_array($field::TYPE, [ 'date', 'datetime' ]) &&
+            !in_array($fieldOld::TYPE, [ 'date', 'datetime', 'string', 'text' ]);
 
         if ($modifyString || $modifyNumber || $modifyDate) {
             throw new Exception(
                 sprintf(
                     'The %s column type %s can not be changed with the %s type.',
-                    $name,
-                    $fields[ $name ][ 'type' ],
-                    $type
+                    $field->getName(),
+                    $fieldOld::TYPE,
+                    $field::TYPE
                 )
             );
         }
     }
 
     /**
-     * @param string $table  Nom de la table.
-     * @param array  $fields Paramètres du champ en base.
-     * @param string $name   Nom du champ.
-     * @param string $to     Nouveau nom du champ.
+     * Vérifie si les opérations de renommage du champ sont conformes.
+     *
+     * @param Table      $table Le schéma de la table.
+     * @param RenameType $field Champ à renommer.
      *
      * @throws ColumnsNotFoundException
      * @throws Exception
      */
-    private static function filterFieldRename(
-        string $table,
-        array $fields,
-        string $name,
-        string $to
-    ): void {
-        if (!isset($fields[ $name ])) {
+    private static function filterFieldRename(Table $table, RenameType $field): void
+    {
+        if (!$table->hasField($field->getName())) {
             throw new ColumnsNotFoundException(
-                sprintf('%s field does not exists in %s table.', $name, $table)
+                sprintf('%s field does not exists in %s table.', $field->getName(), $table->getName())
             );
         }
         /* Si le champ à renommer existe dans le schema. */
-        if (isset($fields[ $to ])) {
+        if ($table->hasField($field->getTo())) {
             throw new Exception(
-                sprintf('%s field does exists in %s table.', $name, $table)
+                sprintf('%s field does exists in %s table.', $field->getName(), $table->getName())
             );
         }
     }
 
     /**
-     * @param string $table  Nom de la table.
-     * @param array  $fields Paramètres du champ en base.
-     * @param string $name   Nom du champ.
+     * Vérifie si les opérations de suppression du champ sont conformes.
+     *
+     * @param Table    $table Le schéma de la table.
+     * @param DropType $field Champ à supprimer
      *
      * @throws ColumnsNotFoundException
      *
      * @return void
      */
-    private static function filterFieldDrop(
-        string $table,
-        array $fields,
-        string $name
-    ): void {
-        if (!isset($fields[ $name ])) {
+    private static function filterFieldDrop(Table $table, DropType $field): void
+    {
+        if (!$table->hasField($field->getName())) {
             throw new ColumnsNotFoundException(
-                sprintf('%s field does not exists in %s table.', $name, $table)
+                sprintf('%s field does not exists in %s table.', $field->getName(), $table->getName())
             );
         }
+    }
+
+    private function toArray(): array
+    {
+        $tables = [];
+        foreach ($this->schema as $name => $table) {
+            $tables[ $name ] = $table->toArray();
+        }
+
+        return $tables;
     }
 }

@@ -10,9 +10,16 @@ declare(strict_types=1);
 
 namespace Queryflatfile;
 
-use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
-use Queryflatfile\Exception\TableBuilder\ColumnsValueException;
 use Queryflatfile\Exception\TableBuilder\TableBuilderException;
+use Queryflatfile\Field\BoolType;
+use Queryflatfile\Field\CharType;
+use Queryflatfile\Field\DateTimeType;
+use Queryflatfile\Field\DateType;
+use Queryflatfile\Field\FloatType;
+use Queryflatfile\Field\IncrementType;
+use Queryflatfile\Field\IntType;
+use Queryflatfile\Field\StringType;
+use Queryflatfile\Field\TextType;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.
@@ -21,41 +28,15 @@ use Queryflatfile\Exception\TableBuilder\TableBuilderException;
  */
 class TableBuilder
 {
-    public const CURRENT_DATE_DEFAULT = 'current_date';
-
-    public const CURRENT_DATETIME_DEFAULT = 'current_datetime';
-
-    public const TYPE_BOOL = 'boolean';
-
-    public const TYPE_CHAR = 'char';
-
-    public const TYPE_DATE = 'date';
-
-    public const TYPE_DATETIME = 'datetime';
-
-    public const TYPE_FLOAT = 'float';
-
-    public const TYPE_INCREMENT = 'increments';
-
-    public const TYPE_INT = 'integer';
-
-    public const TYPE_STRING = 'string';
-
-    public const TYPE_TEXT = 'text';
-
     /**
-     * Les champs et leurs paramètres.
-     *
-     * @var array
+     * @var Table
      */
-    protected $builder = [];
+    protected $table;
 
-    /**
-     * La valeur des champs incrémentaux.
-     *
-     * @var int|null
-     */
-    private $increment = null;
+    public function __construct(string $name)
+    {
+        $this->table = new Table($name);
+    }
 
     /**
      * Enregistre un champ de type `boolean`, true ou false.
@@ -63,13 +44,13 @@ class TableBuilder
      *
      * @param string $name Nom du champ.
      *
-     * @return $this
+     * @return Field
      */
-    public function boolean(string $name): self
+    public function boolean(string $name): Field
     {
-        $this->builder[ $name ][ 'type' ] = self::TYPE_BOOL;
+        $this->table->addField(new BoolType($name));
 
-        return $this;
+        return $this->table->getField($name);
     }
 
     /**
@@ -81,16 +62,13 @@ class TableBuilder
      *
      * @throws TableBuilderException
      *
-     * @return $this
+     * @return Field
      */
-    public function char(string $name, int $length = 1): self
+    public function char(string $name, int $length = 1): Field
     {
-        if ($length < 0) {
-            throw new TableBuilderException('The length passed in parameter is not of numeric type.');
-        }
-        $this->builder[ $name ] = [ 'type' => self::TYPE_CHAR, 'length' => $length ];
+        $this->table->addField(new CharType($name, $length));
 
-        return $this;
+        return $this->table->getField($name);
     }
 
     /**
@@ -98,13 +76,13 @@ class TableBuilder
      *
      * @param string $name Nom du champ.
      *
-     * @return $this
+     * @return Field
      */
-    public function date(string $name): self
+    public function date(string $name): Field
     {
-        $this->builder[ $name ][ 'type' ] = self::TYPE_DATE;
+        $this->table->addField(new DateType($name));
 
-        return $this;
+        return $this->table->getField($name);
     }
 
     /**
@@ -112,13 +90,13 @@ class TableBuilder
      *
      * @param string $name Nom du champ.
      *
-     * @return $this
+     * @return Field
      */
-    public function datetime(string $name): self
+    public function datetime(string $name): Field
     {
-        $this->builder[ $name ][ 'type' ] = self::TYPE_DATETIME;
+        $this->table->addField(new DateTimeType($name));
 
-        return $this;
+        return $this->table->getField($name);
     }
 
     /**
@@ -128,13 +106,13 @@ class TableBuilder
      *
      * @param string $name Nom du champ.
      *
-     * @return $this
+     * @return Field
      */
-    public function float(string $name): self
+    public function float(string $name): Field
     {
-        $this->builder[ $name ][ 'type' ] = self::TYPE_FLOAT;
+        $this->table->addField(new FloatType($name));
 
-        return $this;
+        return $this->table->getField($name);
     }
 
     /**
@@ -146,18 +124,17 @@ class TableBuilder
      *
      * @throws TableBuilderException
      *
-     * @return $this
+     * @return Field
      */
-    public function increments(string $name): self
+    public function increments(string $name): Field
     {
-        if ($this->increment !== null) {
+        if ($this->table->getIncrement() !== null) {
             throw new TableBuilderException('Only one incremental column is allowed per table.');
         }
 
-        $this->builder[ $name ][ 'type' ] = self::TYPE_INCREMENT;
-        $this->increment                  = 0;
+        $this->table->addField(new IncrementType($name));
 
-        return $this;
+        return $this->table->getField($name);
     }
 
     /**
@@ -167,13 +144,13 @@ class TableBuilder
      *
      * @param string $name Nom du champ.
      *
-     * @return $this
+     * @return IntType
      */
-    public function integer(string $name): self
+    public function integer(string $name): IntType
     {
-        $this->builder[ $name ][ 'type' ] = self::TYPE_INT;
-
-        return $this;
+        $this->table->addField(new IntType($name));
+        /** @var IntType */
+        return $this->table->getField($name);
     }
 
     /**
@@ -185,16 +162,13 @@ class TableBuilder
      *
      * @throws TableBuilderException
      *
-     * @return $this
+     * @return Field
      */
-    public function string(string $name, int $length = 255): self
+    public function string(string $name, int $length = 255): Field
     {
-        if ($length < 0) {
-            throw new TableBuilderException('The length passed in parameter is not of numeric type.');
-        }
-        $this->builder[ $name ] = [ 'type' => self::TYPE_STRING, 'length' => $length ];
+        $this->table->addField(new StringType($name, $length));
 
-        return $this;
+        return $this->table->getField($name);
     }
 
     /**
@@ -203,226 +177,72 @@ class TableBuilder
      *
      * @param string $name Nom du champ.
      *
-     * @return $this
+     * @return Field
      */
-    public function text(string $name): self
+    public function text(string $name): Field
     {
-        $this->builder[ $name ][ 'type' ] = self::TYPE_TEXT;
+        $this->table->addField(new TextType($name));
 
-        return $this;
+        return $this->table->getField($name);
+    }
+
+    public function getTable(): Table
+    {
+        return $this->table;
     }
 
     /**
-     * Enregistre un commentaire sur le dernier champ appelé.
+     * Créer une table à partir d'un tableau de données.
      *
-     * @param string $comment Commentaire du champ précédent.
-     *
-     * @return $this
-     */
-    public function comment(string $comment): self
-    {
-        $this->checkPreviousBuild('comment');
-        $this->builder[ key($this->builder) ][ '_comment' ] = $comment;
-
-        return $this;
-    }
-
-    /**
-     * Enregistre le champ précédent comme acceptant la valeur NULL.
-     *
-     * @return $this
-     */
-    public function nullable(): self
-    {
-        $this->checkPreviousBuild('nullable');
-        $this->builder[ key($this->builder) ][ 'nullable' ] = true;
-
-        return $this;
-    }
-
-    /**
-     * Enregistre le champ précédent (uniquement de type integer) comme étant non signié.
-     *
-     * @throws ColumnsValueException
-     *
-     * @return $this
-     */
-    public function unsigned(): self
-    {
-        $current = $this->checkPreviousBuild('unsigned');
-        if ($current[ 'type' ] !== self::TYPE_INT) {
-            throw new ColumnsValueException(
-                sprintf('Impossiblie of unsigned type %s only integer.', $current[ 'type' ])
-            );
-        }
-
-        $this->builder[ key($this->builder) ][ 'unsigned' ] = true;
-
-        return $this;
-    }
-
-    /**
-     * Enregistre une valeur par défaut au champ précédent.
-     * Lève une exception si la valeur par défaut ne correspond pas au type de valeur passée en paramètre.
-     *
-     * @param bool|null|numeric|string $value Valeur à tester.
+     * @param string $table Nom de la table.
+     * @param array  $data  Donnaées pour créer une table.
      *
      * @throws TableBuilderException
-     *
-     * @return $this
+     * @return Table
      */
-    public function valueDefault($value): self
+    public static function createTableFromArray(string $table, array $data): Table
     {
-        $current = $this->checkPreviousBuild('value default');
-        $type    = $current[ 'type' ];
+        $tableBuilder = new self($table);
+        foreach ($data[ 'fields' ] as $name => $value) {
+            switch ($value[ 'type' ]) {
+                case BoolType::TYPE:
+                case DateType::TYPE:
+                case DateTimeType::TYPE:
+                case FloatType::TYPE:
+                case IncrementType::TYPE:
+                case TextType::TYPE:
+                    $field = $tableBuilder->{$value[ 'type' ]}($name);
 
-        if ($type === self::TYPE_INCREMENT) {
-            throw new TableBuilderException('An incremental type column can not have a default value.');
+                    break;
+                case CharType::TYPE:
+                case StringType::TYPE:
+                    $field = $tableBuilder->{$value[ 'type' ]}($name, $value[ 'length' ] ?? 0);
+
+                    break;
+                case IntType::TYPE:
+                    $field = $tableBuilder->{$value[ 'type' ]}($name);
+
+                    if (isset($value[ 'unsigned' ])) {
+                        $field->unsigned();
+                    }
+
+                    break;
+                default:
+                    throw new TableBuilderException(sprintf('Type %s not supported.', $value[ 'type' ]));
+            }
+
+            if (isset($value[ 'nullable' ])) {
+                $field->nullable();
+            }
+            if (isset($value[ 'default' ])) {
+                $field->valueDefault($value[ 'default' ]);
+            }
+            if (isset($value[ '_comment' ])) {
+                $field->comment($value[ '_comment' ]);
+            }
         }
+        $tableBuilder->table->setIncrement($data[ 'increments' ] ?? null);
 
-        $name = (string) key($this->builder);
-
-        $this->builder[ $name ][ 'default' ] = self::filterValue($name, $type, $value, $current);
-
-        return $this;
-    }
-
-    /**
-     * Retourne la valeur s'il correspond au type déclaré.
-     * Sinon déclenche une exception.
-     *
-     * @param string                   $name  Nom du champ.
-     * @param string                   $type  Type de donnée (string|text|int|float|bool|char|date|datetime).
-     * @param bool|null|numeric|string $value Valeur à tester.
-     * @param array                    $args  Arguments de tests optionnels (length).
-     *
-     * @throws ColumnsValueException
-     *
-     * @return bool|null|numeric|string
-     */
-    public static function filterValue(string $name, string $type, $value, array $args = [])
-    {
-        $error = sprintf(
-            'The default value (%s) for column %s does not correspond to type %s.',
-            $value,
-            $name,
-            $type
-        );
-
-        switch (strtolower($type)) {
-            case self::TYPE_STRING:
-            case self::TYPE_CHAR:
-                if (!\is_string($value)) {
-                    throw new ColumnsValueException($error);
-                }
-                if (!isset($args[ 'length' ]) || strlen($value) > $args[ 'length' ]) {
-                    throw new ColumnsValueException('The default value is larger than the specified size.');
-                }
-
-                break;
-            case self::TYPE_TEXT:
-                if (!\is_string($value)) {
-                    throw new ColumnsValueException($error);
-                }
-
-                break;
-            case self::TYPE_INT:
-            case self::TYPE_INCREMENT:
-                if (!\is_int($value)) {
-                    throw new ColumnsValueException($error);
-                }
-
-                return (int) $value;
-            case self::TYPE_FLOAT:
-                if (!\is_float($value)) {
-                    throw new ColumnsValueException($error);
-                }
-
-                return (float) $value;
-            case self::TYPE_BOOL:
-                if (!\is_bool($value)) {
-                    throw new ColumnsValueException($error);
-                }
-
-                break;
-            case self::TYPE_DATE:
-                if (!\is_string($value)) {
-                    throw new ColumnsValueException($error);
-                }
-                $value = (string) $value;
-                if (strtolower($value) === self::CURRENT_DATE_DEFAULT) {
-                    return self::CURRENT_DATE_DEFAULT;
-                }
-                if (($timestamp = strtotime($value))) {
-                    return date('Y-m-d', $timestamp);
-                }
-
-                throw new ColumnsValueException($error);
-            case self::TYPE_DATETIME:
-                if (!\is_string($value)) {
-                    throw new ColumnsValueException($error);
-                }
-                $value = (string) $value;
-                if (strtolower($value) === self::CURRENT_DATETIME_DEFAULT) {
-                    return self::CURRENT_DATETIME_DEFAULT;
-                }
-                if (($timestamp = strtotime($value))) {
-                    return date('Y-m-d H:i:s', $timestamp);
-                }
-
-                throw new ColumnsValueException($error);
-            default:
-                throw new ColumnsValueException(
-                    sprintf('Type %s not supported', $type)
-                );
-        }
-
-        return $value;
-    }
-
-    /**
-     * Retourne le tableau contenant les configurations
-     *
-     * @return array Les configurations.
-     */
-    public function build(): array
-    {
-        return $this->builder;
-    }
-
-    /**
-     * Retour le schéma de la table.
-     *
-     * @return array
-     */
-    public function getTableSchema(): array
-    {
-        return [
-            'fields'     => $this->builder,
-            'increments' => $this->increment
-        ];
-    }
-
-    /**
-     * Retourne le champs courant.
-     * Déclenche une exception si le champ courant n'existe pas ou
-     * si le champ courant est une opération.
-     *
-     * @param string $opt Nom de l'opération réalisé.
-     *
-     * @throws ColumnsNotFoundException
-     *
-     * @return array Paramètres du champ.
-     */
-    protected function checkPreviousBuild(string $opt): array
-    {
-        $current = end($this->builder);
-        if (!$current) {
-            throw new ColumnsNotFoundException(
-                sprintf('No column selected for %s.', $opt)
-            );
-        }
-
-        return $current;
+        return $tableBuilder->table;
     }
 }
