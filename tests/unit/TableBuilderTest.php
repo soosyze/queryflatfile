@@ -2,6 +2,7 @@
 
 namespace Queryflatfile\Tests\unit;
 
+use Queryflatfile\Exception\TableBuilder\ColumnsValueException;
 use Queryflatfile\TableBuilder;
 
 class TableBuilderTest extends \PHPUnit\Framework\TestCase
@@ -13,15 +14,18 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        $this->object = new TableBuilder;
+        $this->object = new TableBuilder('test');
     }
 
     public function testIncrements(): void
     {
         $this->object->increments('id');
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'increments' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'increments' ]
+            ],
+            'increments' => 0
         ]);
     }
 
@@ -31,20 +35,21 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage(
             'Only one incremental column is allowed per table.'
         );
-        $this->object
-            ->increments('id')
-            ->increments('error');
+        $this->object->increments('id');
+        $this->object->increments('error');
     }
 
     public function testChar(): void
     {
-        $this->object
-            ->char('id')
-            ->char('id2', 2);
+        $this->object->char('id');
+        $this->object->char('id2', 2);
 
-        self::assertEquals($this->object->build(), [
-            'id'  => [ 'type' => 'char', 'length' => 1 ],
-            'id2' => [ 'type' => 'char', 'length' => 2 ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id'  => [ 'type' => 'char', 'length' => 1 ],
+                'id2' => [ 'type' => 'char', 'length' => 2 ]
+            ],
+            'increments' => null
         ]);
     }
 
@@ -61,20 +66,25 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->text('id');
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'text' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'text' ]
+            ],
+            'increments' => null
         ]);
     }
 
     public function testString(): void
     {
-        $this->object
-            ->string('id')
-            ->string('id2', 256);
+        $this->object->string('id');
+        $this->object->string('id2', 256);
 
-        self::assertEquals($this->object->build(), [
-            'id'  => [ 'type' => 'string', 'length' => 255 ],
-            'id2' => [ 'type' => 'string', 'length' => 256 ],
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id'  => [ 'type' => 'string', 'length' => 255 ],
+                'id2' => [ 'type' => 'string', 'length' => 256 ],
+            ],
+            'increments' => null
         ]);
     }
 
@@ -91,8 +101,11 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->integer('id');
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'integer' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'integer' ]
+            ],
+            'increments' => null
         ]);
     }
 
@@ -100,8 +113,11 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->float('id');
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'float' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'float' ]
+            ],
+            'increments' => null
         ]);
     }
 
@@ -109,8 +125,11 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->boolean('id');
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'boolean' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'boolean' ]
+            ],
+            'increments' => null
         ]);
     }
 
@@ -118,8 +137,11 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->date('id');
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'date' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'date' ]
+            ],
+            'increments' => null
         ]);
     }
 
@@ -127,216 +149,251 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->datetime('id');
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'datetime' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'datetime' ]
+            ],
+            'increments' => null
         ]);
     }
 
     public function testNullable(): void
     {
-        $this->object
-            ->increments('0')->nullable()
-            ->char('1')->nullable()
-            ->text('2')->nullable()
-            ->string('3')->nullable()
-            ->integer('4')->nullable()
-            ->float('5')->nullable()
-            ->boolean('6')->nullable()
-            ->date('7')->nullable()
-            ->datetime('8')->nullable();
+        $this->object->increments('0')->nullable();
+        $this->object->char('1')->nullable();
+        $this->object->text('2')->nullable();
+        $this->object->string('3')->nullable();
+        $this->object->integer('4')->nullable();
+        $this->object->float('5')->nullable();
+        $this->object->boolean('6')->nullable();
+        $this->object->date('7')->nullable();
+        $this->object->datetime('8')->nullable();
 
-        self::assertEquals($this->object->build(), [
-            '0' => [ 'type' => 'increments', 'nullable' => true ],
-            '1' => [ 'type' => 'char', 'length' => 1, 'nullable' => true ],
-            '2' => [ 'type' => 'text', 'nullable' => true ],
-            '3' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
-            '4' => [ 'type' => 'integer', 'nullable' => true ],
-            '5' => [ 'type' => 'float', 'nullable' => true ],
-            '6' => [ 'type' => 'boolean', 'nullable' => true ],
-            '7' => [ 'type' => 'date', 'nullable' => true ],
-            '8' => [ 'type' => 'datetime', 'nullable' => true ],
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                '0' => [ 'type' => 'increments', 'nullable' => true ],
+                '1' => [ 'type' => 'char', 'length' => 1, 'nullable' => true ],
+                '2' => [ 'type' => 'text', 'nullable' => true ],
+                '3' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
+                '4' => [ 'type' => 'integer', 'nullable' => true ],
+                '5' => [ 'type' => 'float', 'nullable' => true ],
+                '6' => [ 'type' => 'boolean', 'nullable' => true ],
+                '7' => [ 'type' => 'date', 'nullable' => true ],
+                '8' => [ 'type' => 'datetime', 'nullable' => true ],
+            ],
+            'increments' => 0
         ]);
+        self::assertEquals(null, $this->object->getTable()->getField('7')->getValueDefault());
+        self::assertEquals(null, $this->object->getTable()->getField('8')->getValueDefault());
     }
 
-    public function testNullableException(): void
+    public function testDateNullableException(): void
     {
+        $this->object->date('7');
+
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('No column selected for nullable.');
-        $this->object->nullable();
+        $this->expectExceptionMessage(
+            '7 not nullable or not default.'
+        );
+        self::assertEquals(null, $this->object->getTable()->getField('7')->getValueDefault());
+    }
+
+    public function testDatetimeNullableException(): void
+    {
+        $this->object->datetime('8');
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(
+            '8 not nullable or not default.'
+        );
+        self::assertEquals(null, $this->object->getTable()->getField('8')->getValueDefault());
     }
 
     public function testUnsigned(): void
     {
         $this->object->integer('id')->unsigned();
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'integer', 'unsigned' => true ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'integer', 'unsigned' => true ]
+            ],
+            'increments' => null
         ]);
-    }
-
-    public function testUnsignedException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('No column selected for unsigned.');
-        $this->object->unsigned();
-    }
-
-    public function testUnsignedTypeException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'Impossiblie of unsigned type string only integer.'
-        );
-        $this->object->string('id')->unsigned();
     }
 
     public function testComment(): void
     {
         $this->object->increments('id')->comment('identifiant');
 
-        self::assertEquals($this->object->build(), [
-            'id' => [ 'type' => 'increments', '_comment' => 'identifiant' ]
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                'id' => [ 'type' => 'increments', '_comment' => 'identifiant' ]
+            ],
+            'increments' => null
         ]);
-    }
-
-    public function testCommentException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('No column selected for comment.');
-        $this->object->comment('identifiant');
     }
 
     public function testValueDefault(): void
     {
-        $this->object
-            ->increments('0')
-            ->char('1')->valueDefault('a')
-            ->text('2')->valueDefault('test')
-            ->string('3')->valueDefault('test')
-            ->integer('4')->valueDefault(1)
-            ->float('5')->valueDefault(1.1)
-            ->boolean('6')->valueDefault(true)
-            ->date('7')->valueDefault('2017-11-26')
-            ->date('7.1')->valueDefault('current_date')
-            ->datetime('8')->valueDefault('2017-11-26 22:00:00')
-            ->datetime('8.1')->valueDefault('current_datetime');
+        $this->object->increments('0');
+        $this->object->char('1')->valueDefault('a');
+        $this->object->text('2')->valueDefault('test');
+        $this->object->string('3')->valueDefault('test');
+        $this->object->integer('4')->valueDefault(1);
+        $this->object->float('5')->valueDefault(1.1);
+        $this->object->boolean('6')->valueDefault(true);
+        $this->object->date('7')->valueDefault('2017-11-26');
+        $this->object->date('7.1')->valueDefault('current_date');
+        $this->object->datetime('8')->valueDefault('2017-11-26 22:00:00');
+        $this->object->datetime('8.1')->valueDefault('current_datetime');
 
-        self::assertEquals($this->object->build(), [
-            '0'   => [ 'type' => 'increments' ],
-            '1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
-            '2'   => [ 'type' => 'text', 'default' => 'test' ],
-            '3'   => [ 'type' => 'string', 'length' => 255, 'default' => 'test' ],
-            '4'   => [ 'type' => 'integer', 'default' => 1 ],
-            '5'   => [ 'type' => 'float', 'default' => 1.1 ],
-            '6'   => [ 'type' => 'boolean', 'default' => true ],
-            '7'   => [ 'type' => 'date', 'default' => '2017-11-26' ],
-            '7.1' => [ 'type' => 'date', 'default' => 'current_date' ],
-            '8'   => [ 'type' => 'datetime', 'default' => '2017-11-26 22:00:00' ],
-            '8.1' => [ 'type' => 'datetime', 'default' => 'current_datetime' ],
+        self::assertEquals($this->object->getTable()->toArray(), [
+            'fields'     => [
+                '0'   => [ 'type' => 'increments' ],
+                '1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
+                '2'   => [ 'type' => 'text', 'default' => 'test' ],
+                '3'   => [ 'type' => 'string', 'length' => 255, 'default' => 'test' ],
+                '4'   => [ 'type' => 'integer', 'default' => 1 ],
+                '5'   => [ 'type' => 'float', 'default' => 1.1 ],
+                '6'   => [ 'type' => 'boolean', 'default' => true ],
+                '7'   => [ 'type' => 'date', 'default' => '2017-11-26' ],
+                '7.1' => [ 'type' => 'date', 'default' => 'current_date' ],
+                '8'   => [ 'type' => 'datetime', 'default' => '2017-11-26 22:00:00' ],
+                '8.1' => [ 'type' => 'datetime', 'default' => 'current_datetime' ],
+            ],
+            'increments' => 0
         ]);
+        self::assertEquals('2017-11-26', $this->object->getTable()->getField('7')->getValueDefault());
+        self::assertEquals(date('Y-m-d', time()), $this->object->getTable()->getField('7.1')->getValueDefault());
+        self::assertEquals('2017-11-26 22:00:00', $this->object->getTable()->getField('8')->getValueDefault());
+        self::assertEquals(date('Y-m-d H:i:s', time()), $this->object->getTable()->getField('8.1')->getValueDefault());
     }
 
-    public function testValueDefaultException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('No column selected for value default.');
-        $this->object->valueDefault('1');
+    /**
+     * @param class-string<\Throwable> $exceptionClass
+     * @param mixed                    $valueDefault
+     *
+     * @dataProvider getValueDefaultException
+     */
+    public function testValueDefaulException(
+        string $method,
+        $valueDefault,
+        string $exceptionClass,
+        string $exceptionMessage
+    ): void {
+        $tableBuilder = new TableBuilder('test');
+
+        $this->expectException($exceptionClass);
+        $this->expectExceptionMessage($exceptionMessage);
+        $tableBuilder->$method('0')->valueDefault($valueDefault);
     }
 
-    public function testValueDefaultIncrementException(): void
+    public function getValueDefaultException(): \Generator
     {
+        yield [
+            'boolean', 1,
+            \InvalidArgumentException::class, 'The value of the 0 field must be of type boolean: integer given.'
+        ];
+        yield [
+            'char', 1,
+            \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
+        ];
+        yield [
+            'char', 'error',
+            \LengthException::class, 'The value of the 0 field must be less than or equal to 1 characters: 5 given'
+        ];
+        yield [
+            'date', 1,
+            \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
+        ];
+        yield [
+            'date', '1',
+            ColumnsValueException::class, 'The value of the 0 field must be a valid date: 1 given'
+        ];
+        yield [
+            'datetime', 1,
+            \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
+        ];
+        yield [
+            'datetime', '1',
+            ColumnsValueException::class, 'The value of the 0 field must be a valid date: 1 given'
+        ];
+        yield [
+            'float', '1',
+            \InvalidArgumentException::class, 'The value of the 0 field must be of type float: string given.'
+        ];
+        yield [
+            'increments', 2,
+            \Exception::class, 'An incremental type column can not have a default value.'
+        ];
+        yield [
+            'integer', '1',
+            \InvalidArgumentException::class, 'The value of the 0 field must be of type integer: string given.'
+        ];
+        yield [
+            'string', 1,
+            \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
+        ];
+        yield [
+            'string', str_repeat('0', 256),
+            \LengthException::class, 'The value of the 0 field must be less than or equal to 255 characters: 256 given'
+        ];
+        yield [
+            'text', 1,
+            \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
+        ];
+    }
+
+    public function testCreateTableFromArray(): void
+    {
+        $this->object->increments('field_0');
+        $this->object->char('field_1')->valueDefault('a');
+        $this->object->text('field_2')->valueDefault('test');
+        $this->object->string('field_3')->valueDefault('test');
+        $this->object->integer('field_4')->valueDefault(1)->unsigned();
+        $this->object->float('field_5')->valueDefault(1.1);
+        $this->object->boolean('field_6')->valueDefault(true);
+        $this->object->date('field_7')->valueDefault('2017-11-26');
+        $this->object->date('field_7.1')->valueDefault('current_date');
+        $this->object->datetime('field_8')->valueDefault('2017-11-26 22:00:00');
+        $this->object->datetime('field_8.1')->valueDefault('current_datetime');
+
+        $expected = [
+            'test' => [
+                'fields'     => [
+                    'field_0'   => [ 'type' => 'increments' ],
+                    'field_1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
+                    'field_2'   => [ 'type' => 'text', 'default' => 'test' ],
+                    'field_3'   => [ 'type' => 'string', 'length' => 255, 'default' => 'test' ],
+                    'field_4'   => [ 'type' => 'integer', 'default' => 1, 'unsigned' => true ],
+                    'field_5'   => [ 'type' => 'float', 'default' => 1.1 ],
+                    'field_6'   => [ 'type' => 'boolean', 'default' => true ],
+                    'field_7'   => [ 'type' => 'date', 'default' => '2017-11-26' ],
+                    'field_7.1' => [ 'type' => 'date', 'default' => 'current_date' ],
+                    'field_8'   => [ 'type' => 'datetime', 'default' => '2017-11-26 22:00:00' ],
+                    'field_8.1' => [ 'type' => 'datetime', 'default' => 'current_datetime' ],
+                ],
+                'increments' => 0
+            ]
+        ];
+
+        self::assertEquals(
+            $this->object->getTable(),
+            TableBuilder::createTableFromArray('test', $expected[ 'test' ])
+        );
+    }
+
+    public function testCreateTableFromArrayException(): void
+    {
+        $data = [
+            'fields' => [
+                'field_0' => [ 'type' => 'error' ]
+            ]
+        ];
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(
-            'An incremental type column can not have a default value.'
+            'Type error not supported.'
         );
-        $this->object->increments('0')->valueDefault(2);
-    }
-
-    public function testValueDefaultCharException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value (1) for column 0 does not correspond to type char.'
-        );
-        $this->object->char('0')->valueDefault(1);
-    }
-
-    public function testValueDefaultCharLenghtException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value is larger than the specified size.'
-        );
-        $this->object->char('0')->valueDefault('error');
-    }
-
-    public function testValueDefaultTextException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value (1) for column 0 does not correspond to type text.'
-        );
-        $this->object->text('0')->valueDefault(1);
-    }
-
-    public function testValueDefaultStringException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value (1) for column 0 does not correspond to type string.'
-        );
-        $this->object->string('0')->valueDefault(1);
-    }
-
-    public function testValueDefaultIntegerException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value (error) for column 0 does not correspond to type integer.'
-        );
-        $this->object->integer('0')->valueDefault('error');
-    }
-
-    public function testValueDefaultFloatException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value (error) for column 0 does not correspond to type float.'
-        );
-        $this->object->float('0')->valueDefault('error');
-    }
-
-    public function testValueDefaultBoolException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value (1) for column 0 does not correspond to type boolean.'
-        );
-        $this->object->boolean('0')->valueDefault('1');
-    }
-
-    public function testValueDefaultDateException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value (1) for column 0 does not correspond to type date.'
-        );
-        $this->object->date('0')->valueDefault('1');
-    }
-
-    public function testValueDefaultDatetimesException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The default value (1) for column 0 does not correspond to type datetime.'
-        );
-        $this->object->datetime('0')->valueDefault('1');
-    }
-
-    public function testCheckValueException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Type error not supported');
-        TableBuilder::filterValue('testName', 'error', 'testValue');
+        TableBuilder::createTableFromArray('test', $data);
     }
 }
