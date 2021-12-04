@@ -15,6 +15,7 @@ use Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Queryflatfile\Exception\Query\OperatorNotFound;
 use Queryflatfile\Exception\Query\QueryException;
 use Queryflatfile\Exception\Query\TableNotFoundException;
+use Queryflatfile\Field\IncrementType;
 
 /**
  * Réalise des requêtes à partir d'un schéma de données passé en paramètre.
@@ -27,7 +28,7 @@ class Request extends RequestHandler
     /**
      * Toutes les configurations du schéma des champs utilisés.
      *
-     * @var array
+     * @var array<Field>
      */
     private $allColumnsSchema;
 
@@ -41,9 +42,9 @@ class Request extends RequestHandler
     /**
      * Le schéma des tables utilisées par la requête.
      *
-     * @var array
+     * @var Table
      */
-    private $tableSchema = [];
+    private $table;
 
     /**
      * Le schéma de base de données.
@@ -147,8 +148,8 @@ class Request extends RequestHandler
     public function from(string $table): self
     {
         parent::from($table);
-        $this->tableSchema = $this->schema->getSchemaTable($table);
-        $this->tableData   = $this->getTableData($table);
+        $this->table     = $this->schema->getTableSchema($table);
+        $this->tableData = $this->getTableData($table);
 
         return $this;
     }
@@ -431,10 +432,10 @@ class Request extends RequestHandler
     protected function executeInsert(): void
     {
         /* Si l'une des colonnes est de type incrémental. */
-        $increment     = $this->getIncrement();
+        $increment = $this->table->getIncrement();
         /* Je charge les colonnes de mon schéma. */
-        $schemaColumns = $this->tableSchema[ 'fields' ];
-        $count         = count($this->columns);
+        $fields    = $this->table->getFields();
+        $count     = count($this->columns);
 
         foreach ($this->values as $values) {
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
@@ -461,27 +462,27 @@ class Request extends RequestHandler
             }
 
             $data = [];
-            foreach ($schemaColumns as $field => $arg) {
+            foreach ($fields as $fieldName => $field) {
                 /* Si mon champs existe dans le schema. */
-                if (isset($row[ $field ])) {
-                    $data[ $field ] = TableBuilder::filterValue($field, $arg[ 'type' ], $row[ $field ], $arg);
+                if (isset($row[ $fieldName ])) {
+                    $data[ $fieldName ] = $field->filterValue($row[ $fieldName ]);
                     /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma. */
-                    if ($arg[ 'type' ] === TableBuilder::TYPE_INCREMENT && ($data[ $field ] > $increment)) {
-                        $increment = $data[ $field ];
+                    if ($field instanceof IncrementType && ($data[ $fieldName ] > $increment)) {
+                        $increment = $data[ $fieldName ];
                     }
 
                     continue;
                 }
                 /* Si mon champ n'existe pas et qu'il de type incrémental. */
-                if ($arg[ 'type' ] === TableBuilder::TYPE_INCREMENT) {
+                if ($field instanceof IncrementType) {
                     ++$increment;
-                    $data[ $field ] = $increment;
+                    $data[ $fieldName ] = $increment;
 
                     continue;
                 }
 
                 /* Sinon on vérifie si une valeur par défaut lui est attribué. */
-                $data[ $field ] = $this->schema->getValueDefault($field, $arg);
+                $data[ $fieldName ] = $field->getValueDefault();
             }
 
             $this->tableData[] = $data;
@@ -526,26 +527,16 @@ class Request extends RequestHandler
     }
 
     /**
-     * Retourne les champs incrémental de la courrante.
-     *
-     * @return int|null Increment de la table courante
-     */
-    protected function getIncrement(): ?int
-    {
-        return $this->tableSchema[ 'increments' ];
-    }
-
-    /**
      * Charge les colonnes de la table courante et des tables de jointure.
      */
     private function loadAllColumnsSchema(): void
     {
-        $this->allColumnsSchema = $this->tableSchema[ 'fields' ];
+        $this->allColumnsSchema = $this->table->getFields();
 
         foreach ($this->joins as $value) {
             $this->allColumnsSchema = array_merge(
                 $this->allColumnsSchema,
-                $this->schema->getSchemaTable($value[ 'table' ])[ 'fields' ]
+                $this->schema->getTableSchema($value[ 'table' ])->getFields()
             );
         }
     }
@@ -688,15 +679,13 @@ class Request extends RequestHandler
      *
      * @param string $table Nom de la table.
      */
-    private function getRowTableNull($table): array
+    private function getRowTableNull(string $table): array
     {
-        /* Le schéma de la table à joindre. */
-        $sch         = $this->schema->getSchemaTable($table);
         /* Prend les noms des champs de la table à joindre. */
-        $rowTableKey = array_keys($sch[ 'fields' ]);
+        $rowTableKey = $this->schema->getTableSchema($table)->getFieldsName();
         /* Prend les noms des champs dans la requête précédente. */
-        if (isset($this->tableSchema[ 'fields' ])) {
-            $rowTableAllKey = array_keys($this->tableSchema[ 'fields' ]);
+        if ($this->table->getFields() !== []) {
+            $rowTableAllKey = $this->table->getFieldsName();
             $rowTableKey    = array_merge($rowTableKey, $rowTableAllKey);
         }
         /* Utilise les noms pour créer un tableau avec des valeurs null. */

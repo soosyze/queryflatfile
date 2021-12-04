@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Queryflatfile
+ *
+ * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
+ */
+
+namespace Queryflatfile\Field;
+
+use Queryflatfile\Field;
+
+/**
+ * @author Mathieu NOËL <mathieu@soosyze.com>
+ */
+class DropType extends Field
+{
+    protected $opt = self::OPT_DROP;
+
+    public function filterValue($value)
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray(): array
+    {
+        $data          = parent::toArray();
+        $data[ 'opt' ] = $this->opt;
+
+        return $data;
+    }
+}
