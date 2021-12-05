@@ -12,6 +12,16 @@ namespace Queryflatfile;
 
 use Queryflatfile\Field\IncrementType;
 
+/**
+ * @author Mathieu NOËL <mathieu@soosyze.com>
+ *
+ * @phpstan-import-type FieldToArray from Field
+ *
+ * @phpstan-type TableToArray array{
+ *      fields: array<string, FieldToArray>,
+ *      increments?: int|null
+ * }
+ */
 final class Table
 {
     /**
@@ -105,6 +115,11 @@ final class Table
         $this->increment = $increment;
     }
 
+    /**
+     * Retourne les données de la table.
+     *
+     * @return TableToArray
+     */
     public function toArray(): array
     {
         $fields = [];

@@ -23,7 +23,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
 
         self::assertEquals($this->object->getTable()->toArray(), [
             'fields'     => [
-                '0' => [ 'opt' => Field::OPT_DROP ]
+                '0' => [ 'type' => '', 'opt' => Field::OPT_DROP ]
             ],
             'increments' => null
         ]);
@@ -35,7 +35,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
 
         self::assertEquals($this->object->getTable()->toArray(), [
             'fields'     => [
-                '0' => [ 'opt' => Field::OPT_RENAME, 'to' => '1' ]
+                '0' => [ 'type' => '', 'opt' => Field::OPT_RENAME, 'to' => '1' ]
             ],
             'increments' => null
         ]);
