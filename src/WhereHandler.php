@@ -17,6 +17,17 @@ use Queryflatfile\Exception\Query\QueryException;
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
+ *
+ * @phpstan-type Between array{min: numeric|string, max: numeric|string}
+ * @phpstan-type WhereToArray array{
+ *      bool: string,
+ *      column: string,
+ *      columns?: array,
+ *      condition: string,
+ *      not: bool,
+ *      type: string,
+ *      value: array|Between|null|scalar|Where,
+ * }
  */
 class WhereHandler
 {
@@ -41,7 +52,7 @@ class WhereHandler
     /**
      * Les conditions à exécuter.
      *
-     * @var array
+     * @var WhereToArray[]
      */
     protected $where = [];
 
@@ -358,11 +369,13 @@ class WhereHandler
         call_user_func_array($callable, [ &$where ]);
 
         $this->where[] = [
-            'type'   => __FUNCTION__,
-            'column' => $where->getColumns(),
-            'value'  => $where,
-            'bool'   => $bool,
-            'not'    => $not
+            'type'      => __FUNCTION__,
+            'column'    => '',
+            'columns'   => $where->getColumns(),
+            'condition' => '',
+            'value'     => $where,
+            'bool'      => $bool,
+            'not'       => $not
         ];
     }
 

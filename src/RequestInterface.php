@@ -17,6 +17,9 @@ use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
  * Ensemble des fonctions nécessaires à une requête.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
+
+ * @phpstan-import-type RowData from Schema
+ * @phpstan-import-type TableData from Schema
  */
 interface RequestInterface
 {
@@ -24,16 +27,6 @@ interface RequestInterface
      * La valeur par défaut de LIMIT.
      */
     public const ALL = 0;
-
-    /**
-     * La valeur pour une union simple.
-     */
-    public const UNION_SIMPLE = 'simple';
-
-    /**
-     * La valeur pour une union totale.
-     */
-    public const UNION_ALL = 'all';
 
     /**
      * Valeur pour un join gauche.
@@ -46,53 +39,59 @@ interface RequestInterface
     public const JOIN_RIGHT = 'right';
 
     /**
+     * @return string
+     */
+    public function __toString(): string;
+
+    /**
      * Enregistre les champs sélectionnées par la requête.
      * En cas d'absence de selection, la requêtes retournera toutes les champs.
      *
-     * @param string $columns Liste ou tableau des noms des colonnes.
+     * @param string ...$columns Liste ou tableau des noms des colonnes.
      *
      * @return $this
      */
     public function select(string ...$columns);
 
     /**
+     * @return string[]
+     */
+    public function getColumns(): array;
+
+    /**
      * Enregistre le nom de la source des données principale de la requête.
      *
-     * @param string $table Nom de la table.
+     * @param string $tableName Nom de la table.
      *
      * @return $this
      */
-    public function from(string $table);
+    public function from(string $tableName);
 
     /**
      * Enregistre une jointure gauche.
      *
-     * @param string          $table    Nom de la table à joindre.
-     * @param string|\Closure $column   Nom de la colonne d'une des tables précédentes
-     *                                  ou une closure pour affiner les conditions.
-     * @param string          $operator Opérateur logique ou null pour une closure.
-     * @param scalar|null     $value    Valeur
-     *                                  ou une colonne de la table jointe (au format nom_table.colonne)
-     *                                  ou null pour une closure.
+     * @param string          $tableName Nom de la table à joindre.
+     * @param string|\Closure $column    Nom de la colonne d'une des tables précédentes
+     *                                   ou une closure pour affiner les conditions.
+     * @param string          $operator  Opérateur logique ou null pour une closure.
+     * @param string          $value     Colonne de la table jointe (au format nom_table.colonne)
      *
      * @return $this
      */
-    public function leftJoin(string $table, $column, string $operator = '', $value = null);
+    public function leftJoin(string $tableName, $column, string $operator = '', string $value = '');
 
     /**
      * Enregistre une jointure droite.
      *
-     * @param string          $table    Nom de la table à joindre
-     * @param string|\Closure $column   Nom de la colonne d'une des tables précédentes
-     *                                  ou une closure pour affiner les conditions.
-     * @param string          $operator Opérateur logique ou null pour une closure.
-     * @param scalar|null     $value    Valeur
-     *                                  ou une colonne de la table jointe (au format nom_table.colonne)
-     *                                  ou null pour une closure.
+     * @param string          $tableName Nom de la table à joindre
+     * @param string|\Closure $column    Nom de la colonne d'une des tables précédentes
+     *                                   ou une closure pour affiner les conditions.
+     * @param string          $operator  Opérateur logique ou null pour une closure.
+     * @param string          $value     Colonne de la table jointe (au format nom_table.colonne)
      *
      * @return $this
      */
-    public function rightJoin(string $table, $column, string $operator = '', $value = null);
+    public function rightJoin(string $tableName, $column, string $operator = '', string $value = '');
 
     /**
      * Enregistre une limitation et un décalage au retour de la requête.
@@ -107,30 +106,30 @@ interface RequestInterface
     /**
      * Enregistre un trie des résultats de la requête.
      *
-     * @param string $columns Colonnes à trier.
-     * @param int    $order   Ordre du trie (SORT_ASC|SORT_DESC).
+     * @param string $column Colonne à trier.
+     * @param int    $order  Ordre du trie (SORT_ASC|SORT_DESC).
      *
      * @return $this
      */
-    public function orderBy(string $columns, int $order = SORT_ASC);
+    public function orderBy(string $column, int $order = SORT_ASC);
 
     /**
      * Enregistre l'action d'insertion de données.
      * Cette fonction doit-être suivie la fonction values().
      *
-     * @param string $table   Nom de la table.
-     * @param array  $columns Liste des champs par ordre d'insertion dans
-     *                        la fonction values().
+     * @param string   $tableName Nom de la table.
+     * @param string[] $columns   Liste des champs par ordre d'insertion dans
+     *                            la fonction values().
      *
      * @return $this
      */
-    public function insertInto(string $table, array $columns);
+    public function insertInto(string $tableName, array $columns);
 
     /**
      * Cette fonction doit suivre la fonction insertInto().
      * Les valeurs doivent suivre le même ordre que les clés précédemment enregistrées.
      *
-     * @param array $columns Valeurs des champs.
+     * @param array<null|scalar> $columns Valeurs des champs.
      *
      * @return $this
      */
@@ -139,12 +138,12 @@ interface RequestInterface
     /**
      * Enregistre l'action de modification de données.
      *
-     * @param string $table   Nom de la table.
-     * @param array  $columns key=>value des données à modifier.
+     * @param string  $tableName Nom de la table.
+     * @param RowData $columns   key=>value des données à modifier.
      *
      * @return $this
      */
-    public function update(string $table, array $columns);
+    public function update(string $tableName, array $columns);
 
     /**
      * Enregistre l'action de suppression des données.
@@ -158,11 +157,10 @@ interface RequestInterface
      * Le résultat de l'union ne possède pas de doublon de ligne.
      *
      * @param RequestInterface $request Seconde requête.
-     * @param string           $type    (simple|all) Type d'union.
      *
      * @return $this
      */
-    public function union(RequestInterface $request, string $type = self::UNION_SIMPLE);
+    public function union(RequestInterface $request);
 
     /**
      * Enregistre une union all entre 2 ensembles.
@@ -177,14 +175,14 @@ interface RequestInterface
     /**
      * Retourne tous les résultats de la requête.
      *
-     * @return array les données
+     * @return TableData les données
      */
     public function fetchAll(): array;
 
     /**
      * Retourne le premier résultat de la requête.
      *
-     * @return array Résultat de la requête.
+     * @return RowData Résultat de la requête.
      */
     public function fetch(): array;
 
@@ -197,7 +195,7 @@ interface RequestInterface
      *
      * @throws ColumnsNotFoundException
      *
-     * @return array Liste du champ passé en paramètre.
+     * @return array<null|scalar> Liste du champ passé en paramètre.
      */
     public function lists(string $name, ?string $key = null): array;
 

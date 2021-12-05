@@ -16,6 +16,9 @@ use Queryflatfile\Exception\Query\OperatorNotFound;
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
+ *
+ * @phpstan-import-type RowData from Schema
+ * @phpstan-import-type Between from WhereHandler
  */
 class Where extends WhereHandler
 {
@@ -35,47 +38,44 @@ class Where extends WhereHandler
             $not = $where[ 'not' ]
                 ? 'NOT '
                 : '';
+            $whereColumn = $where[ 'column' ];
             switch ($where[ 'type' ]) {
                 case 'where':
-                    $value  = \is_int($where[ 'value' ])
-                        ? $where[ 'value' ]
-                        : sprintf('\'%s\'', addslashes($where[ 'value' ]));
-                    $output .= sprintf('%s%s %s %s ', $not, addslashes($where[ 'column' ]), $where[ 'condition' ], $value);
+                    $output .= sprintf('%s%s %s %s ', $not, addslashes($whereColumn), $where[ 'condition' ], self::getValueToString($where['value']));
 
                     break;
                 case 'like':
-                    $output .= sprintf('%s %sLIKE %s ', addslashes($where[ 'column' ]), $not, addslashes($where[ 'value' ]));
+                    $output .= sprintf('%s %sLIKE %s ', addslashes($whereColumn), $not, self::getValueToString($where['value']));
 
                     break;
                 case 'isNull':
-                    $output .= sprintf('%s IS %sNULL ', addslashes($where[ 'column' ]), $not);
+                    $output .= sprintf('%s IS %sNULL ', addslashes($whereColumn), $not);
 
                     break;
                 case 'in':
                     $output .= sprintf(
                         '%s %sIN %s ',
-                        addslashes($where[ 'column' ]),
+                        addslashes($whereColumn),
                         $not,
-                        addslashes(implode(', ', $where[ 'value' ]))
+                        self::getValueToString($where['value'])
                     );
 
                     break;
                 case 'whereGroup':
-                    $output .= sprintf('%s(%s) ', $not, $where[ 'value' ]);
+                    $output .= sprintf('%s(%s) ', $not, self::getValueToString($where['value']));
 
                     break;
                 case 'between':
                     $output .= sprintf(
-                        '%s %sBETWEEN %s AND %s ',
-                        addslashes($where[ 'column' ]),
+                        '%s %sBETWEEN %s ',
+                        addslashes($whereColumn),
                         $not,
-                        addslashes((string) $where[ 'value' ][ 'min' ]),
-                        addslashes((string) $where[ 'value' ][ 'max' ])
+                        self::getValueToString($where['value'])
                     );
 
                     break;
                 case 'regex':
-                    $output .= sprintf('%s %sREGEX %s ', addslashes($where[ 'column' ]), $not, $where[ 'value' ]);
+                    $output .= sprintf('%s %sREGEX %s ', addslashes($whereColumn), $not, self::getValueToString($where['value']));
 
                     break;
             }
@@ -91,14 +91,14 @@ class Where extends WhereHandler
     /**
      * Retourne toutes les colonnes utilisées pour créer la clause.
      *
-     * @return array Colonnes.
+     * @return string[] Colonnes.
      */
     public function getColumns(): array
     {
         $output = [];
         foreach ($this->where as $value) {
-            if (\is_array($value[ 'column' ])) {
-                $output = array_merge($output, $value[ 'column' ]);
+            if (isset($value[ 'columns' ])) {
+                $output = array_merge($output, $value[ 'columns' ]);
 
                 continue;
             }
@@ -112,7 +112,7 @@ class Where extends WhereHandler
     /**
      * Retourne TRUE si la suite de condition enregistrée valide les champs du tableau.
      *
-     * @param array $row Tableau associatif de champ.
+     * @param RowData $row Tableau associatif de champ.
      *
      * @return bool
      */
@@ -121,9 +121,11 @@ class Where extends WhereHandler
         $output = true;
         foreach ($this->where as $key => $value) {
             /* Si la clause est standard ou une sous clause. */
-            $predicate = $value[ 'type' ] === 'whereGroup'
-                ? $value[ 'value' ]->execute($row)
-                : self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ]);
+            if ($value[ 'value' ] instanceof Where) {
+                $predicate = $value[ 'value' ]->execute($row);
+            } else {
+                $predicate = self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ]);
+            }
             /* Si la clause est inversé. */
             if ($value[ 'not' ]) {
                 $predicate = !$predicate;
@@ -150,8 +152,8 @@ class Where extends WhereHandler
      * Retourne TRUE si la suite de condition enregistrée valide les champs du tableau
      * par rapport à un autre tableau.
      *
-     * @param array $row      Tableau associatif de champ.
-     * @param array $rowTable Tableau associatif de champ à tester.
+     * @param RowData $row      Tableau associatif de champ.
+     * @param RowData $rowTable Tableau associatif de champ à tester.
      *
      * @return bool
      */
@@ -161,9 +163,10 @@ class Where extends WhereHandler
         foreach ($this->where as $key => $value) {
             $predicate = true;
 
-            if ($value[ 'type' ] === 'whereGroup') {
+            if ($value[ 'value' ] instanceof Where) {
                 $predicate = $value[ 'value' ]->executeJoin($row, $rowTable);
             } else {
+                /** @var array{value:string, column: string, condition: string, bool:string} $value */
                 $val = $rowTable[ self::getColumn($value[ 'value' ]) ];
 
                 $predicate = self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $val);
@@ -185,9 +188,9 @@ class Where extends WhereHandler
     /**
      * Retourne TRUE si la condition est validée.
      *
-     * @param bool|null|numeric|string       $columns  Valeur à tester.
-     * @param string                         $operator Condition à réaliser.
-     * @param array|bool|null|numeric|string $value    Valeur de comparaison.
+     * @param null|scalar       $columns  Valeur à tester.
+     * @param string            $operator Condition à réaliser.
+     * @param array|null|scalar $value    Valeur de comparaison.
      *
      * @throws \Exception
      *
@@ -225,7 +228,7 @@ class Where extends WhereHandler
                 /** @var string $value */
                 return preg_match($value, (string) $columns) === 1;
             case 'between':
-                /** @var array{min: string|numeric, max: string|numeric} $value */
+                /** @var Between $value */
                 return $columns >= $value[ 'min' ] && $columns <= $value[ 'max' ];
         }
 
@@ -246,5 +249,44 @@ class Where extends WhereHandler
         return strrchr($value, '.') !== false
             ? substr(strrchr($value, '.'), 1)
             : $value;
+    }
+
+    /**
+     * @param array|null|scalar|Where $value
+     *
+     * @return string
+     */
+    protected static function getValueToString($value): string
+    {
+        if (is_int($value)) {
+            return (string) $value;
+        }
+        if (is_string($value)) {
+            return sprintf('\'%s\'', addslashes($value));
+        }
+        if ($value instanceof Where) {
+            return (string) $value;
+        }
+        if (is_array($value)) {
+            if (isset($value[ 'min' ], $value[ 'max' ]) && is_scalar($value[ 'min' ]) && is_scalar($value[ 'max' ])) {
+                return sprintf(
+                    '%s AND %s',
+                    self::getValueToString($value[ 'min' ]),
+                    self::getValueToString($value[ 'max' ])
+                );
+            }
+
+            return implode(
+                ', ',
+                array_map(
+                    function ($item): string {
+                        return self::getValueToString($item);
+                    },
+                    $value
+                )
+            );
+        }
+
+        return 'null';
     }
 }

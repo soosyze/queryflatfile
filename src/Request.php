@@ -22,20 +22,23 @@ use Queryflatfile\Field\IncrementType;
  * Les requêtes se construisent avec le pattern fluent.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
+ *
+ * @phpstan-import-type RowData from Schema
+ * @phpstan-import-type TableData from Schema
  */
 class Request extends RequestHandler
 {
     /**
-     * Toutes les configurations du schéma des champs utilisés.
+     * Tous les champs utilisés.
      *
-     * @var array<Field>
+     * @var Field[]
      */
-    private $allColumnsSchema;
+    private $allFieldsSchema;
 
     /**
      * Les données de la table.
      *
-     * @var array
+     * @var TableData
      */
     private $tableData = [];
 
@@ -90,7 +93,7 @@ class Request extends RequestHandler
         if ($this->where) {
             $output .= sprintf('WHERE %s ', (string) $this->where);
         }
-        foreach ($this->union as $union) {
+        foreach ($this->unions as $union) {
             $type = $union[ 'type' ] === self::UNION_SIMPLE ? 'UNION' : 'UNION ALL';
             $subRequest = trim((string) $union[ 'request' ], ';');
             $output .= sprintf('%s %s ', $type, $subRequest);
@@ -133,23 +136,23 @@ class Request extends RequestHandler
     /**
      * Lit les données d'une table.
      *
-     * @param string $name Nom de la table.
+     * @param string $tableName Nom de la table.
      *
      * @return array Données de la table.
      */
-    public function getTableData(string $name): array
+    public function getTableData(string $tableName): array
     {
-        return $this->schema->read($name);
+        return $this->schema->read($tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function from(string $table): self
+    public function from(string $tableName): self
     {
-        parent::from($table);
-        $this->table     = $this->schema->getTableSchema($table);
-        $this->tableData = $this->getTableData($table);
+        parent::from($tableName);
+        $this->table     = $this->schema->getTableSchema($tableName);
+        $this->tableData = $this->getTableData($tableName);
 
         return $this;
     }
@@ -162,7 +165,7 @@ class Request extends RequestHandler
     public function execute(): void
     {
         $this->filterFrom();
-        $this->loadAllColumnsSchema();
+        $this->loadAllFieldsSchema();
         $this->filterSelect();
         $this->filterWhere();
 
@@ -183,12 +186,12 @@ class Request extends RequestHandler
     /**
      * Retourne tous les résultats de la requête.
      *
-     * @return array les données
+     * @return TableData les données
      */
     public function fetchAll(): array
     {
         $this->filterFrom();
-        $this->loadAllColumnsSchema();
+        $this->loadAllFieldsSchema();
         $this->filterSelect();
         $this->filterWhere();
         $this->filterUnion();
@@ -209,7 +212,7 @@ class Request extends RequestHandler
             $this->executeJoins($value[ 'type' ], $value[ 'table' ], $value[ 'where' ]);
         }
 
-        $limitHandel = $this->orderBy || $this->union;
+        $limitHandel = $this->orderBy || $this->unions;
         foreach ($this->tableData as $row) {
             /* WHERE */
             if ($this->where && !$this->where->execute($row)) {
@@ -233,7 +236,7 @@ class Request extends RequestHandler
         }
 
         /* UNION */
-        foreach ($this->union as $union) {
+        foreach ($this->unions as $union) {
             /* Si le retour est demandé en liste. */
             $fetchAll = $union[ 'request' ]->fetchAll();
 
@@ -268,7 +271,7 @@ class Request extends RequestHandler
     /**
      * Retourne le premier résultat de la requête.
      *
-     * @return array Résultat de la requête.
+     * @return RowData Résultat de la requête.
      */
     public function fetch(): array
     {
@@ -283,18 +286,18 @@ class Request extends RequestHandler
      * Retourne les résultats de la requête sous forme de tableau simple,
      * composé uniquement du champ passé en paramètre ou du premier champ sélectionné.
      *
-     * @param string      $name Nom du champ.
-     * @param string|null $key  Clé des valeurs de la liste
+     * @param string      $columnName Nom du champ.
+     * @param string|null $key        Clé des valeurs de la liste
      *
      * @throws ColumnsNotFoundException
      *
-     * @return array Liste du champ passé en paramètre.
+     * @return array<null|scalar> Liste du champ passé en paramètre.
      */
-    public function lists(string $name, ?string $key = null): array
+    public function lists(string $columnName, ?string $key = null): array
     {
         $data = $this->fetchAll();
 
-        return array_column($data, $name, $key);
+        return array_column($data, $columnName, $key);
     }
 
     /**
@@ -303,10 +306,10 @@ class Request extends RequestHandler
     public function init(): self
     {
         parent::init();
-        $this->allColumnsSchema = [];
-        $this->execute          = null;
-        $this->tableData        = [];
-        $this->where            = null;
+        $this->allFieldsSchema = [];
+        $this->execute         = null;
+        $this->tableData       = [];
+        $this->where           = null;
 
         return $this;
     }
@@ -337,21 +340,21 @@ class Request extends RequestHandler
      * Execute les jointures.
      *
      * @param string $type
-     * @param string $table
+     * @param string $tableName
      * @param Where  $where
      *
      * @return void
      */
-    protected function executeJoins(string $type, string $table, Where $where): void
+    protected function executeJoins(string $type, string $tableName, Where $where): void
     {
         $result       = [];
-        $rowTableNull = $this->getRowTableNull($table);
+        $rowTableNull = $this->getRowTableNull($tableName);
         $left         = $type === self::JOIN_LEFT;
         $tableData    = $left
             ? $this->tableData
-            : $this->getTableData($table);
+            : $this->getTableData($tableName);
         $tableJoin    = $left
-            ? $this->getTableData($table)
+            ? $this->getTableData($tableName)
             : $this->tableData;
 
         foreach ($tableData as $row) {
@@ -505,7 +508,7 @@ class Request extends RequestHandler
             if ($this->where && !$this->where->execute($row)) {
                 continue;
             }
-            $row = array_merge($row, $this->values);
+            $row = array_merge($row, $this->values[0]);
         }
         unset($row);
     }
@@ -529,13 +532,13 @@ class Request extends RequestHandler
     /**
      * Charge les colonnes de la table courante et des tables de jointure.
      */
-    private function loadAllColumnsSchema(): void
+    private function loadAllFieldsSchema(): void
     {
-        $this->allColumnsSchema = $this->table->getFields();
+        $this->allFieldsSchema = $this->table->getFields();
 
         foreach ($this->joins as $value) {
-            $this->allColumnsSchema = array_merge(
-                $this->allColumnsSchema,
+            $this->allFieldsSchema = array_merge(
+                $this->allFieldsSchema,
                 $this->schema->getTableSchema($value[ 'table' ])->getFields()
             );
         }
@@ -631,16 +634,18 @@ class Request extends RequestHandler
     private function filterUnion(): void
     {
         $count = count($this->columns);
-        foreach ($this->union as $request) {
-            if ($count != count($request[ 'request' ]->columns)) {
-                throw new ColumnsNotFoundException(
-                    sprintf(
-                        'The number of fields in the selections are different: %s != %s',
-                        implode(', ', $this->columns),
-                        implode(', ', $request[ 'request' ]->columns)
-                    )
-                );
+        foreach ($this->unions as $union) {
+            if ($count === count($union[ 'request' ]->getColumns())) {
+                continue;
             }
+
+            throw new ColumnsNotFoundException(
+                sprintf(
+                    'The number of fields in the selections are different: %s != %s',
+                    implode(', ', $this->columns),
+                    implode(', ', $union[ 'request' ]->getColumns())
+                )
+            );
         }
     }
 
@@ -648,7 +653,7 @@ class Request extends RequestHandler
      * Déclenche une exception si l'un des champs passés en paramètre diffère
      * des champs disponibles dans les tables.
      *
-     * @param array $columns Liste des champs.
+     * @param string[] $columns Liste des champs.
      *
      * @throws ColumnsNotFoundException
      */
@@ -656,7 +661,7 @@ class Request extends RequestHandler
     {
         $diff = array_diff_key(
             array_flip($columns),
-            $this->allColumnsSchema
+            $this->allFieldsSchema
         );
 
         if ($diff) {
@@ -677,12 +682,12 @@ class Request extends RequestHandler
      * Si des champs existent dans le schéma ils seront rajouté. Fonction utilisée
      * pour les jointures en cas d'absence de résultat.
      *
-     * @param string $table Nom de la table.
+     * @param string $tableName Nom de la table.
      */
-    private function getRowTableNull(string $table): array
+    private function getRowTableNull(string $tableName): array
     {
         /* Prend les noms des champs de la table à joindre. */
-        $rowTableKey = $this->schema->getTableSchema($table)->getFieldsName();
+        $rowTableKey = $this->schema->getTableSchema($tableName)->getFieldsName();
         /* Prend les noms des champs dans la requête précédente. */
         if ($this->table->getFields() !== []) {
             $rowTableAllKey = $this->table->getFieldsName();

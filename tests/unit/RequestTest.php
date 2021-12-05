@@ -563,6 +563,22 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function testWhereEqualsNull(): void
+    {
+        $data = $this->request
+            ->from('user')
+            ->where('firstname', '===', null);
+
+        self::assertEquals(
+            'SELECT * FROM user WHERE firstname === null;',
+            (string) $data
+        );
+        self::assertEquals(
+            [ 'id' => 6, 'name' => 'ROBERT', 'firstname' => null ],
+            $data->fetch()
+        );
+    }
+
     public function testWhereIsNotNull(): void
     {
         $data = $this->request
@@ -676,7 +692,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         // LIKE
         yield [
             'like', 'DUP%',
-            'SELECT id, name FROM user WHERE name LIKE /^DUP.*$/;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^DUP.*$/\';',
             [
                 [ 'id' => 1, 'name' => 'DUPOND' ],
                 [ 'id' => 4, 'name' => 'DUPOND' ]
@@ -684,24 +700,24 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             'like', '%TI%',
-            'SELECT id, name FROM user WHERE name LIKE /^.*TI.*$/;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^.*TI.*$/\';',
             [
                 [ 'id' => 2, 'name' => 'MARTIN' ]
             ]
         ];
         yield [
             'like', 'OND',
-            'SELECT id, name FROM user WHERE name LIKE /^OND$/;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^OND$/\';',
             []
         ];
         yield [
             'like', 'OND%',
-            'SELECT id, name FROM user WHERE name LIKE /^OND.*$/;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^OND.*$/\';',
             []
         ];
         yield [
             'like', '%OND',
-            'SELECT id, name FROM user WHERE name LIKE /^.*OND$/;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^.*OND$/\';',
             [
                 [ 'id' => 1, 'name' => 'DUPOND' ],
                 [ 'id' => 4, 'name' => 'DUPOND' ]
@@ -709,7 +725,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             'like', '%OND%',
-            'SELECT id, name FROM user WHERE name LIKE /^.*OND.*$/;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^.*OND.*$/\';',
             [
                 [ 'id' => 1, 'name' => 'DUPOND' ],
                 [ 'id' => 4, 'name' => 'DUPOND' ]
@@ -719,7 +735,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         // ILIKE
         yield [
             'ilike', 'Dup%',
-            'SELECT id, name FROM user WHERE name LIKE /^Dup.*$/i;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^Dup.*$/i\';',
             [
                 [ 'id' => 1, 'name' => 'DUPOND' ],
                 [ 'id' => 4, 'name' => 'DUPOND' ]
@@ -727,7 +743,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             'ilike', '%OnD',
-            'SELECT id, name FROM user WHERE name LIKE /^.*OnD$/i;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^.*OnD$/i\';',
             [
                 [ 'id' => 1, 'name' => 'DUPOND' ],
                 [ 'id' => 4, 'name' => 'DUPOND' ]
@@ -735,7 +751,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             'ilike', '%ti%',
-            'SELECT id, name FROM user WHERE name LIKE /^.*ti.*$/i;',
+            'SELECT id, name FROM user WHERE name LIKE \'/^.*ti.*$/i\';',
             [
                 [ 'id' => 2, 'name' => 'MARTIN' ]
             ]
@@ -744,7 +760,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         // NOT LIKE
         yield [
             'not like', 'DUP%',
-            'SELECT id, name FROM user WHERE name NOT LIKE /^DUP.*$/;',
+            'SELECT id, name FROM user WHERE name NOT LIKE \'/^DUP.*$/\';',
             [
                 [ 'id' => 0, 'name' => 'NOEL' ],
                 [ 'id' => 2, 'name' => 'MARTIN' ],
@@ -754,7 +770,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             'not like', '%OND',
-            'SELECT id, name FROM user WHERE name NOT LIKE /^.*OND$/;',
+            'SELECT id, name FROM user WHERE name NOT LIKE \'/^.*OND$/\';',
             [
                 [ 'id' => 0, 'name' => 'NOEL' ],
                 [ 'id' => 2, 'name' => 'MARTIN' ],
@@ -764,7 +780,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             'not like', '%E%',
-            'SELECT id, name FROM user WHERE name NOT LIKE /^.*E.*$/;',
+            'SELECT id, name FROM user WHERE name NOT LIKE \'/^.*E.*$/\';',
             [
                 [ 'id' => 1, 'name' => 'DUPOND' ],
                 [ 'id' => 2, 'name' => 'MARTIN' ],
@@ -775,7 +791,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         // NOT ILIKE
         yield [
             'not ilike', 'DuP%',
-            'SELECT id, name FROM user WHERE name NOT LIKE /^DuP.*$/i;',
+            'SELECT id, name FROM user WHERE name NOT LIKE \'/^DuP.*$/i\';',
             [
                 [ 'id' => 0, 'name' => 'NOEL' ],
                 [ 'id' => 2, 'name' => 'MARTIN' ],
@@ -785,7 +801,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             'not ilike', '%D',
-            'SELECT id, name FROM user WHERE name NOT LIKE /^.*D$/i;',
+            'SELECT id, name FROM user WHERE name NOT LIKE \'/^.*D$/i\';',
             [
                 [ 'id' => 0, 'name' => 'NOEL' ],
                 [ 'id' => 2, 'name' => 'MARTIN' ],
@@ -795,7 +811,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         yield [
             'not ilike', '%E%',
-            'SELECT id, name FROM user WHERE name NOT LIKE /^.*E.*$/i;',
+            'SELECT id, name FROM user WHERE name NOT LIKE \'/^.*E.*$/i\';',
             [
                 [ 'id' => 1, 'name' => 'DUPOND' ],
                 [ 'id' => 2, 'name' => 'MARTIN' ],
@@ -810,7 +826,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->regex('name', '/^D/');
 
-        self::assertEquals('SELECT * FROM user WHERE name REGEX /^D/;', (string) $data);
+        self::assertEquals('SELECT * FROM user WHERE name REGEX \'/^D/\';', (string) $data);
         self::assertEquals(
             [
                 [ 'id' => 1, 'name' => 'DUPOND', 'firstname' => 'Jean' ],
@@ -826,7 +842,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->from('user')
             ->notRegex('name', '/^D/');
 
-        self::assertEquals('SELECT * FROM user WHERE name NOT REGEX /^D/;', (string) $data);
+        self::assertEquals('SELECT * FROM user WHERE name NOT REGEX \'/^D/\';', (string) $data);
         self::assertEquals(
             [
                 [ 'id' => 0, 'name' => 'NOEL', 'firstname' => 'Mathieu' ],
@@ -846,7 +862,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orNotRegex('firstname', '/^M/');
 
         self::assertEquals(
-            'SELECT * FROM user WHERE name REGEX /^D/ OR firstname NOT REGEX /^M/;',
+            'SELECT * FROM user WHERE name REGEX \'/^D/\' OR firstname NOT REGEX \'/^M/\';',
             (string) $data
         );
         self::assertEquals(
@@ -867,7 +883,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orRegex('name', '/^N/');
 
         self::assertEquals(
-            'SELECT * FROM user WHERE name REGEX /^D/ OR name REGEX /^N/;',
+            'SELECT * FROM user WHERE name REGEX \'/^D/\' OR name REGEX \'/^N/\';',
             (string) $data
         );
         self::assertEquals(
@@ -883,7 +899,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testWhereRegexExceptionColumns(): void
     {
         $this->expectException(ColumnsNotFoundException::class);
-        $this->expectExceptionMessage('Column foo is absent: SELECT * FROM user WHERE foo REGEX /^D/ LIMIT 1;');
+        $this->expectExceptionMessage('Column foo is absent: SELECT * FROM user WHERE foo REGEX \'/^D/\' LIMIT 1;');
         $this->request
             ->from('user')
             ->regex('foo', '/^D/')
