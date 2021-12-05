@@ -25,6 +25,9 @@ use Queryflatfile\Field\RenameType;
  * Pattern fluent pour la gestion d'un schéma de données.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
+ *
+ * @phpstan-type RowData array<string, null|scalar>
+ * @phpstan-type TableData RowData[]
  */
 class Schema
 {
@@ -135,7 +138,7 @@ class Schema
     /**
      * Modifie la valeur incrémentale d'une table.
      *
-     * @param string $table     Nom de la table.
+     * @param string $tableName Nom de la table.
      * @param int    $increment Nouvelle valeur incrémentale.
      *
      * @throws TableNotFoundException
@@ -143,19 +146,19 @@ class Schema
      *
      * @return bool Si le schéma d'incrémentaion est bien enregistré.
      */
-    public function setIncrement(string $table, int $increment): bool
+    public function setIncrement(string $tableName, int $increment): bool
     {
-        if (!$this->hasTable($table)) {
-            throw new TableNotFoundException($table);
+        if (!$this->hasTable($tableName)) {
+            throw new TableNotFoundException($tableName);
         }
 
-        if (!$this->schema[ $table ]->hasIncrement()) {
+        if (!$this->schema[ $tableName ]->hasIncrement()) {
             throw new Exception(
-                sprintf('Table %s does not have an incremental value.', $table)
+                sprintf('Table %s does not have an incremental value.', $tableName)
             );
         }
 
-        $this->schema[ $table ]->setIncrement($increment);
+        $this->schema[ $tableName ]->setIncrement($increment);
 
         return $this->save($this->name, $this->toArray());
     }
@@ -163,26 +166,26 @@ class Schema
     /**
      * Retourne la valeur incrémentale d'une table.
      *
-     * @param string $table Nom de la table.
+     * @param string $tableName Nom de la table.
      *
      * @throws TableNotFoundException
      * @throws Exception
      *
      * @return int
      */
-    public function getIncrement(string $table): int
+    public function getIncrement(string $tableName): int
     {
-        if (!$this->hasTable($table)) {
-            throw new TableNotFoundException($table);
+        if (!$this->hasTable($tableName)) {
+            throw new TableNotFoundException($tableName);
         }
 
-        if ($this->schema[ $table ]->getIncrement() === null) {
+        if ($this->schema[ $tableName ]->getIncrement() === null) {
             throw new Exception(
-                sprintf('Table %s does not have an incremental value.', $table)
+                sprintf('Table %s does not have an incremental value.', $tableName)
             );
         }
 
-        return $this->schema[ $table ]->getIncrement();
+        return $this->schema[ $tableName ]->getIncrement();
     }
 
     /**
@@ -209,19 +212,19 @@ class Schema
     /**
      * Cherche le schéma de la table passée en paramètre.
      *
-     * @param string $table Nom de la table.
+     * @param string $tableName Nom de la table.
      *
      * @throws TableNotFoundException
      *
      * @return Table Schéma de la table.
      */
-    public function getTableSchema(string $table): Table
+    public function getTableSchema(string $tableName): Table
     {
-        if (!$this->hasTable($table)) {
-            throw new TableNotFoundException($table);
+        if (!$this->hasTable($tableName)) {
+            throw new TableNotFoundException($tableName);
         }
 
-        return $this->getSchema()[ $table ];
+        return $this->getSchema()[ $tableName ];
     }
 
     /**
@@ -234,8 +237,8 @@ class Schema
         $schema = $this->getSchema();
 
         /* Supprime les fichiers des tables. */
-        foreach (array_keys($schema) as $table) {
-            $this->delete($table);
+        foreach (array_keys($schema) as $tableName) {
+            $this->delete($tableName);
         }
 
         /* Supprime le fichier de schéma. */
@@ -257,23 +260,23 @@ class Schema
     /**
      * Créer une référence dans le schéma et le fichier de la table.
      *
-     * @param string        $table    Nom de la table.
-     * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
+     * @param string        $tableName Nom de la table.
+     * @param callable|null $callback  fonction(TableBuilder $tableName) pour créer les champs.
      *
      * @throws Exception
      *
      * @return $this
      */
-    public function createTable(string $table, ?callable $callback = null): self
+    public function createTable(string $tableName, ?callable $callback = null): self
     {
-        if ($this->hasTable($table)) {
-            throw new Exception(sprintf('Table %s exist.', $table));
+        if ($this->hasTable($tableName)) {
+            throw new Exception(sprintf('Table %s exist.', $tableName));
         }
 
-        $this->schema[ $table ] = self::tableBuilder($table, $callback)->getTable();
+        $this->schema[ $tableName ] = self::tableBuilder($tableName, $callback)->getTable();
 
         $this->save($this->name, $this->toArray());
-        $this->create($table);
+        $this->create($tableName);
 
         return $this;
     }
@@ -281,19 +284,19 @@ class Schema
     /**
      * Créer une référence dans le schéma et un fichier de données si ceux si n'existe pas.
      *
-     * @param string        $table    Nom de la table.
-     * @param callable|null $callback fonction(TableBuilder $table) pour créer les champs.
+     * @param string        $tableName Nom de la table.
+     * @param callable|null $callback  fonction(TableBuilder $table) pour créer les champs.
      *
      * @return $this
      */
-    public function createTableIfNotExists(string $table, ?callable $callback = null): self
+    public function createTableIfNotExists(string $tableName, ?callable $callback = null): self
     {
         /* Créer la table si elle n'existe pas dans le schéma. */
-        if (!$this->hasTable($table)) {
-            $this->createTable($table, $callback);
-        } elseif (!$this->driver->has($this->root . $this->path, $table)) {
+        if (!$this->hasTable($tableName)) {
+            $this->createTable($tableName, $callback);
+        } elseif (!$this->driver->has($this->root . $this->path, $tableName)) {
             /* Si elle existe dans le schéma et que le fichier est absent alors on le créer. */
-            $this->create($table);
+            $this->create($tableName);
         }
 
         return $this;
@@ -302,16 +305,16 @@ class Schema
     /**
      * Modifie les champs du schéma de données.
      *
-     * @param string   $table    Nom de la table.
-     * @param callable $callback fonction(TableAleter $tableAlter) pour manipuler les champs.
+     * @param string   $tableName Nom de la table.
+     * @param callable $callback  fonction(TableAleter $tableAlter) pour manipuler les champs.
      *
      * @return $this
      */
-    public function alterTable(string $table, callable $callback): self
+    public function alterTable(string $tableName, callable $callback): self
     {
-        $tableSchema  = $this->getTableSchema($table);
-        $tableBuilder = self::tableAlterBuilder($table, $callback)->getTable();
-        $tableData    = $this->read($table);
+        $tableSchema  = $this->getTableSchema($tableName);
+        $tableBuilder = self::tableAlterBuilder($tableName, $callback)->getTable();
+        $tableData    = $this->read($tableName);
 
         foreach ($tableBuilder->getFields() as $field) {
             if ($field->getOpt() === Field::OPT_CREATE) {
@@ -329,9 +332,9 @@ class Schema
             }
         }
 
-        $this->schema[ $table ] = $tableSchema;
+        $this->schema[ $tableName ] = $tableSchema;
         $this->save($this->name, $this->toArray());
-        $this->save($table, $tableData);
+        $this->save($tableName, $tableData);
 
         return $this;
     }
@@ -339,52 +342,52 @@ class Schema
     /**
      * Détermine une table existe.
      *
-     * @param string $table Nom de la table.
+     * @param string $tableName Nom de la table.
      *
      * @return bool Si le schéma de référence et le fichier de données existent.
      */
-    public function hasTable(string $table): bool
+    public function hasTable(string $tableName): bool
     {
-        return isset($this->getSchema()[ $table ]) && $this->driver->has($this->root . $this->path, $table);
+        return isset($this->getSchema()[ $tableName ]) && $this->driver->has($this->root . $this->path, $tableName);
     }
 
     /**
      * Détermine si une colonne existe.
      *
-     * @param string $table  Nom de la table.
-     * @param string $column Nom de la colonne.
+     * @param string $tableName Nom de la table.
+     * @param string $column    Nom de la colonne.
      *
      * @return bool Si le schéma de référence et le fichier de données existent.
      */
-    public function hasColumn(string $table, string $column): bool
+    public function hasColumn(string $tableName, string $column): bool
     {
-        return isset($this->getSchema()[ $table ]) &&
-            $this->getSchema()[ $table ]->hasField($column) &&
-            $this->driver->has($this->root . $this->path, $table);
+        return isset($this->getSchema()[ $tableName ]) &&
+            $this->getSchema()[ $tableName ]->hasField($column) &&
+            $this->driver->has($this->root . $this->path, $tableName);
     }
 
     /**
      * Vide la table et initialise les champs incrémentaux.
      *
-     * @param String $table Nom de la table.
+     * @param String $tableName Nom de la table.
      *
      * @throws TableNotFoundException
      *
      * @return bool
      */
-    public function truncateTable(string $table): bool
+    public function truncateTable(string $tableName): bool
     {
-        if (!$this->hasTable($table)) {
-            throw new TableNotFoundException($table);
+        if (!$this->hasTable($tableName)) {
+            throw new TableNotFoundException($tableName);
         }
 
         $deleteSchema = true;
-        if ($this->schema[ $table ]->hasIncrement()) {
-            $this->schema[ $table ]->setIncrement(0);
+        if ($this->schema[ $tableName ]->hasIncrement()) {
+            $this->schema[ $tableName ]->setIncrement(0);
 
             $deleteSchema = $this->save($this->name, $this->toArray());
         }
-        $deleteData = $this->save($table, []);
+        $deleteData = $this->save($tableName, []);
 
         return $deleteSchema && $deleteData;
     }
@@ -392,20 +395,20 @@ class Schema
     /**
      * Supprime du schéma la référence de la table et son fichier de données.
      *
-     * @param string $table Nom de la table.
+     * @param string $tableName Nom de la table.
      *
      * @throws TableNotFoundException
      *
      * @return bool Si la suppression du schema et des données se son bien passé.
      */
-    public function dropTable(string $table): bool
+    public function dropTable(string $tableName): bool
     {
-        if (!$this->hasTable($table)) {
-            throw new TableNotFoundException($table);
+        if (!$this->hasTable($tableName)) {
+            throw new TableNotFoundException($tableName);
         }
 
-        unset($this->schema[ $table ]);
-        $deleteData   = $this->delete($table);
+        unset($this->schema[ $tableName ]);
+        $deleteData   = $this->delete($tableName);
         $deleteSchema = $this->save($this->name, $this->toArray());
 
         return $deleteSchema && $deleteData;
@@ -414,13 +417,13 @@ class Schema
     /**
      * Supprime une table si elle existe.
      *
-     * @param string $table Nom de la table.
+     * @param string $tableName Nom de la table.
      *
      * @return bool Si la table n'existe plus.
      */
-    public function dropTableIfExists(string $table): bool
+    public function dropTableIfExists(string $tableName): bool
     {
-        return $this->hasTable($table) && $this->dropTable($table);
+        return $this->hasTable($tableName) && $this->dropTable($tableName);
     }
 
     /**
@@ -486,9 +489,9 @@ class Schema
     /**
      * Ajoute un champ dans les paramètre de la table et ses données.
      *
-     * @param Table $table     Schéma de la table.
-     * @param Field $field     Nouveau champ.
-     * @param array $tableData Les données de la table.
+     * @param Table     $table     Schéma de la table.
+     * @param Field     $field     Nouveau champ.
+     * @param TableData $tableData Les données de la table.
      *
      * @return void
      */
@@ -505,7 +508,7 @@ class Schema
 
         try {
             $valueDefault = $field->getValueDefault();
-        } catch (ColumnsValueException|\InvalidArgumentException $e) {
+        } catch (ColumnsValueException | \InvalidArgumentException $e) {
             $valueDefault = '';
         }
 
@@ -602,14 +605,14 @@ class Schema
     /**
      * Passe en premier paramètre d'une fonction anonyme un objet TableBuilder et le retourne.
      *
-     * @param string   $table    Nom de la table.
-     * @param callable $callback Fonction anonyme.
+     * @param string   $tableName Nom de la table.
+     * @param callable $callback  Fonction anonyme.
      *
      * @return TableBuilder
      */
-    protected static function tableAlterBuilder(string $table, callable $callback): TableBuilder
+    protected static function tableAlterBuilder(string $tableName, callable $callback): TableBuilder
     {
-        $builder = new TableAlter($table);
+        $builder = new TableAlter($tableName);
         call_user_func_array($callback, [ &$builder ]);
 
         return $builder;
@@ -618,14 +621,14 @@ class Schema
     /**
      * Passe en premier paramètre d'une fonction anonyme un objet TableBuilder et le retourne.
      *
-     * @param string        $table    Nom de la table.
-     * @param callable|null $callback Fonction anonyme.
+     * @param string        $tableName Nom de la table.
+     * @param callable|null $callback  Fonction anonyme.
      *
      * @return TableBuilder
      */
-    protected static function tableBuilder(string $table, ?callable $callback = null): TableBuilder
+    protected static function tableBuilder(string $tableName, ?callable $callback = null): TableBuilder
     {
-        $builder = new TableBuilder($table);
+        $builder = new TableBuilder($tableName);
         if ($callback !== null) {
             call_user_func_array($callback, [ &$builder ]);
         }
@@ -762,8 +765,8 @@ class Schema
     private function toArray(): array
     {
         $tables = [];
-        foreach ($this->schema as $name => $table) {
-            $tables[ $name ] = $table->toArray();
+        foreach ($this->schema as $tableName => $table) {
+            $tables[ $tableName ] = $table->toArray();
         }
 
         return $tables;

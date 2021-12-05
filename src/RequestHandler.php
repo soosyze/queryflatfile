@@ -46,6 +46,11 @@ use BadMethodCallException;
  * @method Request notWhereGroup(\Closure $callable)   Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orWhereGroup(\Closure $callable)    Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request orNotWhereGroup(\Closure $callable) Alias de la fonction de l'objet Queryflatfile\Where
+ *
+ * @phpstan-import-type TableData from Schema
+ *
+ * @phpstan-type Join array{type: string, table: string, where: Where}
+ * @phpstan-type Union array{request: RequestInterface, type: string}
  */
 abstract class RequestHandler implements RequestInterface
 {
@@ -56,11 +61,21 @@ abstract class RequestHandler implements RequestInterface
     protected const DELETE = 'delete';
 
     /**
+     * La valeur pour une union simple.
+     */
+    protected const UNION_SIMPLE = 'simple';
+
+    /**
+     * La valeur pour une union totale.
+     */
+    protected const UNION_ALL = 'all';
+
+    /**
      * Le type d'exécution (delete|update|insert).
      *
      * @var string|null
      */
-    protected $execute;
+    protected $execute = null;
 
     /**
      * Le nom de la table courante.
@@ -72,21 +87,21 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Les jointures à calculer.
      *
-     * @var array
+     * @var Join[]
      */
     protected $joins = [];
 
     /**
      * Les unions.
      *
-     * @var array
+     * @var Union[]
      */
-    protected $union = [];
+    protected $unions = [];
 
     /**
      * Les colonnes à trier.
      *
-     * @var array
+     * @var array<string, int>
      */
     protected $orderBy = [];
 
@@ -121,7 +136,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Les valeurs à insérer ou mettre à jour.
      *
-     * @var array
+     * @var TableData
      */
     protected $values = [];
 
@@ -171,9 +186,9 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function from(string $table)
+    public function from(string $tableName)
     {
-        $this->from = $table;
+        $this->from = $tableName;
 
         return $this;
     }
@@ -181,10 +196,18 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function insertInto(string $table, array $columns)
+    public function getColumns(): array
+    {
+        return $this->columns;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function insertInto(string $tableName, array $columns)
     {
         $this->execute = self::INSERT;
-        $this->from($table)->select(...$columns);
+        $this->from($tableName)->select(...$columns);
 
         return $this;
     }
@@ -192,14 +215,14 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function leftJoin(string $table, $column, string $operator = '', $value = null)
+    public function leftJoin(string $tableName, $column, string $operator = '', string $value ='')
     {
         if ($column instanceof \Closure) {
-            $this->joinGroup(self::JOIN_LEFT, $table, $column);
+            $this->joinGroup(self::JOIN_LEFT, $tableName, $column);
 
             return $this;
         }
-        $this->join(self::JOIN_LEFT, $table, $column, $operator, $value);
+        $this->join(self::JOIN_LEFT, $tableName, $column, $operator, $value);
 
         return $this;
     }
@@ -219,9 +242,9 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function orderBy(string $columns, int $order = SORT_ASC)
+    public function orderBy(string $column, int $order = SORT_ASC)
     {
-        $this->orderBy[ $columns ] = $order;
+        $this->orderBy[ $column ] = $order;
 
         return $this;
     }
@@ -229,14 +252,14 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function rightJoin(string $table, $column, string $operator = '', $value = null)
+    public function rightJoin(string $tableName, $column, string $operator = '', string $value = '')
     {
         if ($column instanceof \Closure) {
-            $this->joinGroup(self::JOIN_RIGHT, $table, $column);
+            $this->joinGroup(self::JOIN_RIGHT, $tableName, $column);
 
             return $this;
         }
-        $this->join(self::JOIN_RIGHT, $table, $column, $operator, $value);
+        $this->join(self::JOIN_RIGHT, $tableName, $column, $operator, $value);
 
         return $this;
     }
@@ -256,9 +279,9 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function union(RequestInterface $request, string $type = self::UNION_SIMPLE)
+    public function union(RequestInterface $request)
     {
-        $this->union[] = compact('request', 'type');
+        $this->unions[] = [ 'request' => $request, 'type' => self::UNION_SIMPLE ];
 
         return $this;
     }
@@ -268,17 +291,19 @@ abstract class RequestHandler implements RequestInterface
      */
     public function unionAll(RequestInterface $request)
     {
-        return $this->union($request, self::UNION_ALL);
+        $this->unions[] = [ 'request' => $request, 'type' => self::UNION_ALL ];
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function update(string $table, array $columns)
+    public function update(string $tableName, array $columns)
     {
-        $this->execute = self::UPDATE;
-        $this->from($table)->select(...array_keys($columns));
-        $this->values  = $columns;
+        $this->execute   = self::UPDATE;
+        $this->from($tableName)->select(...array_keys($columns));
+        $this->values[ 0 ] = $columns;
 
         return $this;
     }
@@ -308,7 +333,7 @@ abstract class RequestHandler implements RequestInterface
         $this->offset   = 0;
         $this->orderBy  = [];
         $this->sumLimit = 0;
-        $this->union    = [];
+        $this->unions   = [];
         $this->values   = [];
 
         return $this;
@@ -317,24 +342,32 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Enregistre une jointure.
      *
-     * @param string      $type     Type de la jointure.
-     * @param string      $table    Nom de la table à joindre
-     * @param string      $column   Nom de la colonne d'une des tables précédentes.
-     * @param string      $operator Opérateur logique ou null pour une closure.
-     * @param null|scalar $value    Valeur ou une colonne de la table jointe (au format nom_table.colonne)
+     * @param string $type      Type de la jointure.
+     * @param string $tableName Nom de la table à joindre
+     * @param string $column    Nom de la colonne d'une des tables précédentes.
+     * @param string $operator  Opérateur logique ou null pour une closure.
+     * @param string $value     Valeur ou une colonne de la table jointe (au format nom_table.colonne)
      */
-    private function join(string $type, string $table, string $column, string $operator, $value): void
+    private function join(string $type, string $tableName, string $column, string $operator, string $value): void
     {
-        $where = (new Where())->where($column, $operator, $value);
+        $where = new Where();
+        $where->where($column, $operator, $value);
 
-        $this->joins[] = compact('type', 'table', 'where');
+        $this->joins[] = [ 'type' => $type, 'table' => $tableName, 'where' => $where ];
     }
 
-    private function joinGroup(string $type, string $table, \Closure $callable): void
+    /**
+     * Enregistre une jointure avec une condition groupée.
+     *
+     * @param string   $type      Type de la jointure.
+     * @param string   $tableName Nom de la table à joindre
+     * @param \Closure $callable  Nom de la colonne d'une des tables précédentes.
+     */
+    private function joinGroup(string $type, string $tableName, \Closure $callable): void
     {
         $where = new Where();
         call_user_func_array($callable, [ &$where ]);
 
-        $this->joins[] = compact('type', 'table', 'where');
+        $this->joins[] = [ 'type' => $type, 'table' => $tableName, 'where' => $where ];
     }
 }
