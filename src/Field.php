@@ -17,6 +17,16 @@ use Queryflatfile\Exception\TableBuilder\TableBuilderException;
  * Pattern fluent pour la création et configuration des types de données.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
+ *
+ * @phpstan-type FieldToArray array{
+ *      _comment?: string,
+ *      default?: null|scalar,
+ *      length?: int,
+ *      nullable?: bool,
+ *      opt?: string,
+ *      type: string,
+ *      unsigned?: bool,
+ * }
  */
 abstract class Field
 {
@@ -33,7 +43,7 @@ abstract class Field
     protected const INVALID_ARGUMENT_MESSAGE = 'The value of the %s field must be of type %s: %s given.';
 
     /**
-     * @var bool|null|numeric|string
+     * @var null|scalar
      */
     protected $valueDefault;
 
@@ -92,11 +102,11 @@ abstract class Field
      * Enregistre une valeur par défaut au champ précédent.
      * Lève une exception si la valeur par défaut ne correspond pas au type de valeur passée en paramètre.
      *
-     * @param bool|null|numeric|string $value Valeur à tester.
+     * @param null|scalar $value Valeur à tester.
      *
      * @throws ColumnsValueException
      *
-     * @return bool|null|numeric|string
+     * @return null|scalar
      */
     abstract public function filterValue($value);
 
@@ -104,7 +114,7 @@ abstract class Field
      * Enregistre une valeur par défaut au champ précédent.
      * Lève une exception si la valeur par défaut ne correspond pas au type de valeur passée en paramètre.
      *
-     * @param bool|null|numeric|string $value Valeur à tester.
+     * @param null|scalar $value Valeur à tester.
      *
      * @throws TableBuilderException
      *
@@ -122,7 +132,7 @@ abstract class Field
      *
      * @throws ColumnsValueException
      *
-     * @return bool|null|numeric|string Valeur par defaut.
+     * @return null|scalar Valeur par defaut.
      */
     public function getValueDefault()
     {
@@ -178,14 +188,12 @@ abstract class Field
     /**
      * Retourne les données du champ.
      *
-     * @return array
+     * @return FieldToArray
      */
     public function toArray(): array
     {
-        $data = [];
-        if (static::TYPE !== '') {
-            $data[ 'type' ] = static::TYPE;
-        }
+        $data[ 'type' ] = static::TYPE;
+
         if ($this->isNullable) {
             $data[ 'nullable' ] = $this->isNullable;
         }

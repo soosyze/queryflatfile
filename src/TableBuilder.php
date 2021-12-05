@@ -25,6 +25,8 @@ use Queryflatfile\Field\TextType;
  * Pattern fluent pour la création et configuration des types de données.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
+ *
+ * @phpstan-import-type TableToArray from Table
  */
 class TableBuilder
 {
@@ -194,10 +196,11 @@ class TableBuilder
     /**
      * Créer une table à partir d'un tableau de données.
      *
-     * @param string $table Nom de la table.
-     * @param array  $data  Donnaées pour créer une table.
+     * @param string       $table Nom de la table.
+     * @param TableToArray $data  Donnaées pour créer une table.
      *
      * @throws TableBuilderException
+     *
      * @return Table
      */
     public static function createTableFromArray(string $table, array $data): Table

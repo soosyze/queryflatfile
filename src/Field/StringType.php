@@ -10,8 +10,6 @@ declare(strict_types=1);
 
 namespace Queryflatfile\Field;
 
-use Queryflatfile\Field;
-
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
