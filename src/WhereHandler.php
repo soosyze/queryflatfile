@@ -21,8 +21,8 @@ use Queryflatfile\Exception\Query\QueryException;
  * @phpstan-type Between array{min: numeric|string, max: numeric|string}
  * @phpstan-type WhereToArray array{
  *      bool: string,
- *      column: string,
- *      columns?: array,
+ *      columnName: string,
+ *      columnNames?: array,
  *      condition: string,
  *      not: bool,
  *      type: string,
@@ -62,16 +62,16 @@ class WhereHandler
      * Ajoute une condition simple pour la requête.
      * Si la valeur du champ est égal (non égale, supérieur à, ...)  par rapport à une valeur.
      *
-     * @param string      $column   Nom d'une colonne.
-     * @param string      $operator Type de condition.
-     * @param null|scalar $value    Valeur de teste.
-     * @param string      $bool     Porte logique de la condition (and|or).
-     * @param bool        $not      Inverse la condition.
+     * @param string      $columnName Nom d'une colonne.
+     * @param string      $operator   Type de condition.
+     * @param null|scalar $value      Valeur de teste.
+     * @param string      $bool       Porte logique de la condition (and|or).
+     * @param bool        $not        Inverse la condition.
      *
      * @throws OperatorNotFound The condition is not exist.
      */
     public function where(
-        string $column,
+        string $columnName,
         string $operator,
         $value,
         string $bool = self::EXP_AND,
@@ -84,7 +84,7 @@ class WhereHandler
                 throw new QueryException();
             }
             $this->like(
-                $column,
+                $columnName,
                 $condition,
                 $value,
                 $bool,
@@ -96,7 +96,7 @@ class WhereHandler
 
         $type = __FUNCTION__;
 
-        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
+        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -106,9 +106,9 @@ class WhereHandler
      *
      * @param null|scalar $value Valeur de teste.
      */
-    public function notWhere(string $column, string $operator, $value): self
+    public function notWhere(string $columnName, string $operator, $value): self
     {
-        $this->where($column, $operator, $value, self::EXP_AND, true);
+        $this->where($columnName, $operator, $value, self::EXP_AND, true);
 
         return $this;
     }
@@ -118,9 +118,9 @@ class WhereHandler
      *
      * @param null|scalar $value Valeur de teste.
      */
-    public function orWhere(string $column, string $operator, $value): self
+    public function orWhere(string $columnName, string $operator, $value): self
     {
-        $this->where($column, $operator, $value, self::EXP_OR);
+        $this->where($columnName, $operator, $value, self::EXP_OR);
 
         return $this;
     }
@@ -130,9 +130,9 @@ class WhereHandler
      *
      * @param null|scalar $value Valeur de teste.
      */
-    public function orNotWhere(string $column, string $operator, $value): self
+    public function orNotWhere(string $columnName, string $operator, $value): self
     {
-        $this->where($column, $operator, $value, self::EXP_OR, true);
+        $this->where($columnName, $operator, $value, self::EXP_OR, true);
 
         return $this;
     }
@@ -141,14 +141,14 @@ class WhereHandler
      * Ajoute une condition between à la requête.
      * Si la valeur du champ est compris entre 2 valeurs.
      *
-     * @param string         $column Nom de la colonne.
-     * @param numeric|string $min    Valeur minimum ou égale.
-     * @param numeric|string $max    Valeur maximum ou égale.
-     * @param string         $bool   Porte logique de la condition (and|or).
-     * @param bool           $not    Inverse la condition.
+     * @param string         $columnName Nom de la colonne.
+     * @param numeric|string $min        Valeur minimum ou égale.
+     * @param numeric|string $max        Valeur maximum ou égale.
+     * @param string         $bool       Porte logique de la condition (and|or).
+     * @param bool           $not        Inverse la condition.
      */
     public function between(
-        string $column,
+        string $columnName,
         $min,
         $max,
         string $bool = self::EXP_AND,
@@ -158,7 +158,7 @@ class WhereHandler
         $type      = __FUNCTION__;
         $value     = [ 'min' => $min, 'max' => $max ];
 
-        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
+        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -169,9 +169,9 @@ class WhereHandler
      * @param numeric|string $min Valeur minimum ou égale.
      * @param numeric|string $max Valeur maximum ou égale.
      */
-    public function notBetween(string $column, $min, $max): self
+    public function notBetween(string $columnName, $min, $max): self
     {
-        $this->between($column, $min, $max, self::EXP_AND, true);
+        $this->between($columnName, $min, $max, self::EXP_AND, true);
 
         return $this;
     }
@@ -182,9 +182,9 @@ class WhereHandler
      * @param numeric|string $min Valeur minimum ou égale.
      * @param numeric|string $max Valeur maximum ou égale.
      */
-    public function orBetween(string $column, $min, $max): self
+    public function orBetween(string $columnName, $min, $max): self
     {
-        $this->between($column, $min, $max, self::EXP_OR);
+        $this->between($columnName, $min, $max, self::EXP_OR);
 
         return $this;
     }
@@ -195,9 +195,9 @@ class WhereHandler
      * @param numeric|string $min Valeur minimum ou égale.
      * @param numeric|string $max Valeur maximum ou égale.
      */
-    public function orNotBetween(string $column, $min, $max): self
+    public function orNotBetween(string $columnName, $min, $max): self
     {
-        $this->between($column, $min, $max, self::EXP_OR, true);
+        $this->between($columnName, $min, $max, self::EXP_OR, true);
 
         return $this;
     }
@@ -206,13 +206,13 @@ class WhereHandler
      * Ajoute une condition in à la requête.
      * Si la valeur du champs est contenu dans une liste.
      *
-     * @param string $column Nom de la colonne.
-     * @param array  $value  Valeurs à tester.
-     * @param string $bool   Porte logique de la condition (and|or).
-     * @param bool   $not    Inverse la condition.
+     * @param string $columnName Nom de la colonne.
+     * @param array  $value      Valeurs à tester.
+     * @param string $bool       Porte logique de la condition (and|or).
+     * @param bool   $not        Inverse la condition.
      */
     public function in(
-        string $column,
+        string $columnName,
         array $value,
         string $bool = self::EXP_AND,
         bool $not = false
@@ -220,7 +220,7 @@ class WhereHandler
         $condition = 'in';
         $type      = __FUNCTION__;
 
-        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
+        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -228,9 +228,9 @@ class WhereHandler
     /**
      * Alias inverse de la fonction in().
      */
-    public function notIn(string $column, array $value): self
+    public function notIn(string $columnName, array $value): self
     {
-        $this->in($column, $value, self::EXP_AND, true);
+        $this->in($columnName, $value, self::EXP_AND, true);
 
         return $this;
     }
@@ -238,9 +238,9 @@ class WhereHandler
     /**
      * Alias avec la porte logique 'OR' de la fonction in().
      */
-    public function orIn(string $column, array $value): self
+    public function orIn(string $columnName, array $value): self
     {
-        $this->in($column, $value, self::EXP_OR);
+        $this->in($columnName, $value, self::EXP_OR);
 
         return $this;
     }
@@ -248,9 +248,9 @@ class WhereHandler
     /**
      * Alias inverse avec la porte logique 'OR' de la fonction in().
      */
-    public function orNotIn(string $column, array $value): self
+    public function orNotIn(string $columnName, array $value): self
     {
-        $this->in($column, $value, self::EXP_OR, true);
+        $this->in($columnName, $value, self::EXP_OR, true);
 
         return $this;
     }
@@ -259,12 +259,12 @@ class WhereHandler
      * Ajoute une condition isNull à la requête.
      * Si la valeur du champ est strictement égale à null.
      *
-     * @param string $column Nom de la colonne.
-     * @param string $bool   Porte logique de la condition (and|or).
-     * @param bool   $not    Inverse la condition.
+     * @param string $columnName Nom de la colonne.
+     * @param string $bool       Porte logique de la condition (and|or).
+     * @param bool   $not        Inverse la condition.
      */
     public function isNull(
-        string $column,
+        string $columnName,
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
@@ -272,7 +272,7 @@ class WhereHandler
         $type      = __FUNCTION__;
         $value     = null;
 
-        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
+        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -280,9 +280,9 @@ class WhereHandler
     /**
      * Alias inverse de la fonction isNull().
      */
-    public function isNotNull(string $column): self
+    public function isNotNull(string $columnName): self
     {
-        $this->isNull($column, self::EXP_AND, true);
+        $this->isNull($columnName, self::EXP_AND, true);
 
         return $this;
     }
@@ -290,9 +290,9 @@ class WhereHandler
     /**
      * Alias avec la porte logique 'OR' de la fonction isNull().
      */
-    public function orIsNull(string $column): self
+    public function orIsNull(string $columnName): self
     {
-        $this->isNull($column, self::EXP_OR);
+        $this->isNull($columnName, self::EXP_OR);
 
         return $this;
     }
@@ -300,9 +300,9 @@ class WhereHandler
     /**
      * Alias inverse avec la porte logique 'OR' de la fonction isNull()
      */
-    public function orIsNotNull(string $column): self
+    public function orIsNotNull(string $columnName): self
     {
-        $this->isNull($column, self::EXP_OR, true);
+        $this->isNull($columnName, self::EXP_OR, true);
 
         return $this;
     }
@@ -310,13 +310,13 @@ class WhereHandler
     /**
      * Ajoute une condition avec une expression régulière à la requête.
      *
-     * @param string $column Nom de la colonne.
-     * @param string $value  Expression régulière.
-     * @param string $bool   Porte logique de la condition (and|or).
-     * @param bool   $not    Inverse la condition.
+     * @param string $columnName Nom de la colonne.
+     * @param string $value      Expression régulière.
+     * @param string $bool       Porte logique de la condition (and|or).
+     * @param bool   $not        Inverse la condition.
      */
     public function regex(
-        string $column,
+        string $columnName,
         string $value,
         string $bool = self::EXP_AND,
         bool $not = false
@@ -324,7 +324,7 @@ class WhereHandler
         $condition = 'regex';
         $type      = __FUNCTION__;
 
-        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
+        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
 
         return $this;
     }
@@ -332,9 +332,9 @@ class WhereHandler
     /**
      *  Alias inverse de la fonction regex().
      */
-    public function notRegex(string $column, string $pattern): self
+    public function notRegex(string $columnName, string $pattern): self
     {
-        $this->regex($column, $pattern, self::EXP_AND, true);
+        $this->regex($columnName, $pattern, self::EXP_AND, true);
 
         return $this;
     }
@@ -342,9 +342,9 @@ class WhereHandler
     /**
      *  Alias avec la porte logique 'OR' de la fonction regex().
      */
-    public function orRegex(string $column, string $pattern): self
+    public function orRegex(string $columnName, string $pattern): self
     {
-        $this->regex($column, $pattern, self::EXP_OR);
+        $this->regex($columnName, $pattern, self::EXP_OR);
 
         return $this;
     }
@@ -352,9 +352,9 @@ class WhereHandler
     /**
      *  Alias inverse avec la porte logique 'OR' de la fonction regex()
      */
-    public function orNotRegex(string $column, string $pattern): self
+    public function orNotRegex(string $columnName, string $pattern): self
     {
-        $this->regex($column, $pattern, self::EXP_OR, true);
+        $this->regex($columnName, $pattern, self::EXP_OR, true);
 
         return $this;
     }
@@ -371,13 +371,13 @@ class WhereHandler
         call_user_func_array($callable, [ &$where ]);
 
         $this->where[] = [
-            'type'      => __FUNCTION__,
-            'column'    => '',
-            'columns'   => $where->getColumns(),
-            'condition' => '',
-            'value'     => $where,
-            'bool'      => $bool,
-            'not'       => $not
+            'type'        => __FUNCTION__,
+            'columnName'  => '',
+            'columnNames' => $where->getColumnNames(),
+            'condition'   => '',
+            'value'       => $where,
+            'bool'        => $bool,
+            'not'         => $not
         ];
     }
 
@@ -414,7 +414,7 @@ class WhereHandler
     /**
      * Ajoute une condition like pour la requête.
      *
-     * @param string $column
+     * @param string $columnName
      * @param string $operator
      * @param string $pattern
      * @param string $bool
@@ -423,7 +423,7 @@ class WhereHandler
      * @return void
      */
     protected function like(
-        string $column,
+        string $columnName,
         string $operator,
         string $pattern,
         string $bool = self::EXP_AND,
@@ -443,7 +443,7 @@ class WhereHandler
         $type      = __FUNCTION__;
         $condition = 'regex';
 
-        $this->where[] = compact('bool', 'column', 'condition', 'not', 'type', 'value');
+        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
     }
 
     /**

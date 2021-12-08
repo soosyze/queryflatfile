@@ -18,6 +18,7 @@ use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
 
+ * @phpstan-import-type RowValues from Schema
  * @phpstan-import-type RowData from Schema
  * @phpstan-import-type TableData from Schema
  */
@@ -47,16 +48,16 @@ interface RequestInterface
      * Enregistre les champs sélectionnées par la requête.
      * En cas d'absence de selection, la requêtes retournera toutes les champs.
      *
-     * @param string ...$columns Liste ou tableau des noms des colonnes.
+     * @param string ...$columnNames Liste ou tableau des noms des colonnes.
      *
      * @return $this
      */
-    public function select(string ...$columns);
+    public function select(string ...$columnNames);
 
     /**
      * @return string[]
      */
-    public function getColumns(): array;
+    public function getColumnNames(): array;
 
     /**
      * Enregistre le nom de la source des données principale de la requête.
@@ -71,7 +72,7 @@ interface RequestInterface
      * Enregistre une jointure gauche.
      *
      * @param string          $tableName Nom de la table à joindre.
-     * @param string|\Closure $column    Nom de la colonne d'une des tables précédentes
+     * @param string|\Closure $column    Nom de la colonne d'une des tables précédentes ou un group de condition
      *                                   ou une closure pour affiner les conditions.
      * @param string          $operator  Opérateur logique ou null pour une closure.
      * @param string          $value     Colonne de la table jointe (au format nom_table.colonne)
@@ -84,7 +85,7 @@ interface RequestInterface
      * Enregistre une jointure droite.
      *
      * @param string          $tableName Nom de la table à joindre
-     * @param string|\Closure $column    Nom de la colonne d'une des tables précédentes
+     * @param string|\Closure $column    Nom de la colonne d'une des tables précédentes ou un group de condition
      *                                   ou une closure pour affiner les conditions.
      * @param string          $operator  Opérateur logique ou null pour une closure.
      * @param string          $value     Colonne de la table jointe (au format nom_table.colonne)
@@ -106,46 +107,48 @@ interface RequestInterface
     /**
      * Enregistre un trie des résultats de la requête.
      *
-     * @param string $column Colonne à trier.
-     * @param int    $order  Ordre du trie (SORT_ASC|SORT_DESC).
+     * @param string $columnName Nom de la colonne à trier.
+     * @param int    $order      Ordre du trie (SORT_ASC|SORT_DESC).
      *
      * @return $this
      */
-    public function orderBy(string $column, int $order = SORT_ASC);
+    public function orderBy(string $columnName, int $order = SORT_ASC);
 
     /**
      * Enregistre l'action d'insertion de données.
      * Cette fonction doit-être suivie la fonction values().
      *
-     * @param string   $tableName Nom de la table.
-     * @param string[] $columns   Liste des champs par ordre d'insertion dans
-     *                            la fonction values().
+     * @param string   $tableName   Nom de la table.
+     * @param string[] $columnNames Liste des champs par ordre d'insertion dans
+     *                              la fonction values().
      *
      * @return $this
      */
-    public function insertInto(string $tableName, array $columns);
+    public function insertInto(string $tableName, array $columnNames);
 
     /**
      * Cette fonction doit suivre la fonction insertInto().
      * Les valeurs doivent suivre le même ordre que les clés précédemment enregistrées.
      *
-     * @param array<null|scalar> $columns Valeurs des champs.
+     * @param array $rowValues Valeurs des champs.
+     *
+     * @phpstan-param RowValues $rowValues
      *
      * @return $this
      */
-    public function values(array $columns);
+    public function values(array $rowValues);
 
     /**
      * Enregistre l'action de modification de données.
      *
      * @param string $tableName Nom de la table.
-     * @param array  $columns   key=>value des données à modifier.
+     * @param array  $row       key=>value des données à modifier.
      *
-     * @phpstan-param RowData $columns
+     * @phpstan-param RowData $row
      *
      * @return $this
      */
-    public function update(string $tableName, array $columns);
+    public function update(string $tableName, array $row);
 
     /**
      * Enregistre l'action de suppression des données.
