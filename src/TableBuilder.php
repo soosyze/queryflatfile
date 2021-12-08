@@ -196,8 +196,10 @@ class TableBuilder
     /**
      * Créer une table à partir d'un tableau de données.
      *
-     * @param string       $table Nom de la table.
-     * @param TableToArray $data  Donnaées pour créer une table.
+     * @param string $table Nom de la table.
+     * @param array  $data  Donnaées pour créer une table.
+     *
+     * @phpstan-param TableToArray $data
      *
      * @throws TableBuilderException
      *

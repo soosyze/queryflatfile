@@ -489,9 +489,11 @@ class Schema
     /**
      * Ajoute un champ dans les paramètre de la table et ses données.
      *
-     * @param Table     $table     Schéma de la table.
-     * @param Field     $field     Nouveau champ.
-     * @param TableData $tableData Les données de la table.
+     * @param Table $table     Schéma de la table.
+     * @param Field $field     Nouveau champ.
+     * @param array $tableData Les données de la table.
+     *
+     * @phpstan-param TableData $tableData
      *
      * @return void
      */
