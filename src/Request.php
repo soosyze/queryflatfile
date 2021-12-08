@@ -38,7 +38,9 @@ class Request extends RequestHandler
     /**
      * Les données de la table.
      *
-     * @var TableData
+     * @var array
+     *
+     * @phpstan-var TableData
      */
     private $tableData = [];
 
@@ -186,7 +188,9 @@ class Request extends RequestHandler
     /**
      * Retourne tous les résultats de la requête.
      *
-     * @return TableData les données
+     * @return array les données
+     *
+     * @phpstan-return TableData
      */
     public function fetchAll(): array
     {
@@ -271,7 +275,9 @@ class Request extends RequestHandler
     /**
      * Retourne le premier résultat de la requête.
      *
-     * @return RowData Résultat de la requête.
+     * @return array Résultat de la requête.
+     *
+     * @phpstan-return RowData
      */
     public function fetch(): array
     {

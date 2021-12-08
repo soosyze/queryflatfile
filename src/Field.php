@@ -188,7 +188,9 @@ abstract class Field
     /**
      * Retourne les données du champ.
      *
-     * @return FieldToArray
+     * @return array
+     *
+     * @phpstan-return FieldToArray
      */
     public function toArray(): array
     {
