@@ -118,7 +118,9 @@ final class Table
     /**
      * Retourne les données de la table.
      *
-     * @return TableToArray
+     * @return array
+     *
+     * @phpstan-return TableToArray
      */
     public function toArray(): array
     {

@@ -87,14 +87,18 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Les jointures à calculer.
      *
-     * @var Join[]
+     * @var array
+     *
+     * @phpstan-var Join[]
      */
     protected $joins = [];
 
     /**
      * Les unions.
      *
-     * @var Union[]
+     * @var array
+     *
+     * @phpstan-var Union[]
      */
     protected $unions = [];
 
@@ -136,7 +140,9 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Les valeurs à insérer ou mettre à jour.
      *
-     * @var TableData
+     * @var array
+     *
+     * @phpstan-var TableData
      */
     protected $values = [];
 

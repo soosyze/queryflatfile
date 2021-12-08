@@ -138,8 +138,10 @@ interface RequestInterface
     /**
      * Enregistre l'action de modification de données.
      *
-     * @param string  $tableName Nom de la table.
-     * @param RowData $columns   key=>value des données à modifier.
+     * @param string $tableName Nom de la table.
+     * @param array  $columns   key=>value des données à modifier.
+     *
+     * @phpstan-param RowData $columns
      *
      * @return $this
      */
@@ -175,14 +177,18 @@ interface RequestInterface
     /**
      * Retourne tous les résultats de la requête.
      *
-     * @return TableData les données
+     * @return array les données
+     *
+     * @phpstan-return TableData
      */
     public function fetchAll(): array;
 
     /**
      * Retourne le premier résultat de la requête.
      *
-     * @return RowData Résultat de la requête.
+     * @return array Résultat de la requête.
+     *
+     * @phpstan-return RowData
      */
     public function fetch(): array;
 
