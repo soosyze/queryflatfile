@@ -52,7 +52,9 @@ class WhereHandler
     /**
      * Les conditions à exécuter.
      *
-     * @var WhereToArray[]
+     * @var array
+     *
+     * @phpstan-var WhereToArray[]
      */
     protected $where = [];
 

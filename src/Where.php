@@ -112,7 +112,9 @@ class Where extends WhereHandler
     /**
      * Retourne TRUE si la suite de condition enregistrée valide les champs du tableau.
      *
-     * @param RowData $row Tableau associatif de champ.
+     * @param array $row Tableau associatif de champ.
+     *
+     * @phpstan-param RowData $row
      *
      * @return bool
      */
@@ -152,8 +154,11 @@ class Where extends WhereHandler
      * Retourne TRUE si la suite de condition enregistrée valide les champs du tableau
      * par rapport à un autre tableau.
      *
-     * @param RowData $row      Tableau associatif de champ.
-     * @param RowData $rowTable Tableau associatif de champ à tester.
+     * @param array $row      Tableau associatif de champ.
+     * @param array $rowTable Tableau associatif de champ à tester.
+     *
+     * @phpstan-param RowData $row
+     * @phpstan-param RowData $rowTable
      *
      * @return bool
      */
