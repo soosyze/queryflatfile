@@ -79,7 +79,7 @@ class Request extends RequestHandler
         if ($this->execute) {
             $output .= strtoupper($this->execute) . ' ';
         } else {
-            $output .= sprintf('SELECT %s ', $this->columns ? addslashes(implode(', ', $this->columns)) : '*');
+            $output .= sprintf('SELECT %s ', $this->columnNames ? addslashes(implode(', ', $this->columnNames)) : '*');
         }
         if ($this->from) {
             $output .= sprintf('FROM %s ', addslashes($this->from));
@@ -206,7 +206,7 @@ class Request extends RequestHandler
         /* Le pointeur en cas de limite de résultat. */
         $i      = 0;
 
-        $column = array_flip($this->columns);
+        $columnNameKeys = array_flip($this->columnNames);
 
         /*
          * Exécution des jointures.
@@ -234,8 +234,8 @@ class Request extends RequestHandler
             }
 
             /* SELECT */
-            $return[] = $this->columns
-                ? array_intersect_key($row, $column)
+            $return[] = $this->columnNames
+                ? array_intersect_key($row, $columnNameKeys)
                 : $row;
         }
 
@@ -444,7 +444,7 @@ class Request extends RequestHandler
         $increment = $this->table->getIncrement();
         /* Je charge les colonnes de mon schéma. */
         $fields    = $this->table->getFields();
-        $count     = count($this->columns);
+        $count     = count($this->columnNames);
 
         foreach ($this->values as $values) {
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
@@ -452,19 +452,19 @@ class Request extends RequestHandler
                 throw new ColumnsNotFoundException(
                     sprintf(
                         'The number of fields in the selections are different: %s != %s',
-                        implode(', ', $this->columns),
+                        implode(', ', $this->columnNames),
                         implode(', ', $values)
                     )
                 );
             }
 
             /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
-            $row = array_combine($this->columns, $values);
+            $row = array_combine($this->columnNames, $values);
             if ($row == false) {
                 throw new ColumnsNotFoundException(
                     sprintf(
                         'The number of fields in the selections are different: %s != %s',
-                        implode(', ', $this->columns),
+                        implode(', ', $this->columnNames),
                         implode(', ', $values)
                     )
                 );
@@ -567,8 +567,8 @@ class Request extends RequestHandler
      */
     private function filterSelect(): void
     {
-        if ($this->columns) {
-            $this->diffColumns($this->columns);
+        if ($this->columnNames) {
+            $this->diffColumnNames($this->columnNames);
         }
     }
 
@@ -593,19 +593,19 @@ class Request extends RequestHandler
      */
     private function filterWhere(): void
     {
-        $columns = [];
+        $columnNames = [];
         /* Merge toutes les colonnes des conditions de chaque jointure. */
         foreach ($this->joins as $value) {
-            $columns = array_merge($columns, $value[ 'where' ]->getColumns());
+            $columnNames = array_merge($columnNames, $value[ 'where' ]->getColumnNames());
         }
 
         /* Merge les colonnes des conditions de la requête courante. */
         if ($this->where) {
-            $columns = array_merge($columns, $this->where->getColumns());
+            $columnNames = array_merge($columnNames, $this->where->getColumnNames());
         }
 
-        if ($columns) {
-            $this->diffColumns($columns);
+        if ($columnNames) {
+            $this->diffColumnNames($columnNames);
         }
     }
 
@@ -620,8 +620,8 @@ class Request extends RequestHandler
             return;
         }
 
-        $columns = array_keys($this->orderBy);
-        $this->diffColumns($columns);
+        $columnNames = array_keys($this->orderBy);
+        $this->diffColumnNames($columnNames);
 
         foreach ($this->orderBy as $field => $order) {
             if ($order !== SORT_ASC && $order !== SORT_DESC) {
@@ -639,17 +639,17 @@ class Request extends RequestHandler
      */
     private function filterUnion(): void
     {
-        $count = count($this->columns);
+        $count = count($this->columnNames);
         foreach ($this->unions as $union) {
-            if ($count === count($union[ 'request' ]->getColumns())) {
+            if ($count === count($union[ 'request' ]->getColumnNames())) {
                 continue;
             }
 
             throw new ColumnsNotFoundException(
                 sprintf(
                     'The number of fields in the selections are different: %s != %s',
-                    implode(', ', $this->columns),
-                    implode(', ', $union[ 'request' ]->getColumns())
+                    implode(', ', $this->columnNames),
+                    implode(', ', $union[ 'request' ]->getColumnNames())
                 )
             );
         }
@@ -659,14 +659,14 @@ class Request extends RequestHandler
      * Déclenche une exception si l'un des champs passés en paramètre diffère
      * des champs disponibles dans les tables.
      *
-     * @param string[] $columns Liste des champs.
+     * @param string[] $columnNames Liste des nom des champs.
      *
      * @throws ColumnsNotFoundException
      */
-    private function diffColumns(array $columns): void
+    private function diffColumnNames(array $columnNames): void
     {
         $diff = array_diff_key(
-            array_flip($columns),
+            array_flip($columnNames),
             $this->allFieldsSchema
         );
 
