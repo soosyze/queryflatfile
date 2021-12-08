@@ -17,30 +17,30 @@ use BadMethodCallException;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  *
- * @method Request where(string $column, string $operator, null|scalar $value)      Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notWhere(string $column, string $operator, null|scalar $value)   Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orWhere(string $column, string $operator, null|scalar $value)    Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotWhere(string $column, string $operator, null|scalar $value) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request where(string $columnName, string $operator, null|scalar $value)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notWhere(string $columnName, string $operator, null|scalar $value)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orWhere(string $columnName, string $operator, null|scalar $value)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotWhere(string $columnName, string $operator, null|scalar $value) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request between(string $column, numeric|string $min, numeric|string $max)      Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orBetween(string $column, numeric|string $min, numeric|string $max)    Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notBetween(string $column, numeric|string $min, numeric|string $max)   Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotBetween(string $column, numeric|string $min, numeric|string $max) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request between(string $columnName, numeric|string $min, numeric|string $max)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orBetween(string $columnName, numeric|string $min, numeric|string $max)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notBetween(string $columnName, numeric|string $min, numeric|string $max)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotBetween(string $columnName, numeric|string $min, numeric|string $max) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request in(string $column, array $values)      Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orIn(string $column, array $values)    Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notIn(string $column, array $values)   Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotIn(string $column, array $values) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request in(string $columnName, array $values)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIn(string $columnName, array $values)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notIn(string $columnName, array $values)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotIn(string $columnName, array $values) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request isNull(string $column)      Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orIsNull(string $column)    Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request isNotNull(string $column)   Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orIsNotNull(string $column) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request isNull(string $columnName)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIsNull(string $columnName)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request isNotNull(string $columnName)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orIsNotNull(string $columnName) Alias de la fonction de l'objet Queryflatfile\Where
  *
- * @method Request regex(string $column, string $pattern)      Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orRegex(string $column, string $pattern)    Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request notRegex(string $column, string $pattern)   Alias de la fonction de l'objet Queryflatfile\Where
- * @method Request orNotRegex(string $column, string $pattern) Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request regex(string $columnName, string $pattern)      Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orRegex(string $columnName, string $pattern)    Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request notRegex(string $columnName, string $pattern)   Alias de la fonction de l'objet Queryflatfile\Where
+ * @method Request orNotRegex(string $columnName, string $pattern) Alias de la fonction de l'objet Queryflatfile\Where
  *
  * @method Request whereGroup(\Closure $callable)      Alias de la fonction de l'objet Queryflatfile\Where
  * @method Request notWhereGroup(\Closure $callable)   Alias de la fonction de l'objet Queryflatfile\Where
@@ -135,7 +135,7 @@ abstract class RequestHandler implements RequestInterface
      *
      * @var string[]
      */
-    protected $columns = [];
+    protected $columnNames = [];
 
     /**
      * Les valeurs à insérer ou mettre à jour.
@@ -202,18 +202,18 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function getColumns(): array
+    public function getColumnNames(): array
     {
-        return $this->columns;
+        return $this->columnNames;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function insertInto(string $tableName, array $columns)
+    public function insertInto(string $tableName, array $columnNames)
     {
         $this->execute = self::INSERT;
-        $this->from($tableName)->select(...$columns);
+        $this->from($tableName)->select(...$columnNames);
 
         return $this;
     }
@@ -248,9 +248,9 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function orderBy(string $column, int $order = SORT_ASC)
+    public function orderBy(string $columnName, int $order = SORT_ASC)
     {
-        $this->orderBy[ $column ] = $order;
+        $this->orderBy[ $columnName ] = $order;
 
         return $this;
     }
@@ -273,10 +273,10 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function select(string ...$columns)
+    public function select(string ...$columnNames)
     {
-        foreach ($columns as $column) {
-            $this->columns[] = $column;
+        foreach ($columnNames as $columnName) {
+            $this->columnNames[] = $columnName;
         }
 
         return $this;
@@ -305,11 +305,11 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function update(string $tableName, array $columns)
+    public function update(string $tableName, array $row)
     {
-        $this->execute   = self::UPDATE;
-        $this->from($tableName)->select(...array_keys($columns));
-        $this->values[ 0 ] = $columns;
+        $this->execute     = self::UPDATE;
+        $this->from($tableName)->select(...array_keys($row));
+        $this->values[ 0 ] = $row;
 
         return $this;
     }
@@ -317,9 +317,9 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function values(array $columns)
+    public function values(array $rowValues)
     {
-        $this->values[] = $columns;
+        $this->values[] = $rowValues;
 
         return $this;
     }
@@ -331,16 +331,16 @@ abstract class RequestHandler implements RequestInterface
      */
     protected function init()
     {
-        $this->columns  = [];
-        $this->execute  = null;
-        $this->from     = '';
-        $this->joins    = [];
-        $this->limit    = self::ALL;
-        $this->offset   = 0;
-        $this->orderBy  = [];
-        $this->sumLimit = 0;
-        $this->unions   = [];
-        $this->values   = [];
+        $this->columnNames = [];
+        $this->execute     = null;
+        $this->from        = '';
+        $this->joins       = [];
+        $this->limit       = self::ALL;
+        $this->offset      = 0;
+        $this->orderBy     = [];
+        $this->sumLimit    = 0;
+        $this->unions      = [];
+        $this->values      = [];
 
         return $this;
     }
@@ -348,16 +348,16 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Enregistre une jointure.
      *
-     * @param string $type      Type de la jointure.
-     * @param string $tableName Nom de la table à joindre
-     * @param string $column    Nom de la colonne d'une des tables précédentes.
-     * @param string $operator  Opérateur logique ou null pour une closure.
-     * @param string $value     Valeur ou une colonne de la table jointe (au format nom_table.colonne)
+     * @param string $type       Type de la jointure.
+     * @param string $tableName  Nom de la table à joindre
+     * @param string $columnName Nom de la colonne d'une des tables précédentes.
+     * @param string $operator   Opérateur logique ou null pour une closure.
+     * @param string $value      Valeur ou une colonne de la table jointe (au format nom_table.colonne)
      */
-    private function join(string $type, string $tableName, string $column, string $operator, string $value): void
+    private function join(string $type, string $tableName, string $columnName, string $operator, string $value): void
     {
         $where = new Where();
-        $where->where($column, $operator, $value);
+        $where->where($columnName, $operator, $value);
 
         $this->joins[] = [ 'type' => $type, 'table' => $tableName, 'where' => $where ];
     }

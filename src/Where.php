@@ -38,7 +38,7 @@ class Where extends WhereHandler
             $not = $where[ 'not' ]
                 ? 'NOT '
                 : '';
-            $whereColumn = $where[ 'column' ];
+            $whereColumn = $where[ 'columnName' ];
             switch ($where[ 'type' ]) {
                 case 'where':
                     $output .= sprintf('%s%s %s %s ', $not, addslashes($whereColumn), $where[ 'condition' ], self::getValueToString($where['value']));
@@ -89,21 +89,21 @@ class Where extends WhereHandler
     }
 
     /**
-     * Retourne toutes les colonnes utilisées pour créer la clause.
+     * Retourne les nom de toutes les colonnes utilisées pour créer la clause.
      *
      * @return string[] Colonnes.
      */
-    public function getColumns(): array
+    public function getColumnNames(): array
     {
         $output = [];
         foreach ($this->where as $value) {
-            if (isset($value[ 'columns' ])) {
-                $output = array_merge($output, $value[ 'columns' ]);
+            if (isset($value[ 'columnNames' ])) {
+                $output = array_merge($output, $value[ 'columnNames' ]);
 
                 continue;
             }
 
-            $output[] = self::getColumn($value[ 'column' ]);
+            $output[] = self::getColumn($value[ 'columnName' ]);
         }
 
         return $output;
@@ -126,7 +126,7 @@ class Where extends WhereHandler
             if ($value[ 'value' ] instanceof Where) {
                 $predicate = $value[ 'value' ]->execute($row);
             } else {
-                $predicate = self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $value[ 'value' ]);
+                $predicate = self::predicate($row[ $value[ 'columnName' ] ], $value[ 'condition' ], $value[ 'value' ]);
             }
             /* Si la clause est inversé. */
             if ($value[ 'not' ]) {
@@ -134,7 +134,7 @@ class Where extends WhereHandler
             }
             /* Les retours des types regex et like doivent être non null. */
             if ($value[ 'type' ] === 'regex' || $value[ 'type' ] === 'like') {
-                $predicate = $predicate && $row[ $value[ 'column' ] ] !== null;
+                $predicate = $predicate && $row[ $value[ 'columnName' ] ] !== null;
             }
 
             if ($key === 0) {
@@ -171,10 +171,10 @@ class Where extends WhereHandler
             if ($value[ 'value' ] instanceof Where) {
                 $predicate = $value[ 'value' ]->executeJoin($row, $rowTable);
             } else {
-                /** @var array{value:string, column: string, condition: string, bool:string} $value */
+                /** @var array{value:string, columnName: string, condition: string, bool:string} $value */
                 $val = $rowTable[ self::getColumn($value[ 'value' ]) ];
 
-                $predicate = self::predicate($row[ $value[ 'column' ] ], $value[ 'condition' ], $val);
+                $predicate = self::predicate($row[ $value[ 'columnName' ] ], $value[ 'condition' ], $val);
             }
 
             if ($key === 0) {
@@ -193,7 +193,7 @@ class Where extends WhereHandler
     /**
      * Retourne TRUE si la condition est validée.
      *
-     * @param null|scalar       $columns  Valeur à tester.
+     * @param null|scalar       $column   Valeur à tester.
      * @param string            $operator Condition à réaliser.
      * @param array|null|scalar $value    Valeur de comparaison.
      *
@@ -201,40 +201,40 @@ class Where extends WhereHandler
      *
      * @return bool
      */
-    protected static function predicate($columns, string $operator, $value): bool
+    protected static function predicate($column, string $operator, $value): bool
     {
         switch ($operator) {
             case '==':
-                return $columns == $value;
+                return $column == $value;
             case '=':
             case '===':
-                return $columns === $value;
+                return $column === $value;
             case '!==':
-                return $columns !== $value;
+                return $column !== $value;
             case '!=':
-                return $columns != $value;
+                return $column != $value;
             case '<>':
-                return $columns <> $value;
+                return $column <> $value;
             case '<':
-                return $columns < $value;
+                return $column < $value;
             case '<=':
-                return $columns <= $value;
+                return $column <= $value;
             case '>':
-                return $columns > $value;
+                return $column > $value;
             case '>=':
-                return $columns >= $value;
+                return $column >= $value;
             case 'in':
                 /** @var array $value */
-                return in_array($columns, $value);
+                return in_array($column, $value);
             case 'regex':
-                if ($columns === null) {
+                if ($column === null) {
                     return false;
                 }
                 /** @var string $value */
-                return preg_match($value, (string) $columns) === 1;
+                return preg_match($value, (string) $column) === 1;
             case 'between':
                 /** @var Between $value */
-                return $columns >= $value[ 'min' ] && $columns <= $value[ 'max' ];
+                return $column >= $value[ 'min' ] && $column <= $value[ 'max' ];
         }
 
         throw new OperatorNotFound(

@@ -27,6 +27,7 @@ use Queryflatfile\Field\RenameType;
  * @author Mathieu NOËL <mathieu@soosyze.com>
  *
  * @phpstan-type RowData array<string, null|scalar>
+ * @phpstan-type RowValues array<null|scalar>
  * @phpstan-type TableData RowData[]
  */
 class Schema
@@ -354,15 +355,15 @@ class Schema
     /**
      * Détermine si une colonne existe.
      *
-     * @param string $tableName Nom de la table.
-     * @param string $column    Nom de la colonne.
+     * @param string $tableName  Nom de la table.
+     * @param string $columnName Nom de la colonne.
      *
      * @return bool Si le schéma de référence et le fichier de données existent.
      */
-    public function hasColumn(string $tableName, string $column): bool
+    public function hasColumn(string $tableName, string $columnName): bool
     {
         return isset($this->getSchema()[ $tableName ]) &&
-            $this->getSchema()[ $tableName ]->hasField($column) &&
+            $this->getSchema()[ $tableName ]->hasField($columnName) &&
             $this->driver->has($this->root . $this->path, $tableName);
     }
 
