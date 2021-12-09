@@ -136,7 +136,7 @@ abstract class Field
      */
     public function getValueDefault()
     {
-        if (isset($this->valueDefault)) {
+        if ($this->valueDefault !== null) {
             return $this->valueDefault;
         }
         if ($this->isNullable) {
@@ -202,7 +202,7 @@ abstract class Field
         if ($this->comment !== null) {
             $data[ '_comment' ] = $this->comment;
         }
-        if (isset($this->valueDefault)) {
+        if ($this->valueDefault !== null) {
             $data[ 'default' ] = $this->valueDefault;
         }
 

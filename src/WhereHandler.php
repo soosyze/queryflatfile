@@ -96,7 +96,7 @@ class WhereHandler
 
         $type = __FUNCTION__;
 
-        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
+        $this->where[] = ['bool' => $bool, 'columnName' => $columnName, 'condition' => $condition, 'not' => $not, 'type' => $type, 'value' => $value];
 
         return $this;
     }
@@ -158,7 +158,7 @@ class WhereHandler
         $type      = __FUNCTION__;
         $value     = [ 'min' => $min, 'max' => $max ];
 
-        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
+        $this->where[] = ['bool' => $bool, 'columnName' => $columnName, 'condition' => $condition, 'not' => $not, 'type' => $type, 'value' => $value];
 
         return $this;
     }
@@ -220,7 +220,7 @@ class WhereHandler
         $condition = 'in';
         $type      = __FUNCTION__;
 
-        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
+        $this->where[] = ['bool' => $bool, 'columnName' => $columnName, 'condition' => $condition, 'not' => $not, 'type' => $type, 'value' => $value];
 
         return $this;
     }
@@ -272,7 +272,7 @@ class WhereHandler
         $type      = __FUNCTION__;
         $value     = null;
 
-        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
+        $this->where[] = ['bool' => $bool, 'columnName' => $columnName, 'condition' => $condition, 'not' => $not, 'type' => $type, 'value' => $value];
 
         return $this;
     }
@@ -324,7 +324,7 @@ class WhereHandler
         $condition = 'regex';
         $type      = __FUNCTION__;
 
-        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
+        $this->where[] = ['bool' => $bool, 'columnName' => $columnName, 'condition' => $condition, 'not' => $not, 'type' => $type, 'value' => $value];
 
         return $this;
     }
@@ -443,7 +443,7 @@ class WhereHandler
         $type      = __FUNCTION__;
         $condition = 'regex';
 
-        $this->where[] = compact('bool', 'columnName', 'condition', 'not', 'type', 'value');
+        $this->where[] = ['bool' => $bool, 'columnName' => $columnName, 'condition' => $condition, 'not' => $not, 'type' => $type, 'value' => $value];
     }
 
     /**

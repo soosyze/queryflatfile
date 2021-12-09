@@ -1474,9 +1474,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union);
 
         self::assertEquals(
-            'SELECT name FROM user '
-            . 'UNION '
-            . 'SELECT name FROM user WHERE id BETWEEN 1 AND 5;',
+            'SELECT name FROM user UNION SELECT name FROM user WHERE id BETWEEN 1 AND 5;',
             (string) $data
         );
         self::assertEquals(
@@ -1505,9 +1503,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union);
 
         self::assertEquals(
-            'SELECT name, firstname FROM user '
-            . 'UNION '
-            . 'SELECT name, firstname FROM user WHERE id BETWEEN 1 AND 5;',
+            'SELECT name, firstname FROM user UNION SELECT name, firstname FROM user WHERE id BETWEEN 1 AND 5;',
             (string) $data
         );
         self::assertEquals(
@@ -1555,9 +1551,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->unionAll($union);
 
         self::assertEquals(
-            'SELECT name FROM user '
-            . 'UNION ALL '
-            . 'SELECT name FROM user WHERE id BETWEEN 1 AND 5;',
+            'SELECT name FROM user UNION ALL SELECT name FROM user WHERE id BETWEEN 1 AND 5;',
             (string) $data
         );
         self::assertEquals(
@@ -1647,9 +1641,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->union($union);
 
         self::assertEquals(
-            'SELECT name FROM user '
-            . 'UNION '
-            . 'SELECT name FROM user WHERE id BETWEEN 1 AND 5;',
+            'SELECT name FROM user UNION SELECT name FROM user WHERE id BETWEEN 1 AND 5;',
             (string) $data
         );
         self::assertEquals(
@@ -1679,10 +1671,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->orderBy('name');
 
         self::assertEquals(
-            'SELECT name FROM user '
-            . 'UNION '
-            . 'SELECT name FROM user WHERE id BETWEEN 1 AND 5 '
-            . 'ORDER BY name ASC;',
+            'SELECT name FROM user UNION SELECT name FROM user WHERE id BETWEEN 1 AND 5 ORDER BY name ASC;',
             (string) $data
         );
         self::assertEquals(
