@@ -21,35 +21,44 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->dropColumn('0');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                '0' => [ 'type' => '', 'opt' => Field::OPT_DROP ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    '0' => [ 'type' => '', 'opt' => Field::OPT_DROP ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testRename(): void
     {
         $this->object->renameColumn('0', '1');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                '0' => [ 'type' => '', 'opt' => Field::OPT_RENAME, 'to' => '1' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    '0' => [ 'type' => '', 'opt' => Field::OPT_RENAME, 'to' => '1' ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testModify(): void
     {
         $this->object->char('0')->modify();
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                '0' => [ 'type' => 'char', 'length' => 1 ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    '0' => [ 'type' => 'char', 'length' => 1 ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 }

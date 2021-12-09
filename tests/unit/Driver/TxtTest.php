@@ -60,7 +60,7 @@ class TxtTest extends \PHPUnit\Framework\TestCase
     {
         $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
-        self::assertEquals($data, [ 'key_test' => 'value_test' ]);
+        self::assertEquals([ 'key_test' => 'value_test' ], $data);
     }
 
     public function testReadException(): void
@@ -80,7 +80,7 @@ class TxtTest extends \PHPUnit\Framework\TestCase
         $newData = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertEquals($newData, $data);
+        self::assertEquals($data, $newData);
     }
 
     public function testSaveException(): void

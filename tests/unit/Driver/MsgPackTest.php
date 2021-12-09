@@ -65,7 +65,7 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
     {
         $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
-        self::assertEquals($data, [ 'key_test' => 'value_test' ]);
+        self::assertEquals([ 'key_test' => 'value_test' ], $data);
     }
 
     public function testReadException(): void
@@ -82,10 +82,10 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         $data[ 'key_test_2' ] = 'value_test_2';
 
         $output  = $this->driver->save(self::TEST_DIR, self::TEST_FILE_NAME, $data);
-        $newJson = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
+        $newData = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertEquals($newJson, $data);
+        self::assertEquals($data, $newData);
     }
 
     public function testSaveException(): void
