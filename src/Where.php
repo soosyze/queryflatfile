@@ -212,9 +212,8 @@ class Where extends WhereHandler
             case '!==':
                 return $column !== $value;
             case '!=':
-                return $column != $value;
             case '<>':
-                return $column <> $value;
+                return $column != $value;
             case '<':
                 return $column < $value;
             case '<=':
