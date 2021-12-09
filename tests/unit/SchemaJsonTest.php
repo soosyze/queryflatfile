@@ -78,8 +78,32 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $schema[$name] = $table->toArray();
         }
 
-        self::assertEquals($schema, [
-            'test'        => [
+        self::assertEquals(
+            [
+                'test'        => [
+                    'fields'     => [
+                        'id'        => [ 'type' => 'increments' ],
+                        'name'      => [ 'type' => 'string', 'length' => 255 ],
+                        'firstname' => [ 'type' => 'string', 'length' => 255 ]
+                    ],
+                    'increments' => 3
+                ],
+                'test_second' => [
+                    'fields'     => [
+                        'value_i' => [ 'type' => 'integer' ],
+                        'value_s' => [ 'type' => 'string', 'length' => 255 ]
+                    ],
+                    'increments' => null
+                ]
+            ],
+            $schema
+        );
+    }
+
+    public function testGetSchemaTable(): void
+    {
+        self::assertEquals(
+            [
                 'fields'     => [
                     'id'        => [ 'type' => 'increments' ],
                     'name'      => [ 'type' => 'string', 'length' => 255 ],
@@ -87,26 +111,8 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
                 ],
                 'increments' => 3
             ],
-            'test_second' => [
-                'fields'     => [
-                    'value_i' => [ 'type' => 'integer' ],
-                    'value_s' => [ 'type' => 'string', 'length' => 255 ]
-                ],
-                'increments' => null
-            ]
-        ]);
-    }
-
-    public function testGetSchemaTable(): void
-    {
-        self::assertEquals($this->bdd->getTableSchema('test')->toArray(), [
-            'fields'     => [
-                'id'        => [ 'type' => 'increments' ],
-                'name'      => [ 'type' => 'string', 'length' => 255 ],
-                'firstname' => [ 'type' => 'string', 'length' => 255 ]
-            ],
-            'increments' => 3
-        ]);
+            $this->bdd->getTableSchema('test')->toArray()
+        );
     }
 
     public function testHasTable(): void
@@ -145,41 +151,47 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->string('field_s');
         });
 
-        self::assertEquals($this->bdd->getTableSchema('test')->toArray(), [
-            'fields'     => [
-                'id'              => [ 'type' => 'increments' ],
-                'name'            => [ 'type' => 'string', 'length' => 255 ],
-                'firstname'       => [ 'type' => 'string', 'length' => 255 ],
-                'field_s_default' => [ 'type' => 'string', 'length' => 255, 'default' => 'foo' ],
-                'field_s_null'    => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
-                'field_s'         => [ 'type' => 'string', 'length' => 255 ]
-            ],
-            'increments' => 3
-        ]);
-        self::assertEquals($this->bdd->read('test'), [
+        self::assertEquals(
             [
-                'id'              => 1,
-                'name'            => 'NOEL',
-                'firstname'       => 'Mathieu',
-                'field_s_default' => 'foo',
-                'field_s_null'    => null,
-                'field_s'         => ''
-            ], [
-                'id'              => 2,
-                'name'            => 'DUPOND',
-                'firstname'       => 'Jean',
-                'field_s_default' => 'foo',
-                'field_s_null'    => null,
-                'field_s'         => ''
-            ], [
-                'id'              => 3,
-                'name'            => 'MARTIN',
-                'firstname'       => 'Manon',
-                'field_s_default' => 'foo',
-                'field_s_null'    => null,
-                'field_s'         => ''
-            ]
-        ]);
+                'fields'     => [
+                    'id'              => [ 'type' => 'increments' ],
+                    'name'            => [ 'type' => 'string', 'length' => 255 ],
+                    'firstname'       => [ 'type' => 'string', 'length' => 255 ],
+                    'field_s_default' => [ 'type' => 'string', 'length' => 255, 'default' => 'foo' ],
+                    'field_s_null'    => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
+                    'field_s'         => [ 'type' => 'string', 'length' => 255 ]
+                ],
+                'increments' => 3
+            ],
+            $this->bdd->getTableSchema('test')->toArray()
+        );
+        self::assertEquals(
+            [
+                [
+                    'id'              => 1,
+                    'name'            => 'NOEL',
+                    'firstname'       => 'Mathieu',
+                    'field_s_default' => 'foo',
+                    'field_s_null'    => null,
+                    'field_s'         => ''
+                ], [
+                    'id'              => 2,
+                    'name'            => 'DUPOND',
+                    'firstname'       => 'Jean',
+                    'field_s_default' => 'foo',
+                    'field_s_null'    => null,
+                    'field_s'         => ''
+                ], [
+                    'id'              => 3,
+                    'name'            => 'MARTIN',
+                    'firstname'       => 'Manon',
+                    'field_s_default' => 'foo',
+                    'field_s_null'    => null,
+                    'field_s'         => ''
+                ]
+            ],
+            $this->bdd->read('test')
+        );
     }
 
     public function testAlterTableAddIncrement(): void
@@ -188,30 +200,39 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->increments('id');
         });
 
-        self::assertEquals($this->bdd->getTableSchema('test_second')->toArray(), [
-            'fields'     => [
-                'id'      => [ 'type' => 'increments' ],
-                'value_i' => [ 'type' => 'integer' ],
-                'value_s' => [ 'type' => 'string', 'length' => 255 ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id'      => [ 'type' => 'increments' ],
+                    'value_i' => [ 'type' => 'integer' ],
+                    'value_s' => [ 'type' => 'string', 'length' => 255 ]
+                ],
+                'increments' => 3
             ],
-            'increments' => 3
-        ]);
-        self::assertEquals($this->bdd->read('test_second'), [
-            [ 'id' => 1, 'value_i' => 10, 'value_s' => 'value1' ],
-            [ 'id' => 2, 'value_i' => 20, 'value_s' => 'value2' ],
-            [ 'id' => 3, 'value_i' => 30, 'value_s' => 'value3' ]
-        ]);
+            $this->bdd->getTableSchema('test_second')->toArray()
+        );
+        self::assertEquals(
+            [
+                [ 'id' => 1, 'value_i' => 10, 'value_s' => 'value1' ],
+                [ 'id' => 2, 'value_i' => 20, 'value_s' => 'value2' ],
+                [ 'id' => 3, 'value_i' => 30, 'value_s' => 'value3' ]
+            ],
+            $this->bdd->read('test_second')
+        );
 
         $this->request->insertInto('test_second', [ 'value_i', 'value_s' ])
             ->values([ 40, 'value4' ])
             ->execute();
 
-        self::assertEquals($this->bdd->read('test_second'), [
-            [ 'id' => 1, 'value_i' => 10, 'value_s' => 'value1' ],
-            [ 'id' => 2, 'value_i' => 20, 'value_s' => 'value2' ],
-            [ 'id' => 3, 'value_i' => 30, 'value_s' => 'value3' ],
-            [ 'id' => 4, 'value_i' => 40, 'value_s' => 'value4' ]
-        ]);
+        self::assertEquals(
+            [
+                [ 'id' => 1, 'value_i' => 10, 'value_s' => 'value1' ],
+                [ 'id' => 2, 'value_i' => 20, 'value_s' => 'value2' ],
+                [ 'id' => 3, 'value_i' => 30, 'value_s' => 'value3' ],
+                [ 'id' => 4, 'value_i' => 40, 'value_s' => 'value4' ]
+            ],
+            $this->bdd->read('test_second')
+        );
     }
 
     public function testAlterTableRename(): void
@@ -220,29 +241,35 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->renameColumn('name', '_name');
         });
 
-        self::assertEquals($this->bdd->getTableSchema('test')->toArray(), [
-            'fields' => [
-                'id'        => [ 'type' => 'increments' ],
-                '_name'     => [ 'type' => 'string', 'length' => 255 ],
-                'firstname' => [ 'type' => 'string', 'length' => 255 ]
-            ],
-            'increments' => 3
-        ]);
-        self::assertEquals($this->bdd->read('test'), [
+        self::assertEquals(
             [
-                'id'        => 1,
-                '_name'     => 'NOEL',
-                'firstname' => 'Mathieu'
-            ], [
-                'id'        => 2,
-                '_name'     => 'DUPOND',
-                'firstname' => 'Jean'
-            ], [
-                'id'        => 3,
-                '_name'     => 'MARTIN',
-                'firstname' => 'Manon'
-            ]
-        ]);
+                'fields'     => [
+                    'id'        => [ 'type' => 'increments' ],
+                    '_name'     => [ 'type' => 'string', 'length' => 255 ],
+                    'firstname' => [ 'type' => 'string', 'length' => 255 ]
+                ],
+                'increments' => 3
+            ],
+            $this->bdd->getTableSchema('test')->toArray()
+        );
+        self::assertEquals(
+            [
+                [
+                    'id'        => 1,
+                    '_name'     => 'NOEL',
+                    'firstname' => 'Mathieu'
+                ], [
+                    'id'        => 2,
+                    '_name'     => 'DUPOND',
+                    'firstname' => 'Jean'
+                ], [
+                    'id'        => 3,
+                    '_name'     => 'MARTIN',
+                    'firstname' => 'Manon'
+                ]
+            ],
+            $this->bdd->read('test')
+        );
     }
 
     public function testAlterTableModify(): void
@@ -251,18 +278,24 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->float('value_i')->valueDefault(1.0)->modify();
         });
 
-        self::assertEquals($this->bdd->getTableSchema('test_second')->toArray(), [
-            'fields' => [
-                'value_i' => [ 'type' => 'float', 'default' => 1.0 ],
-                'value_s' => [ 'type' => 'string', 'length' => 255 ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'value_i' => [ 'type' => 'float', 'default' => 1.0 ],
+                    'value_s' => [ 'type' => 'string', 'length' => 255 ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
-        self::assertEquals($this->bdd->read('test_second'), [
-            [ 'value_i' => 1, 'value_s' => 'value1' ],
-            [ 'value_i' => 1, 'value_s' => 'value2' ],
-            [ 'value_i' => 1, 'value_s' => 'value3' ]
-        ]);
+            $this->bdd->getTableSchema('test_second')->toArray()
+        );
+        self::assertEquals(
+            [
+                [ 'value_i' => 1, 'value_s' => 'value1' ],
+                [ 'value_i' => 1, 'value_s' => 'value2' ],
+                [ 'value_i' => 1, 'value_s' => 'value3' ]
+            ],
+            $this->bdd->read('test_second')
+        );
     }
 
     public function testAlterTableModifyIncrement(): void
@@ -271,18 +304,24 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->increments('value_i')->modify();
         });
 
-        self::assertEquals($this->bdd->getTableSchema('test_second')->toArray(), [
-            'fields'     => [
-                'value_i' => [ 'type' => 'increments' ],
-                'value_s' => [ 'type' => 'string', 'length' => 255 ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'value_i' => [ 'type' => 'increments' ],
+                    'value_s' => [ 'type' => 'string', 'length' => 255 ]
+                ],
+                'increments' => 0
             ],
-            'increments' => 0
-        ]);
-        self::assertEquals($this->bdd->read('test_second'), [
-            [ 'value_i' => 10, 'value_s' => 'value1' ],
-            [ 'value_i' => 20, 'value_s' => 'value2' ],
-            [ 'value_i' => 30, 'value_s' => 'value3' ]
-        ]);
+            $this->bdd->getTableSchema('test_second')->toArray()
+        );
+        self::assertEquals(
+            [
+                [ 'value_i' => 10, 'value_s' => 'value1' ],
+                [ 'value_i' => 20, 'value_s' => 'value2' ],
+                [ 'value_i' => 30, 'value_s' => 'value3' ]
+            ],
+            $this->bdd->read('test_second')
+        );
     }
 
     public function testAlterTableDrop(): void
@@ -292,17 +331,23 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             $table->dropColumn('firstname');
         });
 
-        self::assertEquals($this->bdd->getTableSchema('test')->toArray(), [
-            'fields'     => [
-                'name' => [ 'type' => 'string', 'length' => 255 ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'name' => [ 'type' => 'string', 'length' => 255 ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
-        self::assertEquals($this->bdd->read('test'), [
-            [ 'name' => 'NOEL' ],
-            [ 'name' => 'DUPOND' ],
-            [ 'name' => 'MARTIN' ]
-        ]);
+            $this->bdd->getTableSchema('test')->toArray()
+        );
+        self::assertEquals(
+            [
+                [ 'name' => 'NOEL' ],
+                [ 'name' => 'DUPOND' ],
+                [ 'name' => 'MARTIN' ]
+            ],
+            $this->bdd->read('test')
+        );
     }
 
     public function testAlterTableException(): void
@@ -398,15 +443,18 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     {
         $output = $this->bdd->truncateTable('test');
 
-        self::assertEquals($this->bdd->getTableSchema('test')->toArray(), [
-            'fields'     => [
-                'id'        => [ 'type' => 'increments' ],
-                'name'      => [ 'type' => 'string', 'length' => 255 ],
-                'firstname' => [ 'type' => 'string', 'length' => 255 ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id'        => [ 'type' => 'increments' ],
+                    'name'      => [ 'type' => 'string', 'length' => 255 ],
+                    'firstname' => [ 'type' => 'string', 'length' => 255 ]
+                ],
+                'increments' => 0
             ],
-            'increments' => 0
-        ]);
-        self::assertEquals($this->bdd->read('test'), []);
+            $this->bdd->getTableSchema('test')->toArray()
+        );
+        self::assertEquals([], $this->bdd->read('test'));
         self::assertTrue($output);
     }
 

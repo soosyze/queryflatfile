@@ -21,12 +21,15 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->increments('id');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'increments' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'increments' ]
+                ],
+                'increments' => 0
             ],
-            'increments' => 0
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testIncrementsException(): void
@@ -44,13 +47,16 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $this->object->char('id');
         $this->object->char('id2', 2);
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id'  => [ 'type' => 'char', 'length' => 1 ],
-                'id2' => [ 'type' => 'char', 'length' => 2 ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id'  => [ 'type' => 'char', 'length' => 1 ],
+                    'id2' => [ 'type' => 'char', 'length' => 2 ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testCharException(): void
@@ -66,12 +72,15 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->text('id');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'text' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'text' ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testString(): void
@@ -79,13 +88,16 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $this->object->string('id');
         $this->object->string('id2', 256);
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id'  => [ 'type' => 'string', 'length' => 255 ],
-                'id2' => [ 'type' => 'string', 'length' => 256 ],
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id'  => [ 'type' => 'string', 'length' => 255 ],
+                    'id2' => [ 'type' => 'string', 'length' => 256 ],
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testStringException(): void
@@ -101,60 +113,75 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->integer('id');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'integer' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'integer' ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testFloat(): void
     {
         $this->object->float('id');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'float' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'float' ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testBoolean(): void
     {
         $this->object->boolean('id');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'boolean' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'boolean' ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testDate(): void
     {
         $this->object->date('id');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'date' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'date' ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testDatetime(): void
     {
         $this->object->datetime('id');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'datetime' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'datetime' ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testNullable(): void
@@ -169,20 +196,23 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $this->object->date('7')->nullable();
         $this->object->datetime('8')->nullable();
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                '0' => [ 'type' => 'increments', 'nullable' => true ],
-                '1' => [ 'type' => 'char', 'length' => 1, 'nullable' => true ],
-                '2' => [ 'type' => 'text', 'nullable' => true ],
-                '3' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
-                '4' => [ 'type' => 'integer', 'nullable' => true ],
-                '5' => [ 'type' => 'float', 'nullable' => true ],
-                '6' => [ 'type' => 'boolean', 'nullable' => true ],
-                '7' => [ 'type' => 'date', 'nullable' => true ],
-                '8' => [ 'type' => 'datetime', 'nullable' => true ],
+        self::assertEquals(
+            [
+                'fields'     => [
+                    '0' => [ 'type' => 'increments', 'nullable' => true ],
+                    '1' => [ 'type' => 'char', 'length' => 1, 'nullable' => true ],
+                    '2' => [ 'type' => 'text', 'nullable' => true ],
+                    '3' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
+                    '4' => [ 'type' => 'integer', 'nullable' => true ],
+                    '5' => [ 'type' => 'float', 'nullable' => true ],
+                    '6' => [ 'type' => 'boolean', 'nullable' => true ],
+                    '7' => [ 'type' => 'date', 'nullable' => true ],
+                    '8' => [ 'type' => 'datetime', 'nullable' => true ],
+                ],
+                'increments' => 0
             ],
-            'increments' => 0
-        ]);
+            $this->object->getTable()->toArray()
+        );
         self::assertEquals(null, $this->object->getTable()->getField('7')->getValueDefault());
         self::assertEquals(null, $this->object->getTable()->getField('8')->getValueDefault());
     }
@@ -213,24 +243,30 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     {
         $this->object->integer('id')->unsigned();
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'integer', 'unsigned' => true ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'integer', 'unsigned' => true ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testComment(): void
     {
         $this->object->increments('id')->comment('identifiant');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                'id' => [ 'type' => 'increments', '_comment' => 'identifiant' ]
+        self::assertEquals(
+            [
+                'fields'     => [
+                    'id' => [ 'type' => 'increments', '_comment' => 'identifiant' ]
+                ],
+                'increments' => null
             ],
-            'increments' => null
-        ]);
+            $this->object->getTable()->toArray()
+        );
     }
 
     public function testValueDefault(): void
@@ -247,22 +283,25 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $this->object->datetime('8')->valueDefault('2017-11-26 22:00:00');
         $this->object->datetime('8.1')->valueDefault('current_datetime');
 
-        self::assertEquals($this->object->getTable()->toArray(), [
-            'fields'     => [
-                '0'   => [ 'type' => 'increments' ],
-                '1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
-                '2'   => [ 'type' => 'text', 'default' => 'test' ],
-                '3'   => [ 'type' => 'string', 'length' => 255, 'default' => 'test' ],
-                '4'   => [ 'type' => 'integer', 'default' => 1 ],
-                '5'   => [ 'type' => 'float', 'default' => 1.1 ],
-                '6'   => [ 'type' => 'boolean', 'default' => true ],
-                '7'   => [ 'type' => 'date', 'default' => '2017-11-26' ],
-                '7.1' => [ 'type' => 'date', 'default' => 'current_date' ],
-                '8'   => [ 'type' => 'datetime', 'default' => '2017-11-26 22:00:00' ],
-                '8.1' => [ 'type' => 'datetime', 'default' => 'current_datetime' ],
+        self::assertEquals(
+            [
+                'fields'     => [
+                    '0'   => [ 'type' => 'increments' ],
+                    '1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
+                    '2'   => [ 'type' => 'text', 'default' => 'test' ],
+                    '3'   => [ 'type' => 'string', 'length' => 255, 'default' => 'test' ],
+                    '4'   => [ 'type' => 'integer', 'default' => 1 ],
+                    '5'   => [ 'type' => 'float', 'default' => 1.1 ],
+                    '6'   => [ 'type' => 'boolean', 'default' => true ],
+                    '7'   => [ 'type' => 'date', 'default' => '2017-11-26' ],
+                    '7.1' => [ 'type' => 'date', 'default' => 'current_date' ],
+                    '8'   => [ 'type' => 'datetime', 'default' => '2017-11-26 22:00:00' ],
+                    '8.1' => [ 'type' => 'datetime', 'default' => 'current_datetime' ],
+                ],
+                'increments' => 0
             ],
-            'increments' => 0
-        ]);
+            $this->object->getTable()->toArray()
+        );
         self::assertEquals('2017-11-26', $this->object->getTable()->getField('7')->getValueDefault());
         self::assertEquals(date('Y-m-d', time()), $this->object->getTable()->getField('7.1')->getValueDefault());
         self::assertEquals('2017-11-26 22:00:00', $this->object->getTable()->getField('8')->getValueDefault());
