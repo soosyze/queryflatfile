@@ -53,7 +53,7 @@ class DateTimeType extends Field
      */
     public function getValueDefault()
     {
-        if (isset($this->valueDefault)) {
+        if ($this->valueDefault !== null) {
             if ($this->valueDefault === static::CURRENT_DEFAULT) {
                 return date(static::FORMAT, time());
             }

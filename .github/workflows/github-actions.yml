@@ -13,7 +13,7 @@ jobs:
         php: [7.2, 7.3, 7.4, 8.0, 8.1]
         experimental: [false]
         include:
-          - php: 7.4
+          - php: 7.2
             analysis: true
 
     steps:
@@ -39,6 +39,10 @@ jobs:
 
       - name: Unit tests
         run: bin/phpunit --coverage-clover clover.xml
+
+      - name: Refactoring
+        if: matrix.analysis
+        run: bin/rector --dry-run
 
       - name: Upload coverage results to Coveralls
         if: matrix.analysis
