@@ -11,5 +11,6 @@ phpdoc.dist.xml export-ignore
 phpunit.xml export-ignore
 phpunit.xml.dist export-ignore
 phpstan.neon.dist export-ignore
+rector.php export-ignore
 USAGE.md export-ignore
 README_fr.md export-ignore

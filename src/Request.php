@@ -81,7 +81,7 @@ class Request extends RequestHandler
         } else {
             $output .= sprintf('SELECT %s ', $this->columnNames ? addslashes(implode(', ', $this->columnNames)) : '*');
         }
-        if ($this->from) {
+        if ($this->from !== '') {
             $output .= sprintf('FROM %s ', addslashes($this->from));
         }
         foreach ($this->joins as $value) {
@@ -92,7 +92,7 @@ class Request extends RequestHandler
                 (string) $value[ 'where' ]
             );
         }
-        if ($this->where) {
+        if ($this->where !== null) {
             $output .= sprintf('WHERE %s ', (string) $this->where);
         }
         foreach ($this->unions as $union) {
@@ -111,10 +111,10 @@ class Request extends RequestHandler
             }
             $output = trim($output, ', ') . ' ';
         }
-        if ($this->limit) {
+        if ($this->limit !== 0) {
             $output .= sprintf('LIMIT %d ', (string) $this->limit);
         }
-        if ($this->offset) {
+        if ($this->offset !== 0) {
             $output .= sprintf('OFFSET %d ', (string) $this->offset);
         }
 
@@ -283,7 +283,7 @@ class Request extends RequestHandler
     {
         $fetch = $this->limit(1)->fetchAll();
 
-        return $fetch
+        return $fetch !== []
             ? $fetch[ 0 ]
             : [];
     }
@@ -384,7 +384,7 @@ class Request extends RequestHandler
              * Si aucun resultat n'est trouvé alors la ligne est remplie
              * avec les colonnes de la table jointe avec des valeurs null.
              */
-            if ($addRow === false) {
+            if (!$addRow) {
                 $result[] = array_merge($rowTableNull, $row);
             }
         }
@@ -600,11 +600,11 @@ class Request extends RequestHandler
         }
 
         /* Merge les colonnes des conditions de la requête courante. */
-        if ($this->where) {
+        if ($this->where !== null) {
             $columnNames = array_merge($columnNames, $this->where->getColumnNames());
         }
 
-        if ($columnNames) {
+        if ($columnNames !== []) {
             $this->diffColumnNames($columnNames);
         }
     }
@@ -670,7 +670,7 @@ class Request extends RequestHandler
             $this->allFieldsSchema
         );
 
-        if ($diff) {
+        if ($diff !== []) {
             $columnsDiff = array_flip($diff);
 
             throw new ColumnsNotFoundException(
