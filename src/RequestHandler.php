@@ -275,9 +275,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function select(string ...$columnNames)
     {
-        foreach ($columnNames as $columnName) {
-            $this->columnNames[] = $columnName;
-        }
+        $this->columnNames = $columnNames;
 
         return $this;
     }
