@@ -61,13 +61,6 @@ class Schema
     protected $name;
 
     /**
-     * Chemin, nom et extension du schéma.
-     *
-     * @var string
-     */
-    protected $file;
-
-    /**
      * Schéma des tables.
      *
      * @var array<string, Table>

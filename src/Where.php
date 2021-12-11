@@ -170,8 +170,6 @@ class Where extends WhereHandler
     {
         $output = true;
         foreach ($this->where as $key => $value) {
-            $predicate = true;
-
             if ($value[ 'value' ] instanceof Where) {
                 $predicate = $value[ 'value' ]->executeJoin($row, $rowTable);
             } else {

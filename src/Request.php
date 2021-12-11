@@ -245,18 +245,15 @@ class Request extends RequestHandler
 
         /* UNION */
         foreach ($this->unions as $union) {
-            /* Si le retour est demandé en liste. */
-            $fetchAll = $union[ 'request' ]->fetchAll();
-
             /**
              * UNION ALL
              * Pour chaque requêtes unions, on récupère les résultats.
              * On merge puis on supprime les doublons.
              */
-            $return = array_merge($return, $fetchAll);
+            $return = array_merge($return, $union[ 'request' ]->fetchAll());
 
             /* UNION */
-            if ($union[ 'type' ] !== self::UNION_ALL) {
+            if ($union[ 'type' ] === self::UNION_SIMPLE) {
                 self::arrayUniqueMultidimensional($return);
             }
         }
@@ -359,11 +356,11 @@ class Request extends RequestHandler
     {
         $result       = [];
         $rowTableNull = $this->getRowTableNull($tableName);
-        $left         = $type === self::JOIN_LEFT;
-        $tableData    = $left
+        $isLeftJoin   = $type === self::JOIN_LEFT;
+        $tableData    = $isLeftJoin
             ? $this->tableData
             : $this->getTableData($tableName);
-        $tableJoin    = $left
+        $tableJoin    = $isLeftJoin
             ? $this->getTableData($tableName)
             : $this->tableData;
 
@@ -374,7 +371,7 @@ class Request extends RequestHandler
             foreach ($tableJoin as $rowJoin) {
                 /* Vérifie les conditions. */
 
-                if ($left
+                if ($isLeftJoin
                         ? $where->executeJoin($row, $rowJoin)
                         : $where->executeJoin($rowJoin, $row)
                 ) {
@@ -464,19 +461,11 @@ class Request extends RequestHandler
 
             /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
             $row = array_combine($this->columnNames, $values);
-            if ($row == false) {
-                throw new ColumnsNotFoundException(
-                    sprintf(
-                        'The number of fields in the selections are different: %s != %s',
-                        implode(', ', $this->columnNames),
-                        implode(', ', $values)
-                    )
-                );
-            }
 
             $data = [];
             foreach ($fields as $fieldName => $field) {
                 /* Si mon champs existe dans le schema. */
+                /* @phpstan-ignore-next-line array_combine(): array|false */
                 if (isset($row[ $fieldName ])) {
                     $data[ $fieldName ] = $field->filterValue($row[ $fieldName ]);
                     /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma. */
@@ -655,14 +644,14 @@ class Request extends RequestHandler
     private function filterWhere(): void
     {
         $columnNames = [];
+        /* Merge les colonnes des conditions de la requête courante. */
+        if ($this->where !== null) {
+            $columnNames = $this->where->getColumnNames();
+        }
+
         /* Merge toutes les colonnes des conditions de chaque jointure. */
         foreach ($this->joins as $value) {
             $columnNames = array_merge($columnNames, $value[ 'where' ]->getColumnNames());
-        }
-
-        /* Merge les colonnes des conditions de la requête courante. */
-        if ($this->where !== null) {
-            $columnNames = array_merge($columnNames, $this->where->getColumnNames());
         }
 
         if ($columnNames !== []) {
@@ -681,8 +670,7 @@ class Request extends RequestHandler
             return;
         }
 
-        $columnNames = array_keys($this->orderBy);
-        $this->diffColumnNames($columnNames);
+        $this->diffColumnNames(array_keys($this->orderBy));
 
         foreach ($this->orderBy as $field => $order) {
             if ($order !== SORT_ASC && $order !== SORT_DESC) {
@@ -757,8 +745,7 @@ class Request extends RequestHandler
         $rowTableKey = $this->schema->getTableSchema($tableName)->getFieldsName();
         /* Prend les noms des champs dans la requête précédente. */
         if ($this->table->getFields() !== []) {
-            $rowTableAllKey = $this->table->getFieldsName();
-            $rowTableKey    = array_merge($rowTableKey, $rowTableAllKey);
+            $rowTableKey = array_merge($rowTableKey, $this->table->getFieldsName());
         }
         /* Utilise les noms pour créer un tableau avec des valeurs null. */
         return array_fill_keys($rowTableKey, null);
