@@ -22,6 +22,8 @@ use Queryflatfile\Exception\Query\OperatorNotFound;
  */
 class Where extends WhereHandler
 {
+    use ValueToString;
+
     /**
      * Retourne les paramètre des clauses en format pseudo SQL.
      *
@@ -66,11 +68,13 @@ class Where extends WhereHandler
 
                     break;
                 case 'between':
+                    /** @var Between $value */
+                    $value = $where['value'];
                     $output .= sprintf(
                         '%s %sBETWEEN %s ',
                         addslashes($whereColumn),
                         $not,
-                        self::getValueToString($where['value'])
+                        self::getBetweenToString($value)
                     );
 
                     break;
@@ -255,42 +259,19 @@ class Where extends WhereHandler
             : $value;
     }
 
-    /**
-     * @param array|null|scalar|Where $value
+    /*
+     * @param array $between
+     *
+     * @phpstan-param Between $between
      *
      * @return string
      */
-    protected static function getValueToString($value): string
+    protected static function getBetweenToString(array $between): string
     {
-        if (is_int($value)) {
-            return (string) $value;
-        }
-        if (is_string($value)) {
-            return sprintf('\'%s\'', addslashes($value));
-        }
-        if ($value instanceof Where) {
-            return (string) $value;
-        }
-        if (is_array($value)) {
-            if (isset($value[ 'min' ], $value[ 'max' ]) && is_scalar($value[ 'min' ]) && is_scalar($value[ 'max' ])) {
-                return sprintf(
-                    '%s AND %s',
-                    self::getValueToString($value[ 'min' ]),
-                    self::getValueToString($value[ 'max' ])
-                );
-            }
-
-            return implode(
-                ', ',
-                array_map(
-                    function ($item): string {
-                        return self::getValueToString($item);
-                    },
-                    $value
-                )
-            );
-        }
-
-        return 'null';
+        return sprintf(
+            '%s AND %s',
+            self::getValueToString($between[ 'min' ]),
+            self::getValueToString($between[ 'max' ])
+        );
     }
 }
