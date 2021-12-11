@@ -90,36 +90,81 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
 
     public function testInsertInto(): void
     {
-        $this->request->insertInto('user', [ 'id', 'name', 'firstname' ])
+        $request1 = $this->request
+            ->insertInto('user', [ 'id', 'name', 'firstname' ])
             ->values([ 0, 'NOEL', 'Mathieu' ])
-            ->values([ 1, 'DUPOND', 'Jean' ])
-            ->execute();
+            ->values([ 1, 'DUPOND', 'Jean' ]);
 
-        $this->request->insertInto('user', [ 'name', 'firstname' ])
+        self::assertEquals(
+            'INSERT INTO user (id, name, firstname) VALUES' . PHP_EOL .
+            '(0, \'NOEL\', \'Mathieu\'),' . PHP_EOL .
+            '(1, \'DUPOND\', \'Jean\');',
+            (string) $request1
+        );
+        $request1->execute();
+
+        $request2 = $this->request
+            ->insertInto('user', [ 'name', 'firstname' ])
             ->values([ 'MARTIN', 'Manon' ])
             ->values([ null, 'Marie' ])
-            ->values([ 'DUPOND', 'Pierre' ])
-            ->execute();
+            ->values([ 'DUPOND', 'Pierre' ]);
 
-        $this->request->insertInto('user', [ 'id', 'name', 'firstname' ])
+        self::assertEquals(
+            'INSERT INTO user (name, firstname) VALUES' . PHP_EOL .
+            '(\'MARTIN\', \'Manon\'),' . PHP_EOL .
+            '(null, \'Marie\'),' . PHP_EOL .
+            '(\'DUPOND\', \'Pierre\');',
+            (string) $request2
+        );
+        $request2->execute();
+
+        $request3 = $this->request
+            ->insertInto('user', [ 'id', 'name', 'firstname' ])
             ->values([ 5, 'MEYER', 'Eva' ])
-            ->values([ 6, 'ROBERT', null ])
-            ->execute();
+            ->values([ 6, 'ROBERT', null ]);
 
-        $this->request->insertInto('role', [ 'id_role', 'labelle' ])
+        self::assertEquals(
+            'INSERT INTO user (id, name, firstname) VALUES' . PHP_EOL .
+            '(5, \'MEYER\', \'Eva\'),' . PHP_EOL .
+            '(6, \'ROBERT\', null);',
+            (string) $request3
+        );
+        $request3->execute();
+
+        $request4 = $this->request
+            ->insertInto('role', [ 'id_role', 'labelle' ])
             ->values([ 0, 'Admin' ])
             ->values([ 1, 'Author' ])
-            ->values([ 2, 'User' ])
-            ->execute();
+            ->values([ 2, 'User' ]);
 
-        $this->request->insertInto('user_role', [ 'id_user', 'id_role' ])
+        self::assertEquals(
+            'INSERT INTO role (id_role, labelle) VALUES' . PHP_EOL .
+            '(0, \'Admin\'),' . PHP_EOL .
+            '(1, \'Author\'),' . PHP_EOL .
+            '(2, \'User\');',
+            (string) $request4
+        );
+        $request4->execute();
+
+        $request5 = $this->request->insertInto('user_role', [ 'id_user', 'id_role' ])
             ->values([ 0, 0 ])
             ->values([ 1, 0 ])
             ->values([ 2, 1 ])
             ->values([ 3, 1 ])
             ->values([ 4, 2 ])
-            ->values([ 5, 2 ])
-            ->execute();
+            ->values([ 5, 2 ]);
+
+        self::assertEquals(
+            'INSERT INTO user_role (id_user, id_role) VALUES' . PHP_EOL .
+            '(0, 0),' . PHP_EOL .
+            '(1, 0),' . PHP_EOL .
+            '(2, 1),' . PHP_EOL .
+            '(3, 1),' . PHP_EOL .
+            '(4, 2),' . PHP_EOL .
+            '(5, 2);',
+            (string) $request5
+        );
+        $request5->execute();
 
         self::assertFileExists(self::ROOT . 'user.' . $this->bdd->getExtension());
     }
@@ -176,10 +221,15 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
 
     public function testUpdateData(): void
     {
-        $this->request
-            ->update('user', [ 'name' => 'PETIT' ])
-            ->where('id', '=', 0)
-            ->execute();
+        $request = $this->request
+            ->update('user', [ 'name' => 'PETIT', 'firstname' => 'Mathieu' ])
+            ->where('id', '=', 0);
+
+        self::assertEquals(
+            'UPDATE user SET name = \'PETIT\', firstname = \'Mathieu\' WHERE id = 0;',
+            (string) $request
+        );
+        $request->execute();
 
         $data = $this->request
             ->from('user')
@@ -191,9 +241,14 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
 
     public function testUpdateDataFull(): void
     {
-        $this->request
-            ->update('user', [ 'name' => 'PETIT' ])
-            ->execute();
+        $request = $this->request
+            ->update('user', [ 'name' => 'PETIT' ]);
+
+        self::assertEquals(
+            'UPDATE user SET name = \'PETIT\';',
+            (string) $request
+        );
+        $request->execute();
 
         $data = $this->request
             ->from('user')
@@ -205,10 +260,16 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
 
     public function testDeleteData(): void
     {
-        $this->request->from('user')
+        $request = $this->request
+            ->from('user')
             ->delete()
-            ->between('id', 1, 4)
-            ->execute();
+            ->between('id', 1, 4);
+
+        self::assertEquals(
+            'DELETE user WHERE id BETWEEN 1 AND 4;',
+            (string) $request
+        );
+        $request->execute();
 
         $data = $this->request
             ->from('user')
