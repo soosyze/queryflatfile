@@ -28,6 +28,8 @@ use Queryflatfile\Field\IncrementType;
  */
 class Request extends RequestHandler
 {
+    use ValueToString;
+
     /**
      * Tous les champs utilisés.
      *
@@ -75,12 +77,17 @@ class Request extends RequestHandler
      */
     public function __toString(): string
     {
-        $output = '';
-        if ($this->execute) {
-            $output .= strtoupper($this->execute) . ' ';
-        } else {
-            $output .= sprintf('SELECT %s ', $this->columnNames ? addslashes(implode(', ', $this->columnNames)) : '*');
+        if ($this->execute === self::INSERT) {
+            return $this->insertIntoToString();
         }
+        if ($this->execute === self::UPDATE) {
+            return $this->updateToString();
+        }
+        if ($this->execute === self::DELETE) {
+            return $this->deleteToString();
+        }
+
+        $output = sprintf('SELECT %s ', $this->columnNames ? addslashes(implode(', ', $this->columnNames)) : '*');
         if ($this->from !== '') {
             $output .= sprintf('FROM %s ', addslashes($this->from));
         }
@@ -92,13 +99,10 @@ class Request extends RequestHandler
                 (string) $value[ 'where' ]
             );
         }
-        if ($this->where !== null) {
-            $output .= sprintf('WHERE %s ', (string) $this->where);
-        }
+        $output .= $this->whereToString();
         foreach ($this->unions as $union) {
             $type = $union[ 'type' ] === self::UNION_SIMPLE ? 'UNION' : 'UNION ALL';
-            $subRequest = trim((string) $union[ 'request' ], ';');
-            $output .= sprintf('%s %s ', $type, $subRequest);
+            $output .= sprintf('%s %s ', $type, trim((string) $union[ 'request' ], ';'));
         }
         if ($this->orderBy) {
             $output .= 'ORDER BY ';
@@ -533,6 +537,63 @@ class Request extends RequestHandler
             unset($this->tableData[ $key ]);
         }
         $this->tableData = array_values($this->tableData);
+    }
+
+    private function insertIntoToString(): string
+    {
+        $output = sprintf('INSERT INTO %s ', addslashes($this->from));
+
+        if ($this->columnNames) {
+            $output .= sprintf('(%s) VALUES%s', addslashes(implode(', ', $this->columnNames)), PHP_EOL);
+        }
+        $data = array_map(
+            function ($values) {
+                $data = array_map(
+                    function ($item) {
+                        return self::getValueToString($item);
+                    },
+                    $values
+                );
+
+                return sprintf('(%s)', implode(', ', $data));
+            },
+            $this->values
+        );
+        $output .= implode(',' . PHP_EOL, $data);
+
+        return trim($output) . ';';
+    }
+
+    private function deleteToString(): string
+    {
+        $output = sprintf('DELETE %s ', addslashes($this->from));
+        $output .= $this->whereToString();
+
+        return trim($output) . ';';
+    }
+
+    private function updateToString(): string
+    {
+        $output = sprintf('UPDATE %s SET ', addslashes($this->from));
+        $data   = [];
+        foreach ($this->values[ 0 ] as $key => $value) {
+            $data[] = sprintf(
+                '%s = %s',
+                addslashes($key),
+                self::getValueToString($value)
+            );
+        }
+        $output .= implode(', ', $data) . ' ';
+        $output .= $this->whereToString();
+
+        return trim($output) . ';';
+    }
+
+    private function whereToString(): string
+    {
+        return $this->where === null
+            ? ''
+            : sprintf('WHERE %s ', (string) $this->where);
     }
 
     /**
