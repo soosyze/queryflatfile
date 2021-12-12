@@ -18,7 +18,7 @@
         "php": ">=7.2"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.2",
+        "soosyze/php-cs-fixer-config": "^1.0",
         "phpstan/phpstan": "^1.1",
         "phpstan/phpstan-phpunit": "^1.0",
         "phpunit/phpunit": "^8.5",
