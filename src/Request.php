@@ -278,15 +278,15 @@ class Request extends RequestHandler
      *
      * @return array Résultat de la requête.
      *
-     * @phpstan-return RowData
+     * @phpstan-return ?RowData
      */
-    public function fetch(): array
+    public function fetch(): ?array
     {
         $fetch = $this->limit(1)->fetchAll();
 
         return $fetch !== []
             ? $fetch[ 0 ]
-            : [];
+            : null;
     }
 
     /**
