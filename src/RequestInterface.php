@@ -191,9 +191,9 @@ interface RequestInterface
      *
      * @return array Résultat de la requête.
      *
-     * @phpstan-return RowData
+     * @phpstan-return ?RowData
      */
-    public function fetch(): array;
+    public function fetch(): ?array;
 
     /**
      * Retourne les résultats de la requête sous forme de tableau simple,
