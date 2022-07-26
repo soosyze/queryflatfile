@@ -148,7 +148,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         string $operator,
         $value,
         string $expectedQueryStr,
-        array $expectedData
+        ?array $expectedData
     ): void {
         $data = $this->request
             ->select('name')
@@ -164,12 +164,12 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         yield [
             '=', '1',
             'SELECT name FROM user WHERE id = \'1\';',
-            []
+            null
         ];
         yield [
             '===', '1',
             'SELECT name FROM user WHERE id === \'1\';',
-            []
+            null
         ];
         yield [
             '=', 1,
@@ -179,7 +179,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         yield [
             '===', '1',
             'SELECT name FROM user WHERE id === \'1\';',
-            []
+            null
         ];
         yield [
             '==', '1',
