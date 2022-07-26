@@ -275,6 +275,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testAlterTableModify(): void
     {
         $this->bdd->alterTable('test_second', static function (TableAlter $table): void {
+            $table->string('value_s')->nullable()->modify();
             $table->float('value_i')->valueDefault(1.0)->modify();
         });
 
@@ -282,7 +283,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
             [
                 'fields'     => [
                     'value_i' => [ 'type' => 'float', 'default' => 1.0 ],
-                    'value_s' => [ 'type' => 'string', 'length' => 255 ]
+                    'value_s' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ]
                 ],
                 'increments' => null
             ],
