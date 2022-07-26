@@ -533,7 +533,17 @@ class Schema
         Field $field,
         array &$tableData
     ): void {
+        $oldField = $table->getField($field->getName());
+
         $table->addField($field);
+
+        /**
+         * Si la modification ne concerne pas le type, la mise à jour des données ne se fait pas.
+         * Exemple: rendre un champ nullable ne doit écraser les données présentent en table.
+         */
+        if ($oldField::TYPE === $field::TYPE) {
+            return;
+        }
 
         $increment = $field instanceof IncrementType
             ? 0
