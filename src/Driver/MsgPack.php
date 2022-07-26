@@ -52,6 +52,11 @@ final class MsgPack extends \Queryflatfile\Driver
      */
     public function unserializeData(string $data): array
     {
-        return msgpack_unpack($data);
+        $dataUnserialize = msgpack_unpack($data);
+        if (!is_array($dataUnserialize)) {
+            throw new \Exception('An error occurred in deserializing the data.');
+        }
+
+        return $dataUnserialize;
     }
 }
