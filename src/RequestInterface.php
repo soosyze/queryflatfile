@@ -8,10 +8,10 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\Exception\Query\BadFunctionException;
-use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
+use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
+use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
 
 /**
  * Ensemble des fonctions nécessaires à une requête.

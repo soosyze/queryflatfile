@@ -30,12 +30,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Queryflatfile\\": "src"
+            "Soosyze\\Queryflatfile\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Queryflatfile\\Tests\\": "tests"
+            "Soosyze\\Queryflatfile\\Tests\\": "tests"
         }
     },
     "config": {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Queryflatfile\Tests\unit;
+namespace Soosyze\Queryflatfile\Tests\unit;
 
-use Queryflatfile\Driver\Json;
-use Queryflatfile\Exception\Query\TableNotFoundException;
-use Queryflatfile\Request;
-use Queryflatfile\Schema;
-use Queryflatfile\TableAlter;
-use Queryflatfile\TableBuilder;
+use Soosyze\Queryflatfile\Driver\Json;
+use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
+use Soosyze\Queryflatfile\Request;
+use Soosyze\Queryflatfile\Schema;
+use Soosyze\Queryflatfile\TableAlter;
+use Soosyze\Queryflatfile\TableBuilder;
 
 class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 {

@@ -8,14 +8,14 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile\Driver;
+namespace Soosyze\Queryflatfile\Driver;
 
 /**
  * Manipule des données sérialisées dans des fichiers texte.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-final class Txt extends \Queryflatfile\Driver
+final class Txt extends \Soosyze\Queryflatfile\Driver
 {
     /**
      * {@inheritDoc}

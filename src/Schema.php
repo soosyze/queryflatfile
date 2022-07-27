@@ -10,16 +10,16 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\DriverInterface;
-use Queryflatfile\Exception\Exception;
-use Queryflatfile\Exception\Query\TableNotFoundException;
-use Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
-use Queryflatfile\Exception\TableBuilder\ColumnsValueException;
-use Queryflatfile\Field\DropType;
-use Queryflatfile\Field\IncrementType;
-use Queryflatfile\Field\RenameType;
+use Soosyze\Queryflatfile\DriverInterface;
+use Soosyze\Queryflatfile\Exception\Exception;
+use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
+use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
+use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Soosyze\Queryflatfile\Field\DropType;
+use Soosyze\Queryflatfile\Field\IncrementType;
+use Soosyze\Queryflatfile\Field\RenameType;
 
 /**
  * Pattern fluent pour la gestion d'un schéma de données.

@@ -8,18 +8,18 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\Exception\TableBuilder\TableBuilderException;
-use Queryflatfile\Field\BoolType;
-use Queryflatfile\Field\CharType;
-use Queryflatfile\Field\DateTimeType;
-use Queryflatfile\Field\DateType;
-use Queryflatfile\Field\FloatType;
-use Queryflatfile\Field\IncrementType;
-use Queryflatfile\Field\IntType;
-use Queryflatfile\Field\StringType;
-use Queryflatfile\Field\TextType;
+use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
+use Soosyze\Queryflatfile\Field\BoolType;
+use Soosyze\Queryflatfile\Field\CharType;
+use Soosyze\Queryflatfile\Field\DateTimeType;
+use Soosyze\Queryflatfile\Field\DateType;
+use Soosyze\Queryflatfile\Field\FloatType;
+use Soosyze\Queryflatfile\Field\IncrementType;
+use Soosyze\Queryflatfile\Field\IntType;
+use Soosyze\Queryflatfile\Field\StringType;
+use Soosyze\Queryflatfile\Field\TextType;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.

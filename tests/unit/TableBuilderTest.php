@@ -1,9 +1,9 @@
 <?php
 
-namespace Queryflatfile\Tests\unit;
+namespace Soosyze\Queryflatfile\Tests\unit;
 
-use Queryflatfile\Exception\TableBuilder\ColumnsValueException;
-use Queryflatfile\TableBuilder;
+use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Soosyze\Queryflatfile\TableBuilder;
 
 class TableBuilderTest extends \PHPUnit\Framework\TestCase
 {

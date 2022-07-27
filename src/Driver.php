@@ -8,12 +8,12 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\Exception\Driver\DriverException;
-use Queryflatfile\Exception\Driver\FileNotFoundException;
-use Queryflatfile\Exception\Driver\FileNotReadableException;
-use Queryflatfile\Exception\Driver\FileNotWritableException;
+use Soosyze\Queryflatfile\Exception\Driver\DriverException;
+use Soosyze\Queryflatfile\Exception\Driver\FileNotFoundException;
+use Soosyze\Queryflatfile\Exception\Driver\FileNotReadableException;
+use Soosyze\Queryflatfile\Exception\Driver\FileNotWritableException;
 
 /**
  * Implementation partiel Queryflatfile\DriverInterface.
