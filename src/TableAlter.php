@@ -8,10 +8,10 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\Field\DropType;
-use Queryflatfile\Field\RenameType;
+use Soosyze\Queryflatfile\Field\DropType;
+use Soosyze\Queryflatfile\Field\RenameType;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.

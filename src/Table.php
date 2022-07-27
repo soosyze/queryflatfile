@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\Field\IncrementType;
+use Soosyze\Queryflatfile\Field\IncrementType;
 
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>

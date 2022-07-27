@@ -8,10 +8,10 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\Exception\TableBuilder\ColumnsValueException;
-use Queryflatfile\Exception\TableBuilder\TableBuilderException;
+use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.

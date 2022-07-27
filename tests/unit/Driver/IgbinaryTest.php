@@ -1,10 +1,10 @@
 <?php
 
-namespace Queryflatfile\Tests\unit\Driver;
+namespace Soosyze\Queryflatfile\Tests\unit\Driver;
 
-use Queryflatfile\Driver\Igbinary;
-use Queryflatfile\DriverInterface;
-use Queryflatfile\Exception\Driver\FileNotFoundException;
+use Soosyze\Queryflatfile\Driver\Igbinary;
+use Soosyze\Queryflatfile\DriverInterface;
+use Soosyze\Queryflatfile\Exception\Driver\FileNotFoundException;
 
 class IgbinaryTest extends \PHPUnit\Framework\TestCase
 {

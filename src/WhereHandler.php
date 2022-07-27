@@ -8,10 +8,10 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\Exception\Query\OperatorNotFound;
-use Queryflatfile\Exception\Query\QueryException;
+use Soosyze\Queryflatfile\Exception\Query\OperatorNotFound;
+use Soosyze\Queryflatfile\Exception\Query\QueryException;
 
 /**
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
