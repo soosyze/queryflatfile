@@ -1,9 +1,9 @@
 <?php
 
-namespace Queryflatfile\Tests\unit;
+namespace Soosyze\Queryflatfile\Tests\unit;
 
-use Queryflatfile\Field;
-use Queryflatfile\TableAlter;
+use Soosyze\Queryflatfile\Field;
+use Soosyze\Queryflatfile\TableAlter;
 
 class TableAlterTest extends \PHPUnit\Framework\TestCase
 {

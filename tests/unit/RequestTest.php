@@ -1,16 +1,16 @@
 <?php
 
-namespace Queryflatfile\Tests\unit;
+namespace Soosyze\Queryflatfile\Tests\unit;
 
 use PHPUnit\Framework\MockObject\MockObject;
-use Queryflatfile\DriverInterface;
-use Queryflatfile\Exception\Query\ColumnsNotFoundException;
-use Queryflatfile\Exception\Query\OperatorNotFound;
-use Queryflatfile\Exception\Query\QueryException;
-use Queryflatfile\Exception\Query\TableNotFoundException;
-use Queryflatfile\Request;
-use Queryflatfile\Schema;
-use Queryflatfile\WhereHandler;
+use Soosyze\Queryflatfile\DriverInterface;
+use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
+use Soosyze\Queryflatfile\Exception\Query\OperatorNotFound;
+use Soosyze\Queryflatfile\Exception\Query\QueryException;
+use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
+use Soosyze\Queryflatfile\Request;
+use Soosyze\Queryflatfile\Schema;
+use Soosyze\Queryflatfile\WhereHandler;
 
 class RequestTest extends \PHPUnit\Framework\TestCase
 {

@@ -8,10 +8,10 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile\Field;
+namespace Soosyze\Queryflatfile\Field;
 
-use Queryflatfile\Exception\TableBuilder\ColumnsValueException;
-use Queryflatfile\Field;
+use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Soosyze\Queryflatfile\Field;
 
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>

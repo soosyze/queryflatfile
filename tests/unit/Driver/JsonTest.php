@@ -1,10 +1,10 @@
 <?php
 
-namespace Queryflatfile\Tests\unit\Driver;
+namespace Soosyze\Queryflatfile\Tests\unit\Driver;
 
-use Queryflatfile\Driver\Json;
-use Queryflatfile\DriverInterface;
-use Queryflatfile\Exception\Driver\FileNotFoundException;
+use Soosyze\Queryflatfile\Driver\Json;
+use Soosyze\Queryflatfile\DriverInterface;
+use Soosyze\Queryflatfile\Exception\Driver\FileNotFoundException;
 
 class JsonTest extends \PHPUnit\Framework\TestCase
 {

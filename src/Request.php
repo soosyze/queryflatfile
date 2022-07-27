@@ -8,14 +8,14 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile;
+namespace Soosyze\Queryflatfile;
 
-use Queryflatfile\Exception\Query\BadFunctionException;
-use Queryflatfile\Exception\Query\ColumnsNotFoundException;
-use Queryflatfile\Exception\Query\OperatorNotFound;
-use Queryflatfile\Exception\Query\QueryException;
-use Queryflatfile\Exception\Query\TableNotFoundException;
-use Queryflatfile\Field\IncrementType;
+use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
+use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
+use Soosyze\Queryflatfile\Exception\Query\OperatorNotFound;
+use Soosyze\Queryflatfile\Exception\Query\QueryException;
+use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
+use Soosyze\Queryflatfile\Field\IncrementType;
 
 /**
  * Réalise des requêtes à partir d'un schéma de données passé en paramètre.

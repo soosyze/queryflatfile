@@ -8,16 +8,16 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile\Driver;
+namespace Soosyze\Queryflatfile\Driver;
 
-use Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
+use Soosyze\Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
 
 /**
  * Manipule des données dans des fichiers de type JSON
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-final class Json extends \Queryflatfile\Driver
+final class Json extends \Soosyze\Queryflatfile\Driver
 {
     /**
      * {@inheritDoc}

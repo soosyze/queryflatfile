@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Queryflatfile\Driver;
+namespace Soosyze\Queryflatfile\Driver;
 
-use Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
+use Soosyze\Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
 
 /**
  * Manipule des données sérialisées avec l'extension msgpack
@@ -19,7 +19,7 @@ use Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-final class MsgPack extends \Queryflatfile\Driver
+final class MsgPack extends \Soosyze\Queryflatfile\Driver
 {
     /**
      * {@inheritDoc}
