@@ -4,87 +4,88 @@
 [![Coverage Status](https://coveralls.io/repos/github/soosyze/queryflatfile/badge.svg?branch=master)](https://coveralls.io/github/soosyze/queryflatfile?branch=master "Coveralls")
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/soosyze/queryflatfile/blob/master/LICENSE "LICENSE")
 [![Packagist](https://img.shields.io/packagist/v/soosyze/queryflatfile.svg)](https://packagist.org/packages/soosyze/queryflatfile "Packagist")
-[![PHP from Packagist](https://img.shields.io/packagist/php-v/soosyze/queryflatfile.svg)](/README.md#version-php "PHP version 5.4 minimum")
+[![PHP from Packagist](https://img.shields.io/packagist/php-v/soosyze/queryflatfile.svg)](/README.md#version-php "PHP version 7.2 minimum")
 [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/soosyze/queryflatfile.svg)](https://github.com/soosyze/queryflatfile/archive/master.zip "Download")
 
-* :gb: [README in English](README.md)
-* :fr: [README en Français](README_fr.md)
+- :gb: [README in English](README.md)
+- :fr: [README en Français](README_fr.md)
 
-# À propos
+## À propos
 
 Queryflatfile est une bibliothèque de base de données flat file écrit en PHP.
-Stock vos données par défaut au format `JSON`, supporte aussi les formats `txt`, `msgPack` et `igbinary`.
+Stock vos données par défaut au format `JSON`, supporte aussi les formats `txt`, [msgPack](https://pecl.php.net/package/msgpack) et [igbinary](https://pecl.php.net/package/igbinary).
 Manipulez vos données avec un QueryBuilder similaire à la syntaxe SQL.
 
-# Sommaire
-* [Exigences d'installation](/README.md#exigences-dinstallation)
-* [Installation](/README.md#installation)
-* [Exemple simple](/README.md#exemple-simple)
-* [Méthodes](/README.md#méthodes)
-* [Utilisation](https://github.com/soosyze/queryflatfile/blob/master/USAGE.md)
+## Sommaire
 
-# Exigences d'installation
+- [Exigences d'installation](/README_fr.md#exigences-dinstallation)
+- [Installation](/README_fr.md#installation)
+- [Exemple simple](/README_fr.md#exemple-simple)
+- [Méthodes](/README_fr.md#méthodes)
+- [Utilisation](/README_fr.md#utilisation)
+- [License](/README_fr.md#licence)
 
-## Version PHP
+## Exigences d'installation
 
-Support plus de [85% des versions PHP actuelles](https://w3techs.com/technologies/details/pl-php)
+### Version PHP
 
-| Version PHP     | QueryFlatFile 1.4.x | QueryFlatFile 2.x |
-|-----------------|---------------------|-------------------|
-| <= 5.5          | ✗ Non supporté      | ✗ Non supporté    |
-| 5.6             | ✓ Supporté          | ✗ Non supporté    |
-| 7.0 / 7.1       | ✓ Supporté          | ✗ Non supporté    |
-| 7.2 / 7.3 / 7.4 | ✓ Supporté          | ✓ Supporté        |
-| 8.0             | ✗ Non supporté      | ✓ Supporté        |
+| Version PHP     | QueryFlatFile 3.x |
+| --------------- | ----------------- |
+| <= 7.1          | ✗ Non supporté    |
+| 7.2 / 7.3 / 7.4 | ✓ Supporté        |
+| 8.0 / 8.1       | ✓ Supporté        |
 
-## Extensions PHP
+### Extensions PHP
 
 - `txt` pour l'enregistrement des données sérialiser,
 - `json` pour l'enregistrement des données au format JSON,
-- `msgpack` pour l'enregistrement des données en binaire,
-- `igbinary` pour l'enregistrement des données en binaire.
+- [msgPack](https://pecl.php.net/package/msgpack) pour l'enregistrement des données en binaire,
+- [igbinary](https://pecl.php.net/package/igbinary) pour l'enregistrement des données en binaire.
 
-## Mémoire requise
+### Mémoire requise
 
- La quantité de mémoire minimum nécessaire dépend du volume de données que vous traiterez et du type d'opérations.
-Pour gagner en performance utiliser les versions PHP 7.x et le driver `MsgPack` ou `Igbinary`.
+La quantité de mémoire minimum nécessaire dépend du volume de données que vous traiterez et du type d'opérations.
+Pour gagner en performance utiliser le drivers `MsgPack` ou `Igbinary`.
 
-## Permission des fichiers et répértoire
+### Permission des fichiers et répértoire
 
 La permission d'écrire et lire les fichiers dans le répertoire qui stockera vos données.
 
-# Installation
+## Installation
 
-## Composer
+### Composer
 
-Pour installer **QueryFlatFile** via Composer il est faut avoir l’installateur ou le fichier binaire [Composer](https://getcomposer.org/download/)
+Pour installer **Queryflatfile** via Composer il est faut avoir l’installateur ou le fichier binaire [Composer](https://getcomposer.org/download/)
 
 Rendez-vous dans le répertoire de votre projet, ouvrez une invite de commandes et lancer la commande suivante :
+
 ```sh
 composer require soosyze/queryflatfile
 ```
 
 Ou, si vous utilisez le fichier binaire :
+
 ```sh
 php composer.phar require soosyze/queryflatfile
 ```
 
-# Exemple simple
+## Exemple simple
+
 ```php
 require __DIR__ . '/vendor/autoload.php';
 
-use Queryflatfile\Schema;
-use Queryflatfile\Request;
-use Queryflatfile\TableBuilder;
-use Queryflatfile\Driver\Json;
+use Soosyze\Queryflatfile\Schema;
+use Soosyze\Queryflatfile\Request;
+use Soosyze\Queryflatfile\TableBuilder;
+use Soosyze\Queryflatfile\Driver\Json;
 
-$bdd = new Schema('data', 'schema', new Json());
-$req = new Request($bdd);
+$sch = new Schema('data', 'schema', new Json());
+$req = new Request($sch);
 
-$bdd->createTableIfNotExists('user', function(TableBuilder $table){
+$sch->createTableIfNotExists('user', function(TableBuilder $table): void {
     $table->increments('id')
-          ->string('name')
-          ->string('firstname')->nullable();
+    $table->string('name')
+    $table->string('firstname')->nullable();
 });
 
 $req->insertInto('user', [ 'name', 'firstname' ])
@@ -100,10 +101,11 @@ $data = $req->select('id', 'name')
 
 print_r($data);
 
-$bdd->dropTableIfExists('user');
+$sch->dropTableIfExists('user');
 ```
 
 L'exemple ci-dessus va afficher :
+
 ```
 Array
 (
@@ -112,89 +114,109 @@ Array
 )
 ```
 
+## Méthodes
 
-# Méthodes
+**Schema**
 
-**Schéma**
 - `dropSchema()`,
-- `getIncrement( $table )`,
+- `getIncrement( string $tableName )`,
 - `getSchema()`,
-- `getTableSchema( $table )`,
-- `hasColumn( $table, $columns )`,
-- `hasTable( $table )`,
-- `setConfig( $host, $name = 'schema', DriverInterface $driver = null )`.
+- `getTableSchema( string $tableName )`,
+- `hasColumn( string $tableName, $columnName )`,
+- `hasTable( string $tableName )`,
+- `setConfig( string $host, string $name = 'schema', DriverInterface $driver = null )`.
 
-**Manipulation des tables**
-- `alterTable( $table, callable $callback )`,
-- `createTable( $table, callable $callback = null )`,
-- `createTableIfNotExists( $table, callable $callback = null )` :
-  - `boolean( $name )`,
-  - `char( $name, $length = 1)`,
-  - `date( $name )`,
-  - `dateTime( $name )`,
-  - `float( $name )`,
-  - `increments( $name )`,
-  - `integer( $name )`,
-  - `string( $name, $length = 255)`,
-  - `text( $name )`.
-- `dropTable( $table )`,
-- `dropTableIfExists( $table )`,
-- `truncateTable( $table )`.
+**Handling tables**
 
-**Requête de sélection**
-- `select( array|string ...$columns )`,
-- `from( $table )`,
-- `leftJoin( $table, callable|string $column, $condition = null, $value = null )`,
-- `rightJoin( $table, callable|string $column, $condition = null, $value = null )`,
-- `union( Request $union )`,
-- `unionAll( Request $union )`,
-- `orderBy( $columns, $order = SORT_DESC|SORT_ASC )`,
-- `limit( $limit, $offset = 0 )`.
+- `alterTable( string $tableName, callable $callback )`,
+- `createTable( string $tableName, callable $callback = null )`,
+- `createTableIfNotExists( string $tableName, callable $callback = null )` :
+  - `boolean( string $name )`,
+  - `char( string $name, $length = 1)`,
+  - `date( string $name )`,
+  - `dateTime( string $name )`,
+  - `float( string $name )`,
+  - `increments( string $name )`,
+  - `integer( string $name )`,
+  - `string( string $name, $length = 255)`,
+  - `text( string $name )`.
+- `dropTable( string $tableName )`,
+- `dropTableIfExists( string $tableName )`,
+- `truncateTable( string $tableName )`.
 
-**Requête d'exécution**
-- `insertInto( $table, array $columns )`,
-- `values( array $columns )`,
-- `update( $table, array $columns )`,
+**Selection request**
+
+- `select( string ...$columnNames )`,
+- `from( string $tableName )`,
+- `leftJoin( string $tableName, \Closure|string $column, string $condition = '', string $value = '' )`,
+- `rightJoin( string $tableName, \Closure|string $column, string $condition = '', string $value = '' )`,
+- `union( RequestInterface $union )`,
+- `unionAll( RequestInterface $union )`,
+- `orderBy( string $columnName, int $order = SORT_DESC|SORT_ASC )`,
+- `limit( int $limit, int $offset = 0 )`.
+
+**Request for execution**
+
+- `insertInto( string $tableName, array $columnNames )`,
+- `values( array $rowValues )`,
+- `update( string $tableName, array $row )`,
 - `delete()`,
-- `execute()` Exécute l'insertion, la modification et la suppression de données.
+- `execute()` Performs the insertion, modification and deletion of data.
 
-**Résultat(s) de la requête**
-- `fetch()` Renvoie le premier résultat de la requête,
-- `fetchAll()` Renvoie tous les résultats de la requête,
-- `lists( $name, $key = null )` Renvoie une liste de la colonne passée en paramètre.
+**Result(s) of the query**
+
+- `fetch(): array` Returns the first result of the query,
+- `fetchAll(): array` Returns all the results of the query,
+- `lists( string $columnName, string $key = null ): array` Returns a list of the column passed in parameter.
 
 **Where**
-- `where( callable|string $column, $condition = null, $value = null )`,
-- `orWhere( callable|string $column, $condition = null, $value = null )`,
-- `notWhere( callable|string $column, $condition = null, $value = null )`,
-- `orNotWhere( callable|string $column, $condition = null, $value = null )`.
 
-Conditions supportées (===, ==, !=, <>, <, <=, >, >=, like, ilike, not like, not ilike)
+- `where( string $columnName, string $condition, null|scalar $value )`,
+- `orWhere( string $columnName, string $condition, null|scalar $value )`,
+- `notWhere( string $columnName, string $condition, null|scalar $value )`,
+- `orNotWhere( string $columnName, string $condition, null|scalar $value )`.
+
+Supported conditions (===, ==, !=, <>, <, <=, >, >=, like, ilike, not like, not ilike)
+
+**Where**
+
+- `whereGroup( \Closure $columnName )`,
+- `orWhereGroup( \Closure $columnName )`,
+- `notWhereGroup( \Closure $columnName )`,
+- `orNotWhereGroup( \Closure $columnName )`.
 
 **Where between**
-- `between( $column, $min, $max )`,
-- `orBetween( $column, $min, $max )`,
-- `notBetween( $column, $min, $max )`,
-- `orNotBetween( $column, $min, $max )`.
+
+- `between( string $columnName, $min, $max )`,
+- `orBetween( string $columnName, $min, $max )`,
+- `notBetween( string $columnName, $min, $max )`,
+- `orNotBetween( string $columnName, $min, $max )`.
 
 **Where in**
-- `in( $column, array $values )`,
-- `orIn( $column, array $values )`,
-- `notIn( $column, array $values )`,
-- `orNotIn( $column, array $values )`.
+
+- `in( string $columnName, array $values )`,
+- `orIn( string $columnName, array $values )`,
+- `notIn( string $columnName, array $values )`,
+- `orNotIn( string $columnName, array $values )`.
 
 **Where isNull**
-- `isNull( $column )`,
-- `orIsNull( $column )`,
-- `isNotNull( $column )`,
-- `orIsNotNull( $column )`.
+
+- `isNull( string $columnName )`,
+- `orIsNull( string $columnName )`,
+- `isNotNull( string $columnName )`,
+- `orIsNotNull( string $columnName )`.
 
 **Where regex**
-- `regex( $column, $pattern)`,
-- `orRegex( $column, $pattern )`,
-- `notRegex( $column, $pattern )`,
-- `orNotRegex( $column, $pattern )`.
 
-# Utilisation
+- `regex( string $columnName, string $pattern )`,
+- `orRegex( string $columnName, string $pattern )`,
+- `notRegex( string $columnName, string $pattern )`,
+- `orNotRegex( string $columnName, string $pattern )`.
 
-Pour avoir des exemples d'utilisations référez-vous à la [documentation d'utilisation](https://github.com/soosyze/queryflatfile/blob/master/USAGE.md).
+## Utilisation
+
+Pour avoir des exemples d'utilisations référez-vous à la [documentation d'utilisation](/USAGE.md).
+
+## Licence
+
+Ce projet est sous [licence MIT](/LICENSE).
