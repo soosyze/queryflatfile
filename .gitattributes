@@ -6,6 +6,7 @@
 .github export-ignore
 .gitignore export-ignore
 .php-cs-fixer.dist.php export-ignore
+Makefile export-ignore
 phpdoc.dist.xml export-ignore
 phpunit.xml export-ignore
 phpstan.neon.dist export-ignore
