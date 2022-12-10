@@ -29,11 +29,11 @@ Manipulate your data with a QueryBuilder similar to SQL syntax.
 
 ### PHP version
 
-| Version PHP     | QueryFlatFile 3.x |
-| --------------- | ----------------- |
-| <= 7.1          | ✗ Unsupported     |
-| 7.2 / 7.3 / 7.4 | ✓ Supported       |
-| 8.0 / 8.1       | ✓ Supported       |
+| Version PHP     | QueryFlatFile 3.1.x |
+| --------------- | ------------------- |
+| <= 7.1          | ✗ Unsupported       |
+| 7.2 / 7.3 / 7.4 | ✓ Supported         |
+| 8.0 / 8.1 / 8.2 | ✓ Supported         |
 
 ### Extensions
 
