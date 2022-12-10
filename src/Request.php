@@ -449,7 +449,15 @@ class Request extends RequestHandler
 
         foreach ($this->values as $values) {
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
-            if ($count !== count($values)) {
+            try {
+                /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
+                $row = array_combine($this->columnNames, $values);
+
+                /* PHP < 8 la méthode renvoie false */
+                if ($row === false) {
+                    throw new \Exception();
+                }
+            } catch (\Throwable $e) {
                 throw new ColumnsNotFoundException(
                     sprintf(
                         'The number of fields in the selections are different: %s != %s',
@@ -459,13 +467,9 @@ class Request extends RequestHandler
                 );
             }
 
-            /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
-            $row = array_combine($this->columnNames, $values);
-
             $data = [];
             foreach ($fields as $fieldName => $field) {
                 /* Si mon champs existe dans le schema. */
-                /* @phpstan-ignore-next-line array_combine(): array|false */
                 if (isset($row[ $fieldName ])) {
                     $data[ $fieldName ] = $field->filterValue($row[ $fieldName ]);
                     /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma. */
