@@ -3,30 +3,10 @@
 namespace Soosyze\Queryflatfile\Tests\unit\Driver;
 
 use Soosyze\Queryflatfile\Driver\MsgPack;
-use Soosyze\Queryflatfile\DriverInterface;
-use Soosyze\Queryflatfile\Exception\Driver\FileNotFoundException;
 
-class MsgPackTest extends \PHPUnit\Framework\TestCase
+class MsgPackTest extends Driver
 {
-    private const TEST_DIR = 'tests/msgpack';
-
-    private const TEST_FILE_NAME = 'driver_test';
-
-    /**
-     * @var DriverInterface
-     */
-    protected $driver;
-
-    public static function tearDownAfterClass(): void
-    {
-        if (($nbFile = scandir(self::TEST_DIR)) === false) {
-            return;
-        }
-
-        if (count($nbFile) == 2) {
-            rmdir(self::TEST_DIR);
-        }
-    }
+    protected const FIXTURES_DIR = 'fixtures/driver/msgpack';
 
     protected function setUp(): void
     {
@@ -38,77 +18,34 @@ class MsgPackTest extends \PHPUnit\Framework\TestCase
         $this->driver = new MsgPack();
     }
 
-    public function testCreate(): void
-    {
-        $output = $this->driver->create(
-            self::TEST_DIR,
-            self::TEST_FILE_NAME,
-            [ 'key_test' => 'value_test' ]
-        );
-
-        self::assertTrue($output);
-        self::assertFileExists(self::TEST_DIR . '/driver_test.msg');
-    }
-
-    public function testNoCreate(): void
-    {
-        $output = $this->driver->create(
-            self::TEST_DIR,
-            self::TEST_FILE_NAME,
-            [ 'key_test' => 'value_test' ]
-        );
-
-        self::assertFalse($output);
-    }
-
-    public function testRead(): void
-    {
-        $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
-
-        self::assertEquals([ 'key_test' => 'value_test' ], $data);
-    }
-
-    public function testReadException(): void
-    {
-        $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessage('tests/msgpack/driver_test_error.msg file is missing.');
-        $this->driver->read(self::TEST_DIR, 'driver_test_error');
-    }
-
     public function testSave(): void
     {
-        $data = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
+        $copyFilename = self::getCopyFile();
 
-        $data[ 'key_test_2' ] = 'value_test_2';
+        $data = (array) \msgpack_unpack(
+            (string) file_get_contents($copyFilename)
+        );
 
-        $output  = $this->driver->save(self::TEST_DIR, self::TEST_FILE_NAME, $data);
-        $newData = $this->driver->read(self::TEST_DIR, self::TEST_FILE_NAME);
+        $data['key_test_2'] = 'value_test_2';
+
+        $output  = $this->driver->save(self::getFixturesDir(), self::TEST_FILE_NAME, $data);
+        $newData = \msgpack_unpack(
+            (string) file_get_contents($copyFilename)
+        );
 
         self::assertTrue($output);
         self::assertEquals($data, $newData);
-    }
 
-    public function testSaveException(): void
-    {
-        $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessage('tests/msgpack/driver_test_error.msg file is missing.');
-        $this->driver->save(self::TEST_DIR, 'driver_test_error', []);
-    }
-
-    public function testHas(): void
-    {
-        $has    = $this->driver->has(self::TEST_DIR, self::TEST_FILE_NAME);
-        $notHas = $this->driver->has(self::TEST_DIR, 'driver_test_not_found');
-
-        self::assertTrue($has);
-        self::assertFalse($notHas);
+        unlink($copyFilename);
     }
 
     public function testDelete(): void
     {
-        $output = $this->driver->delete(self::TEST_DIR, self::TEST_FILE_NAME);
+        $copyFilename = self::getCopyFile();
+
+        $output = $this->driver->delete(self::getFixturesDir(), self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::TEST_DIR . '/driver_test.msg');
+        self::assertFileNotExists(self::getFixturesDir($copyFilename));
     }
 }
