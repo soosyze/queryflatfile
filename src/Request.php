@@ -540,7 +540,7 @@ class Request extends RequestHandler
             $output .= sprintf('(%s) VALUES%s', addslashes(implode(', ', $this->columnNames)), PHP_EOL);
         }
         $data = array_map(
-            function ($values) {
+            function ($values): string {
                 $data = array_map(
                     function ($item) {
                         return self::getValueToString($item);
