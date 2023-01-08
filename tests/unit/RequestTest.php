@@ -1713,20 +1713,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->method('read')
             ->willReturnCallback(
                 function (string $path, string $filename): array {
-                    if ($filename === 'schema') {
-                        return $this->loadFixtures('schema');
-                    }
-                    if ($filename === 'user') {
-                        return $this->loadFixtures('user');
-                    }
-                    if ($filename === 'user_role') {
-                        return $this->loadFixtures('user_role');
-                    }
-                    if ($filename === 'role') {
-                        return $this->loadFixtures('role');
-                    }
-
-                    throw new \Exception("Table $filename not found");
+                    return $this->loadFixtures($filename);
                 }
             );
 
@@ -1735,7 +1722,12 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     private function loadFixtures(string $filename): array
     {
-        $json = (string) file_get_contents(dirname(__DIR__) . "/fixtures/$filename.json");
+        $filename = dirname(__DIR__) . "/fixtures/$filename.json";
+        if (!is_file($filename)) {
+            throw new \Exception("Table $filename not found");
+        }
+
+        $json = (string) file_get_contents($filename);
 
         $data = json_decode($json, true);
         if (!\is_array($data)) {
