@@ -71,6 +71,20 @@ final class Table
         return $this->fields[ $name ];
     }
 
+    /**
+     * Obtenez un champ par clé ou ajoutez-le s'il n'existe pas.
+     */
+    public function getFieldOrPut(Field $field): Field
+    {
+        if (isset($this->fields[$field->getName()])) {
+            return $this->fields[$field->getName()];
+        }
+
+        $this->addField($field);
+
+        return $this->fields[$field->getName()];
+    }
+
     public function getFields(): array
     {
         return $this->fields;

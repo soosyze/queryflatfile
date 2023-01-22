@@ -48,9 +48,7 @@ class TableBuilder
      */
     public function boolean(string $name): Field
     {
-        $this->table->addField(new BoolType($name));
-
-        return $this->table->getField($name);
+        return $this->table->getFieldOrPut(new BoolType($name));
     }
 
     /**
@@ -64,9 +62,7 @@ class TableBuilder
      */
     public function char(string $name, int $length = 1): Field
     {
-        $this->table->addField(new CharType($name, $length));
-
-        return $this->table->getField($name);
+        return $this->table->getFieldOrPut(new CharType($name, $length));
     }
 
     /**
@@ -76,9 +72,7 @@ class TableBuilder
      */
     public function date(string $name): Field
     {
-        $this->table->addField(new DateType($name));
-
-        return $this->table->getField($name);
+        return $this->table->getFieldOrPut(new DateType($name));
     }
 
     /**
@@ -88,9 +82,7 @@ class TableBuilder
      */
     public function datetime(string $name): Field
     {
-        $this->table->addField(new DateTimeType($name));
-
-        return $this->table->getField($name);
+        return $this->table->getFieldOrPut(new DateTimeType($name));
     }
 
     /**
@@ -102,9 +94,7 @@ class TableBuilder
      */
     public function float(string $name): Field
     {
-        $this->table->addField(new FloatType($name));
-
-        return $this->table->getField($name);
+        return $this->table->getFieldOrPut(new FloatType($name));
     }
 
     /**
@@ -122,9 +112,7 @@ class TableBuilder
             throw new TableBuilderException('Only one incremental column is allowed per table.');
         }
 
-        $this->table->addField(new IncrementType($name));
-
-        return $this->table->getField($name);
+        return $this->table->getFieldOrPut(new IncrementType($name));
     }
 
     /**
@@ -136,9 +124,7 @@ class TableBuilder
      */
     public function integer(string $name): IntType
     {
-        $this->table->addField(new IntType($name));
-
-        $field = $this->table->getField($name);
+        $field = $this->table->getFieldOrPut(new IntType($name));
 
         if (!$field instanceof IntType) {
             throw new \Exception('Type is invalid');
@@ -158,9 +144,7 @@ class TableBuilder
      */
     public function string(string $name, int $length = 255): Field
     {
-        $this->table->addField(new StringType($name, $length));
-
-        return $this->table->getField($name);
+        return $this->table->getFieldOrPut(new StringType($name, $length));
     }
 
     /**
@@ -171,9 +155,7 @@ class TableBuilder
      */
     public function text(string $name): Field
     {
-        $this->table->addField(new TextType($name));
-
-        return $this->table->getField($name);
+        return $this->table->getFieldOrPut(new TextType($name));
     }
 
     public function getTable(): Table
