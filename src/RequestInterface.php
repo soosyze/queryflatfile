@@ -39,9 +39,6 @@ interface RequestInterface
      */
     public const JOIN_RIGHT = 'right';
 
-    /**
-     * @return string
-     */
     public function __toString(): string;
 
     /**
@@ -171,7 +168,6 @@ interface RequestInterface
      * Enregistre une union all entre 2 ensembles.
      * Les doublons de lignes figure dans le resultat de l'union.
      *
-     * @param RequestInterface $request
      *
      * @return $this
      */

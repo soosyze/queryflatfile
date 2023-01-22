@@ -75,7 +75,7 @@ abstract class RequestHandler implements RequestInterface
      *
      * @var string|null
      */
-    protected $execute = null;
+    protected $execute;
 
     /**
      * Le nom de la table courante.
@@ -151,7 +151,7 @@ abstract class RequestHandler implements RequestInterface
      *
      * @var Where|null
      */
-    protected $where = null;
+    protected $where;
 
     /**
      * Permet d'utiliser les méthodes de l'objet \Queryflatfile\Where

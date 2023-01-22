@@ -37,7 +37,7 @@ class IntType extends Field
             );
         }
 
-        return (int) $value;
+        return $value;
     }
 
     /**

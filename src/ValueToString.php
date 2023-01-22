@@ -14,8 +14,6 @@ trait ValueToString
 {
     /**
      * @param array|null|scalar|Where $value
-     *
-     * @return string
      */
     protected static function getValueToString($value): string
     {

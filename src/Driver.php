@@ -30,26 +30,16 @@ abstract class Driver implements DriverInterface
      * @codeCoverageIgnore has
      *
      * @throws Exception\Driver\ExtensionNotLoadedException
-     *
-     * @return void
      */
     abstract public function checkExtension(): void;
 
     /**
      * Renvoie les données séréalisées.
-     *
-     * @param array $data
-     *
-     * @return string
      */
     abstract public function serializeData(array $data): string;
 
     /**
      * Renvoie les données désérialisées.
-     *
-     * @param string $data
-     *
-     * @return array
      */
     abstract public function unserializeData(string $data): array;
 
@@ -152,8 +142,6 @@ abstract class Driver implements DriverInterface
      * @param string $file Chemin complet du fichier.
      *
      * @throws FileNotFoundException
-     *
-     * @return void
      */
     protected function isExist(string $file): void
     {
@@ -170,8 +158,6 @@ abstract class Driver implements DriverInterface
      * @param string $file Chemin complet du fichier.
      *
      * @throws FileNotWritableException
-     *
-     * @return void
      */
     protected function isWrite(string $file): void
     {
@@ -188,8 +174,6 @@ abstract class Driver implements DriverInterface
      * @param string $file Chemin complet du fichier.
      *
      * @throws FileNotReadableException
-     *
-     * @return void
      */
     protected function isRead(string $file): void
     {

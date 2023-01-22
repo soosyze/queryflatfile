@@ -107,8 +107,6 @@ class Schema
 
     /**
      * Retourne le chemin relatif au répertoire de stockage.
-     *
-     * @return string
      */
     public function getPath(): string
     {
@@ -118,7 +116,6 @@ class Schema
     /**
      * Ajoute la racine du répertoire de stockage.
      *
-     * @param string $root
      *
      * @return $this
      */
@@ -164,8 +161,6 @@ class Schema
      *
      * @throws TableNotFoundException
      * @throws Exception
-     *
-     * @return int
      */
     public function getIncrement(string $tableName): int
     {
@@ -366,8 +361,6 @@ class Schema
      * @param String $tableName Nom de la table.
      *
      * @throws TableNotFoundException
-     *
-     * @return bool
      */
     public function truncateTable(string $tableName): bool
     {
@@ -433,7 +426,6 @@ class Schema
     /**
      * Utilisation du driver pour lire un fichier.
      *
-     * @param string $file
      *
      * @return array le contenu du fichier
      */
@@ -444,11 +436,6 @@ class Schema
 
     /**
      * Utilisation du driver pour enregistrer des données dans un fichier.
-     *
-     * @param string $file
-     * @param array  $data
-     *
-     * @return bool
      */
     public function save(string $file, array $data): bool
     {
@@ -457,11 +444,6 @@ class Schema
 
     /**
      * Utilisation du driver pour créer un fichier.
-     *
-     * @param string $file
-     * @param array  $data
-     *
-     * @return bool
      */
     protected function create(string $file, array $data = []): bool
     {
@@ -470,10 +452,6 @@ class Schema
 
     /**
      * Utilisation du driver pour supprimer un fichier.
-     *
-     * @param string $file
-     *
-     * @return bool
      */
     protected function delete(string $file): bool
     {
@@ -488,8 +466,6 @@ class Schema
      * @param array $tableData Les données de la table.
      *
      * @phpstan-param TableData $tableData
-     *
-     * @return void
      */
     protected static function add(
         Table &$table,
@@ -525,8 +501,6 @@ class Schema
      * @param Table $table     Schéma de la table.
      * @param Field $field     Champ modifié.
      * @param array $tableData Les données de la table.
-     *
-     * @return void
      */
     protected static function modify(
         Table &$table,
@@ -568,8 +542,6 @@ class Schema
      * @param Table      $table       Schéma de la table.
      * @param RenameType $fieldRename champ à renommer
      * @param array      $tableData   Les données de la table.
-     *
-     * @return void
      */
     protected static function rename(
         Table &$table,
@@ -590,8 +562,6 @@ class Schema
      * @param Table    $table     Schéma de la table.
      * @param DropType $fieldDrop Champ à supprimer
      * @param array    $tableData Les données de la table.
-     *
-     * @return void
      */
     protected static function drop(
         Table &$table,
@@ -613,8 +583,6 @@ class Schema
      *
      * @param string   $tableName Nom de la table.
      * @param callable $callback  Fonction anonyme.
-     *
-     * @return TableBuilder
      */
     protected static function tableAlterBuilder(string $tableName, callable $callback): TableBuilder
     {
@@ -629,8 +597,6 @@ class Schema
      *
      * @param string        $tableName Nom de la table.
      * @param callable|null $callback  Fonction anonyme.
-     *
-     * @return TableBuilder
      */
     protected static function tableBuilder(string $tableName, ?callable $callback = null): TableBuilder
     {
@@ -756,8 +722,6 @@ class Schema
      * @param DropType $field Champ à supprimer
      *
      * @throws ColumnsNotFoundException
-     *
-     * @return void
      */
     private static function filterFieldDrop(Table $table, DropType $field): void
     {

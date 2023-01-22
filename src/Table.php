@@ -41,7 +41,7 @@ final class Table
      *
      * @var int|null
      */
-    private $increment = null;
+    private $increment;
 
     public function __construct(string $name)
     {
@@ -52,8 +52,6 @@ final class Table
      * Ajoute un nouveau champ.
      *
      * @param Field $field Champ.
-     *
-     * @return void
      */
     public function addField(Field $field): void
     {
@@ -117,8 +115,6 @@ final class Table
 
     /**
      * Retourne les données de la table.
-     *
-     * @return array
      *
      * @phpstan-return TableToArray
      */

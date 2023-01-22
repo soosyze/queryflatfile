@@ -77,8 +77,6 @@ interface DriverInterface
      *
      * @param string $path     Chemin du fichier.
      * @param string $fileName Nom du fichier SANS l'extension.
-     *
-     * @return bool
      */
     public function has(string $path, string $fileName): bool;
 

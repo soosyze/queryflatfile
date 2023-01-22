@@ -413,14 +413,6 @@ class WhereHandler
 
     /**
      * Ajoute une condition like pour la requête.
-     *
-     * @param string $columnName
-     * @param string $operator
-     * @param string $pattern
-     * @param string $bool
-     * @param bool   $not
-     *
-     * @return void
      */
     protected function like(
         string $columnName,
@@ -449,11 +441,8 @@ class WhereHandler
     /**
      * Filtre l'opérateur.
      *
-     * @param string $operator
      *
      * @throws OperatorNotFound
-     *
-     * @return string
      */
     private function filterOperator(string $operator): string
     {

@@ -32,6 +32,6 @@ class FloatType extends Field
             );
         }
 
-        return (float) $value;
+        return $value;
     }
 }

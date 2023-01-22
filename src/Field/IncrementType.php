@@ -33,7 +33,7 @@ class IncrementType extends Field
             );
         }
 
-        return (int) $value;
+        return $value;
     }
 
     /**

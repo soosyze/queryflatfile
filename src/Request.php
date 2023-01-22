@@ -62,8 +62,6 @@ class Request extends RequestHandler
 
     /**
      * Réalise une requête sur un schéma de données
-     *
-     * @param Schema $schema
      */
     public function __construct(Schema $schema)
     {
@@ -72,8 +70,6 @@ class Request extends RequestHandler
 
     /**
      * Retourne les paramètre de la requête en format pseudo SQL.
-     *
-     * @return string
      */
     public function __toString(): string
     {
@@ -128,7 +124,6 @@ class Request extends RequestHandler
     /**
      * Ajoute un schéma de données à notre requête.
      *
-     * @param Schema $schema
      *
      * @return $this
      */
@@ -325,8 +320,6 @@ class Request extends RequestHandler
      * Revoie les instances uniques d'un tableau multidimensionnel.
      *
      * @param array $input Table multidimensionnelle.
-     *
-     * @return void
      */
     protected static function arrayUniqueMultidimensional(array &$input): void
     {
@@ -345,12 +338,6 @@ class Request extends RequestHandler
 
     /**
      * Execute les jointures.
-     *
-     * @param string $type
-     * @param string $tableName
-     * @param Where  $where
-     *
-     * @return void
      */
     protected function executeJoins(string $type, string $tableName, Where $where): void
     {
@@ -398,8 +385,6 @@ class Request extends RequestHandler
      *
      * @param array $data    Données à trier.
      * @param array $orderBy Clés sur lesquelles le trie s'exécute.
-     *
-     * @return void
      */
     protected function executeOrderBy(array &$data, array $orderBy): void
     {
@@ -436,8 +421,6 @@ class Request extends RequestHandler
      * Exécute l'insertion de données.
      *
      * @throws ColumnsNotFoundException
-     *
-     * @return void
      */
     protected function executeInsert(): void
     {
@@ -445,7 +428,6 @@ class Request extends RequestHandler
         $increment = $this->table->getIncrement();
         /* Je charge les colonnes de mon schéma. */
         $fields    = $this->table->getFields();
-        $count     = count($this->columnNames);
 
         foreach ($this->values as $values) {
             /* Pour chaque ligne je vérifie si le nombre de colonne correspond au nombre valeur insérée. */
@@ -501,8 +483,6 @@ class Request extends RequestHandler
 
     /**
      * Exécute le calcul de mise à jour des données.
-     *
-     * @return void
      */
     protected function executeUpdate(): void
     {
@@ -518,8 +498,6 @@ class Request extends RequestHandler
 
     /**
      * Supprime des lignes de la table en fonction des conditions et sauvegarde la table.
-     *
-     * @return void
      */
     protected function executeDelete(): void
     {

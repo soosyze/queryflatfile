@@ -26,8 +26,6 @@ class Where extends WhereHandler
 
     /**
      * Retourne les paramètre des clauses en format pseudo SQL.
-     *
-     * @return string
      */
     public function __toString(): string
     {
@@ -119,8 +117,6 @@ class Where extends WhereHandler
      * @param array $row Tableau associatif de champ.
      *
      * @phpstan-param RowData $row
-     *
-     * @return bool
      */
     public function execute(array $row): bool
     {
@@ -163,8 +159,6 @@ class Where extends WhereHandler
      *
      * @phpstan-param RowData $row
      * @phpstan-param RowData $rowTable
-     *
-     * @return bool
      */
     public function executeJoin(array $row, array &$rowTable): bool
     {
@@ -200,8 +194,6 @@ class Where extends WhereHandler
      * @param array|null|scalar $value    Valeur de comparaison.
      *
      * @throws \Exception
-     *
-     * @return bool
      */
     protected static function predicate($column, string $operator, $value): bool
     {
@@ -245,10 +237,6 @@ class Where extends WhereHandler
 
     /**
      * Retourne le nom de la colonne ou la valeur.
-     *
-     * @param string $value
-     *
-     * @return string
      */
     protected static function getColumn(string $value): string
     {

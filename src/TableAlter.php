@@ -24,8 +24,6 @@ class TableAlter extends TableBuilder
      * Enregistre la suppression d'une colonne.
      *
      * @param string $name Nom de la colonne.
-     *
-     * @return void
      */
     public function dropColumn(string $name): void
     {
@@ -37,8 +35,6 @@ class TableAlter extends TableBuilder
      *
      * @param string $from Nom de la colonne.
      * @param string $to   Nouveau nom de la colonne.
-     *
-     * @return void
      */
     public function renameColumn(string $from, string $to): void
     {

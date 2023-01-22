@@ -45,8 +45,6 @@ class TableBuilder
      * http://php.net/manual/fr/language.types.boolean.php
      *
      * @param string $name Nom du champ.
-     *
-     * @return Field
      */
     public function boolean(string $name): Field
     {
@@ -63,8 +61,6 @@ class TableBuilder
      * @param int    $length longueur maximum de la chaine.
      *
      * @throws TableBuilderException
-     *
-     * @return Field
      */
     public function char(string $name, int $length = 1): Field
     {
@@ -77,8 +73,6 @@ class TableBuilder
      * Enregistre un champ de type `date` sous le format Y-m-d.
      *
      * @param string $name Nom du champ.
-     *
-     * @return Field
      */
     public function date(string $name): Field
     {
@@ -91,8 +85,6 @@ class TableBuilder
      * Enregistre un champ de type `datetime`, sous le format Y-m-d H:i:s.
      *
      * @param string $name Nom du champ.
-     *
-     * @return Field
      */
     public function datetime(string $name): Field
     {
@@ -107,8 +99,6 @@ class TableBuilder
      * Valeur d'insertion autorisé : 1, '1', 1.0, '1.0' (enregistrera 1.0).
      *
      * @param string $name Nom du champ.
-     *
-     * @return Field
      */
     public function float(string $name): Field
     {
@@ -125,8 +115,6 @@ class TableBuilder
      * @param string $name nom du champ
      *
      * @throws TableBuilderException
-     *
-     * @return Field
      */
     public function increments(string $name): Field
     {
@@ -145,14 +133,18 @@ class TableBuilder
      * Valeur d'insertion autorisé : 1, '1', 1.1, '1.1' (enregistrera 1)
      *
      * @param string $name Nom du champ.
-     *
-     * @return IntType
      */
     public function integer(string $name): IntType
     {
         $this->table->addField(new IntType($name));
-        /** @var IntType */
-        return $this->table->getField($name);
+
+        $field = $this->table->getField($name);
+
+        if (!$field instanceof IntType) {
+            throw new \Exception('Type is invalid');
+        }
+
+        return $field;
     }
 
     /**
@@ -163,8 +155,6 @@ class TableBuilder
      * @param int    $length Longueur maximum de la chaine.
      *
      * @throws TableBuilderException
-     *
-     * @return Field
      */
     public function string(string $name, int $length = 255): Field
     {
@@ -178,8 +168,6 @@ class TableBuilder
      * http://php.net/language.types.string
      *
      * @param string $name Nom du champ.
-     *
-     * @return Field
      */
     public function text(string $name): Field
     {
@@ -202,8 +190,6 @@ class TableBuilder
      * @phpstan-param TableToArray $data
      *
      * @throws TableBuilderException
-     *
-     * @return Table
      */
     public static function createTableFromArray(string $table, array $data): Table
     {

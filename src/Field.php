@@ -60,7 +60,7 @@ abstract class Field
     /**
      * @var null|string
      */
-    protected $comment = null;
+    protected $comment;
 
     /**
      * @var bool
@@ -75,7 +75,6 @@ abstract class Field
     /**
      * Enregistre un commentaire.
      *
-     * @param string $comment
      *
      * @return $this
      */
@@ -150,8 +149,6 @@ abstract class Field
 
     /**
      * Enregistre la modification du champ précédent.
-     *
-     * @return void
      */
     public function modify(): void
     {
@@ -160,8 +157,6 @@ abstract class Field
 
     /**
      * Retourne le nom de l'opération du champ.
-     *
-     * @return string
      */
     public function getOpt(): string
     {
@@ -170,8 +165,6 @@ abstract class Field
 
     /**
      * Retourne le nom du champ.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -188,7 +181,6 @@ abstract class Field
     /**
      * Retourne les données du champ.
      *
-     * @return array
      *
      * @phpstan-return FieldToArray
      */
