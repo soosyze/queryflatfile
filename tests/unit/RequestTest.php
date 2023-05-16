@@ -5,7 +5,7 @@ namespace Soosyze\Queryflatfile\Tests\unit;
 use PHPUnit\Framework\MockObject\MockObject;
 use Soosyze\Queryflatfile\DriverInterface;
 use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
-use Soosyze\Queryflatfile\Exception\Query\OperatorNotFound;
+use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Request;
@@ -190,7 +190,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testWhereOperatorException(): void
     {
-        $this->expectException(OperatorNotFound::class);
+        $this->expectException(OperatorNotFoundException::class);
         $this->expectExceptionMessage('The condition error is not exist.');
         $this->request
             ->select('name')

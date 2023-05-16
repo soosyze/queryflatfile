@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Exception\Query\OperatorNotFound;
+use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
 
 /**
@@ -68,7 +68,7 @@ class WhereHandler
      * @param string      $bool       Porte logique de la condition (and|or).
      * @param bool        $not        Inverse la condition.
      *
-     * @throws OperatorNotFound The condition is not exist.
+     * @throws OperatorNotFoundException The condition is not exist.
      */
     public function where(
         string $columnName,
@@ -442,14 +442,14 @@ class WhereHandler
      * Filtre l'opérateur.
      *
      *
-     * @throws OperatorNotFound
+     * @throws OperatorNotFoundException
      */
     private function filterOperator(string $operator): string
     {
         $condition = strtolower($operator);
 
         if (!in_array($condition, self::CONDITION)) {
-            throw new OperatorNotFound(
+            throw new OperatorNotFoundException(
                 sprintf('The condition %s is not exist.', $operator)
             );
         }

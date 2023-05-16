@@ -12,7 +12,7 @@ namespace Soosyze\Queryflatfile;
 
 use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
 use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
-use Soosyze\Queryflatfile\Exception\Query\OperatorNotFound;
+use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Field\IncrementType;
@@ -644,7 +644,7 @@ class Request extends RequestHandler
     /**
      * Vérifie pour tous les ORDER BY l'existence des champs à partir du schéma.
      *
-     * @throws OperatorNotFound
+     * @throws OperatorNotFoundException
      */
     private function filterOrderBy(): void
     {
@@ -656,7 +656,7 @@ class Request extends RequestHandler
 
         foreach ($this->orderBy as $field => $order) {
             if ($order !== SORT_ASC && $order !== SORT_DESC) {
-                throw new OperatorNotFound(
+                throw new OperatorNotFoundException(
                     sprintf('The sort type of the %s field is not valid.', $field)
                 );
             }

@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Exception\Query\OperatorNotFound;
+use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 
 /**
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.
@@ -230,7 +230,7 @@ class Where extends WhereHandler
                 return $column >= $value[ 'min' ] && $column <= $value[ 'max' ];
         }
 
-        throw new OperatorNotFound(
+        throw new OperatorNotFoundException(
             sprintf('The %s operator is not supported.', $operator)
         );
     }

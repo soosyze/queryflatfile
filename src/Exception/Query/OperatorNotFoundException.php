@@ -13,6 +13,6 @@ namespace Soosyze\Queryflatfile\Exception\Query;
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class OperatorNotFound extends QueryException
+class OperatorNotFoundException extends QueryException
 {
 }
