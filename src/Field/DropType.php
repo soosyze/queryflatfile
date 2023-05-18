@@ -17,7 +17,7 @@ use Soosyze\Queryflatfile\Field;
  */
 class DropType extends Field
 {
-    protected $opt = self::OPT_DROP;
+    protected string $opt = self::OPT_DROP;
 
     public function filterValue($value)
     {

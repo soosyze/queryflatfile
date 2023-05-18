@@ -15,10 +15,7 @@ class Driver extends \PHPUnit\Framework\TestCase
 
     protected const FIXTURES_FILE_NAME  = 'data';
 
-    /**
-     * @var DriverInterface
-     */
-    protected $driver;
+    protected DriverInterface $driver;
 
     public function testCreate(): void
     {

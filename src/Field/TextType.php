@@ -21,10 +21,8 @@ class TextType extends Field
 
     /**
      * {@inheritdoc}
-     *
-     * return string
      */
-    public function filterValue($value)
+    public function filterValue($value): string
     {
         if (!\is_string($value)) {
             throw new \InvalidArgumentException(

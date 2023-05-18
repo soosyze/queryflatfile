@@ -30,9 +30,7 @@ trait ValueToString
             return implode(
                 ', ',
                 array_map(
-                    function ($item): string {
-                        return self::getValueToString($item);
-                    },
+                    static fn ($item): string => self::getValueToString($item),
                     $value
                 )
             );

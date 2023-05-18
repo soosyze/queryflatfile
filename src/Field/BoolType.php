@@ -21,10 +21,8 @@ class BoolType extends Field
 
     /**
      * {@inheritdoc}
-     *
-     * return bool
      */
-    public function filterValue($value)
+    public function filterValue($value): bool
     {
         if (!\is_bool($value)) {
             throw new \InvalidArgumentException(

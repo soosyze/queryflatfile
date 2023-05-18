@@ -17,8 +17,5 @@ class CharType extends StringType
 {
     public const TYPE = 'char';
 
-    /**
-     * @var int
-     */
-    protected $length = 1;
+    protected int $length = 1;
 }

@@ -47,25 +47,13 @@ abstract class Field
      */
     protected $valueDefault;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $opt = self::OPT_CREATE;
+    protected string $opt = self::OPT_CREATE;
 
-    /**
-     * @var null|string
-     */
-    protected $comment;
+    protected ?string $comment = null;
 
-    /**
-     * @var bool
-     */
-    protected $isNullable = false;
+    protected bool $isNullable = false;
 
     public function __construct(string $name)
     {

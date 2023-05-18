@@ -17,10 +17,7 @@ class StringType extends TextType
 {
     public const TYPE = 'string';
 
-    /**
-     * @var int
-     */
-    protected $length = 255;
+    protected int $length;
 
     public function __construct(string $name, int $length)
     {
@@ -33,10 +30,8 @@ class StringType extends TextType
 
     /**
      * {@inheritdoc}
-     *
-     * return string
      */
-    public function filterValue($value)
+    public function filterValue($value): string
     {
         /** @var string $str */
         $str = parent::filterValue($value);
@@ -52,7 +47,7 @@ class StringType extends TextType
             );
         }
 
-        return $value;
+        return $str;
     }
 
     /**

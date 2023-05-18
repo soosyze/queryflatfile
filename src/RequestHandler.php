@@ -72,86 +72,66 @@ abstract class RequestHandler implements RequestInterface
 
     /**
      * Le type d'exécution (delete|update|insert).
-     *
-     * @var string|null
      */
-    protected $execute;
+    protected ?string $execute = null;
 
     /**
      * Le nom de la table courante.
-     *
-     * @var string
      */
-    protected $from = '';
+    protected string $from = '';
 
     /**
      * Les jointures à calculer.
      *
-     * @var array
-     *
      * @phpstan-var Join[]
      */
-    protected $joins = [];
+    protected array $joins = [];
 
     /**
      * Les unions.
      *
-     * @var array
-     *
      * @phpstan-var Union[]
      */
-    protected $unions = [];
+    protected array $unions = [];
 
     /**
      * Les colonnes à trier.
      *
      * @var array<string, int>
      */
-    protected $orderBy = [];
+    protected array $orderBy = [];
 
     /**
      * Le nombre de résultat de la requête.
-     *
-     * @var int
      */
-    protected $limit = self::ALL;
+    protected int $limit = self::ALL;
 
     /**
      * Le décalage des résultats de la requête.
-     *
-     * @var int
      */
-    protected $offset = 0;
+    protected int $offset = 0;
 
     /**
      * La somme de l'offset et de la limite.
-     *
-     * @var int
      */
-    protected $sumLimit = 0;
+    protected int $sumLimit = 0;
 
     /**
      * La liste des colonnes à mettre à jour.
-     *
-     * @var string[]
      */
-    protected $columnNames = [];
+    protected array $columnNames = [];
 
     /**
      * Les valeurs à insérer ou mettre à jour.
      *
-     * @var array
-     *
      * @phpstan-var TableData
      */
-    protected $values = [];
+    protected array $values = [];
 
     /**
      * Les conditions de la requête.
-     *
-     * @var Where|null
      */
-    protected $where;
+    protected ?Where $where = null;
 
     /**
      * Permet d'utiliser les méthodes de l'objet \Queryflatfile\Where
@@ -166,7 +146,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function __call(string $name, array $args): self
     {
-        $this->where = $this->where ?? new Where();
+        $this->where ??= new Where();
 
         if (!method_exists($this->where, $name)) {
             throw new BadMethodCallException(sprintf('The %s method is missing.', $name));

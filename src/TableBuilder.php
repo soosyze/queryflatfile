@@ -30,10 +30,7 @@ use Soosyze\Queryflatfile\Field\TextType;
  */
 class TableBuilder
 {
-    /**
-     * @var Table
-     */
-    protected $table;
+    protected Table $table;
 
     public function __construct(string $name)
     {

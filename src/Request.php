@@ -15,6 +15,7 @@ use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
+use Soosyze\Queryflatfile\Field;
 use Soosyze\Queryflatfile\Field\IncrementType;
 
 /**
@@ -33,32 +34,26 @@ class Request extends RequestHandler
     /**
      * Tous les champs utilisés.
      *
-     * @var Field[]
+     * @var Field[]|null
      */
-    private $allFieldsSchema;
+    private ?array $allFieldsSchema = null;
 
     /**
      * Les données de la table.
      *
-     * @var array
-     *
      * @phpstan-var TableData
      */
-    private $tableData = [];
+    private array $tableData = [];
 
     /**
      * Le schéma des tables utilisées par la requête.
-     *
-     * @var Table
      */
-    private $table;
+    private ?Table $table = null;
 
     /**
      * Le schéma de base de données.
-     *
-     * @var Schema
      */
-    private $schema;
+    private Schema $schema;
 
     /**
      * Réalise une requête sur un schéma de données
@@ -424,6 +419,10 @@ class Request extends RequestHandler
      */
     protected function executeInsert(): void
     {
+        if (!$this->table instanceof Table) {
+            throw new \Exception('The schema of tables used by the missing query');
+        }
+
         /* Si l'une des colonnes est de type incrémental. */
         $increment = $this->table->getIncrement();
         /* Je charge les colonnes de mon schéma. */
@@ -520,9 +519,7 @@ class Request extends RequestHandler
         $data = array_map(
             function ($values): string {
                 $data = array_map(
-                    function ($item) {
-                        return self::getValueToString($item);
-                    },
+                    static fn ($item): string => self::getValueToString($item),
                     $values
                 );
 
@@ -562,9 +559,9 @@ class Request extends RequestHandler
 
     private function whereToString(): string
     {
-        return $this->where === null
-            ? ''
-            : sprintf('WHERE %s ', (string) $this->where);
+        return $this->where instanceof Where
+            ? sprintf('WHERE %s ', (string) $this->where)
+            : '';
     }
 
     /**
@@ -572,6 +569,10 @@ class Request extends RequestHandler
      */
     private function loadAllFieldsSchema(): void
     {
+        if (!$this->table instanceof Table) {
+            throw new \Exception('The schema of tables used by the missing query');
+        }
+
         $this->allFieldsSchema = $this->table->getFields();
 
         foreach ($this->joins as $value) {
@@ -627,7 +628,7 @@ class Request extends RequestHandler
     {
         $columnNames = [];
         /* Merge les colonnes des conditions de la requête courante. */
-        if ($this->where !== null) {
+        if ($this->where instanceof \Soosyze\Queryflatfile\Where) {
             $columnNames = $this->where->getColumnNames();
         }
 
@@ -698,7 +699,7 @@ class Request extends RequestHandler
     {
         $diff = array_diff_key(
             array_flip($columnNames),
-            $this->allFieldsSchema
+            $this->allFieldsSchema ?? []
         );
 
         if ($diff !== []) {
@@ -723,6 +724,10 @@ class Request extends RequestHandler
      */
     private function getRowTableNull(string $tableName): array
     {
+        if (!$this->table instanceof Table) {
+            throw new \Exception('The schema of tables used by the missing query');
+        }
+
         /* Prend les noms des champs de la table à joindre. */
         $rowTableKey = $this->schema->getTableSchema($tableName)->getFieldsName();
         /* Prend les noms des champs dans la requête précédente. */

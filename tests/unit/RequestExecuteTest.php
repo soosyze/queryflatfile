@@ -17,15 +17,9 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
 {
     private const ROOT = __DIR__ . '/data/';
 
-    /**
-     * @var Schema
-     */
-    protected $bdd;
+    protected Schema $bdd;
 
-    /**
-     * @var Request
-     */
-    protected $request;
+    protected Request $request;
 
     public static function tearDownAfterClass(): void
     {

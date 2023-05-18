@@ -22,10 +22,8 @@ class IncrementType extends Field
 
     /**
      * {@inheritdoc}
-     *
-     * return int
      */
-    public function filterValue($value)
+    public function filterValue($value): int
     {
         if (!\is_int($value)) {
             throw new \InvalidArgumentException(
@@ -38,6 +36,8 @@ class IncrementType extends Field
 
     /**
      * @throws ColumnsValueException
+     *
+     * @return never
      */
     public function getValueDefault()
     {
@@ -46,6 +46,8 @@ class IncrementType extends Field
 
     /**
      * @throws ColumnsValueException
+     *
+     * @return never
      */
     public function valueDefault($value)
     {

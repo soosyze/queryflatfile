@@ -41,38 +41,32 @@ class Schema
 
     /**
      * Répertoire de stockage.
-     *
-     * @var string
      */
-    protected $path;
+    protected string $path;
 
     /**
      * La racine pour le répertoire de stockage.
-     *
-     * @var string
      */
-    protected $root = '';
+    protected string $root = '';
 
     /**
      * Nom du schéma.
-     *
-     * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * Schéma des tables.
      *
      * @var array<string, Table>
      */
-    protected $schema = [];
+    protected array $schema = [];
 
     /**
      * Construis l'objet avec une configuration.
      *
-     * @param string          $host   Répertoire de stockage des données.
-     * @param string          $name   Nom du fichier contenant le schéma de base.
-     * @param DriverInterface $driver Interface de manipulation de données.
+     * @param string|null                                 $host   Répertoire de stockage des données.
+     * @param string                                      $name   Nom du fichier contenant le schéma de base.
+     * @param \Soosyze\Queryflatfile\DriverInterface|null $driver Interface de manipulation de données.
      */
     public function __construct(
         ?string $host = null,

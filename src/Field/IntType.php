@@ -19,17 +19,12 @@ class IntType extends Field
 {
     public const TYPE = 'integer';
 
-    /**
-     * @var bool|null
-     */
-    private $isUnsigned = false;
+    private bool $isUnsigned = false;
 
     /**
      * {@inheritdoc}
-     *
-     * return int
      */
-    public function filterValue($value)
+    public function filterValue($value): int
     {
         if (!\is_int($value)) {
             throw new \InvalidArgumentException(

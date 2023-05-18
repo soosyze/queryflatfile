@@ -17,12 +17,9 @@ use Soosyze\Queryflatfile\Field;
  */
 class RenameType extends Field
 {
-    protected $opt = self::OPT_RENAME;
+    protected string $opt = self::OPT_RENAME;
 
-    /**
-     * @var string
-     */
-    protected $to;
+    protected string $to;
 
     public function __construct(string $name, string $to)
     {

@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
+use Rector\CodingStyle\Rector\ArrowFunction\StaticArrowFunctionRector;
 use Rector\Config\RectorConfig;
 use Rector\Core\ValueObject\PhpVersion;
+use Rector\DeadCode\Rector\ClassMethod\RemoveEmptyClassMethodRector;
+use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
+use Rector\DeadCode\Rector\StaticCall\RemoveParentCallWithoutParentRector;
 use Rector\Set\ValueObject\SetList;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -20,8 +24,15 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->sets([
         SetList::CODE_QUALITY,
         SetList::PHP_74,
-        SetList::DEAD_CODE
+        SetList::DEAD_CODE,
+        SetList::TYPE_DECLARATION
     ]);
+
+    $rectorConfig->rule(RemoveEmptyClassMethodRector::class);
+    $rectorConfig->rule(RemoveParentCallWithoutParentRector::class);
+    $rectorConfig->rule(RemoveUselessVarTagRector::class);
+
+    $rectorConfig->rule(StaticArrowFunctionRector::class);
 
     // Path to phpstan with extensions, that PHPSTan in Rector uses to determine types
     $rectorConfig->phpstanConfig(__DIR__ . '/phpstan.neon.dist');

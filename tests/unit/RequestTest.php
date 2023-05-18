@@ -14,20 +14,11 @@ use Soosyze\Queryflatfile\WhereHandler;
 
 class RequestTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var Schema
-     */
-    protected $bdd;
+    protected Schema $bdd;
 
-    /**
-     * @var Request
-     */
-    protected $request;
+    protected Request $request;
 
-    /**
-     * @var Request
-     */
-    protected $secondRequest;
+    protected Request $secondRequest;
 
     protected function setUp(): void
     {
@@ -657,13 +648,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param numeric $value
-     *
      * @dataProvider whereLikeProvider
      */
     public function testWhereLike(
         string $operator,
-        $value,
+        string $value,
         string $expectedQueryStr,
         array $expectedData
     ): void {
@@ -1696,25 +1685,19 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $mock->expects(self::any())
             ->method('create')
             ->willReturnCallback(
-                static function (string $path, string $filename): bool {
-                    return in_array($filename, [ 'schema', 'user', 'user_role', 'role' ]);
-                }
+                static fn (string $path, string $filename): bool => in_array($filename, [ 'schema', 'user', 'user_role', 'role' ])
             );
 
         $mock->expects(self::any())
             ->method('has')
             ->willReturnCallback(
-                static function (string $path, string $filename): bool {
-                    return in_array($filename, [ 'schema', 'user', 'user_role', 'role' ]);
-                }
+                static fn (string $path, string $filename): bool => in_array($filename, [ 'schema', 'user', 'user_role', 'role' ])
             );
 
         $mock->expects(self::any())
             ->method('read')
             ->willReturnCallback(
-                function (string $path, string $filename): array {
-                    return $this->loadFixtures($filename);
-                }
+                fn (string $path, string $filename): array => $this->loadFixtures($filename)
             );
 
         return $mock;

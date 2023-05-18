@@ -7,10 +7,7 @@ use Soosyze\Queryflatfile\TableBuilder;
 
 class TableBuilderTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var TableBuilder
-     */
-    protected $object;
+    protected TableBuilder $object;
 
     protected function setUp(): void
     {

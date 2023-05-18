@@ -24,24 +24,19 @@ use Soosyze\Queryflatfile\Field\IncrementType;
  */
 final class Table
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
     /**
      * Les champs et leurs paramètres.
      *
      * @var array<string, Field>
      */
-    protected $fields = [];
+    protected array $fields = [];
 
     /**
      * La valeur des champs incrémentaux.
-     *
-     * @var int|null
      */
-    private $increment;
+    private ?int $increment = null;
 
     public function __construct(string $name)
     {

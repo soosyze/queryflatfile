@@ -21,10 +21,8 @@ class FloatType extends Field
 
     /**
      * {@inheritdoc}
-     *
-     * return float
      */
-    public function filterValue($value)
+    public function filterValue($value): float
     {
         if (!\is_float($value)) {
             throw new \InvalidArgumentException(

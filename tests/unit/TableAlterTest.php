@@ -7,10 +7,7 @@ use Soosyze\Queryflatfile\TableAlter;
 
 class TableAlterTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var TableAlter
-     */
-    protected $object;
+    protected TableAlter $object;
 
     protected function setUp(): void
     {

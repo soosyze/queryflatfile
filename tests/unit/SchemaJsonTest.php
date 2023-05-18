@@ -13,15 +13,9 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
 {
     private const DATA_DIR = __DIR__ . '/data2/';
 
-    /**
-     * @var Schema
-     */
-    protected $bdd;
+    protected Schema $bdd;
 
-    /**
-     * @var Request
-     */
-    protected $request;
+    protected Request $request;
 
     protected function setUp(): void
     {
@@ -355,7 +349,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('The error table is missing.');
-        $this->bdd->alterTable('error', static function () {
+        $this->bdd->alterTable('error', static function (): void {
         });
     }
 
