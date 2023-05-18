@@ -64,9 +64,9 @@ class Schema
     /**
      * Construis l'objet avec une configuration.
      *
-     * @param string|null                                 $host   Répertoire de stockage des données.
-     * @param string                                      $name   Nom du fichier contenant le schéma de base.
-     * @param \Soosyze\Queryflatfile\DriverInterface|null $driver Interface de manipulation de données.
+     * @param string|null          $host   Répertoire de stockage des données.
+     * @param string               $name   Nom du fichier contenant le schéma de base.
+     * @param DriverInterface|null $driver Interface de manipulation de données.
      */
     public function __construct(
         ?string $host = null,
@@ -474,7 +474,7 @@ class Schema
 
         try {
             $valueDefault = $field->getValueDefault();
-        } catch (ColumnsValueException | \InvalidArgumentException $e) {
+        } catch (ColumnsValueException | \InvalidArgumentException) {
             $valueDefault = '';
         }
 
@@ -522,7 +522,7 @@ class Schema
             foreach ($tableData as &$data) {
                 $data[ $field->getName() ] = $valueDefault;
             }
-        } catch (ColumnsValueException | \InvalidArgumentException $e) {
+        } catch (ColumnsValueException | \InvalidArgumentException) {
         }
 
         if ($increment !== null) {

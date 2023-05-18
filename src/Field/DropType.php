@@ -19,7 +19,7 @@ class DropType extends Field
 {
     protected string $opt = self::OPT_DROP;
 
-    public function filterValue($value)
+    public function filterValue(null|bool|string|int|float $value): null|bool|string|int|float
     {
         return null;
     }

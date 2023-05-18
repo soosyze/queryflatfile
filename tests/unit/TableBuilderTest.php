@@ -307,13 +307,12 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @param class-string<\Throwable> $exceptionClass
-     * @param mixed                    $valueDefault
      *
      * @dataProvider getValueDefaultException
      */
     public function testValueDefaulException(
         string $method,
-        $valueDefault,
+        mixed $valueDefault,
         string $exceptionClass,
         string $exceptionMessage
     ): void {

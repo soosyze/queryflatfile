@@ -18,12 +18,12 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     // is your PHP version different from the one your refactor to? [default: your PHP version], uses PHP_VERSION_ID format
-    $rectorConfig->phpVersion(PhpVersion::PHP_74);
+    $rectorConfig->phpVersion(PhpVersion::PHP_80);
 
     // Define what rule sets will be applied
     $rectorConfig->sets([
         SetList::CODE_QUALITY,
-        SetList::PHP_74,
+        SetList::PHP_80,
         SetList::DEAD_CODE,
         SetList::TYPE_DECLARATION
     ]);

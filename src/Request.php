@@ -27,7 +27,7 @@ use Soosyze\Queryflatfile\Field\IncrementType;
  * @phpstan-import-type RowData from Schema
  * @phpstan-import-type TableData from Schema
  */
-class Request extends RequestHandler
+class Request extends RequestHandler implements \Stringable
 {
     use ValueToString;
 
@@ -51,16 +51,14 @@ class Request extends RequestHandler
     private ?Table $table = null;
 
     /**
-     * Le schéma de base de données.
-     */
-    private Schema $schema;
-
-    /**
      * Réalise une requête sur un schéma de données
      */
-    public function __construct(Schema $schema)
-    {
-        $this->schema = $schema;
+    public function __construct(
+        /**
+         * Le schéma de base de données.
+         */
+        private Schema $schema
+    ) {
     }
 
     /**
@@ -433,12 +431,7 @@ class Request extends RequestHandler
             try {
                 /* Je prépare l'association clé=>valeur pour chaque ligne à insérer. */
                 $row = array_combine($this->columnNames, $values);
-
-                /* PHP < 8 la méthode renvoie false */
-                if ($row === false) {
-                    throw new \Exception();
-                }
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 throw new ColumnsNotFoundException(
                     sprintf(
                         'The number of fields in the selections are different: %s != %s',
@@ -628,7 +621,7 @@ class Request extends RequestHandler
     {
         $columnNames = [];
         /* Merge les colonnes des conditions de la requête courante. */
-        if ($this->where instanceof \Soosyze\Queryflatfile\Where) {
+        if ($this->where instanceof Where) {
             $columnNames = $this->where->getColumnNames();
         }
 

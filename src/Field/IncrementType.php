@@ -23,7 +23,7 @@ class IncrementType extends Field
     /**
      * {@inheritdoc}
      */
-    public function filterValue($value): int
+    public function filterValue(null|bool|string|int|float $value): int
     {
         if (!\is_int($value)) {
             throw new \InvalidArgumentException(
@@ -39,7 +39,7 @@ class IncrementType extends Field
      *
      * @return never
      */
-    public function getValueDefault()
+    public function getValueDefault(): null|bool|string|int|float
     {
         throw new ColumnsValueException('An incremental type column can not have a default value.');
     }
@@ -49,7 +49,7 @@ class IncrementType extends Field
      *
      * @return never
      */
-    public function valueDefault($value)
+    public function valueDefault(null|bool|string|int|float $value): null|bool|string|int|float
     {
         throw new ColumnsValueException('An incremental type column can not have a default value.');
     }

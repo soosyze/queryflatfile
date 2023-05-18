@@ -22,7 +22,7 @@ class TextType extends Field
     /**
      * {@inheritdoc}
      */
-    public function filterValue($value): string
+    public function filterValue(null|bool|string|int|float $value): string
     {
         if (!\is_string($value)) {
             throw new \InvalidArgumentException(

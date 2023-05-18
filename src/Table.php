@@ -24,8 +24,6 @@ use Soosyze\Queryflatfile\Field\IncrementType;
  */
 final class Table
 {
-    protected string $name;
-
     /**
      * Les champs et leurs paramètres.
      *
@@ -38,9 +36,8 @@ final class Table
      */
     private ?int $increment = null;
 
-    public function __construct(string $name)
+    public function __construct(protected string $name)
     {
-        $this->name = $name;
     }
 
     /**

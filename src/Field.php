@@ -42,12 +42,7 @@ abstract class Field
 
     protected const INVALID_ARGUMENT_MESSAGE = 'The value of the %s field must be of type %s: %s given.';
 
-    /**
-     * @var null|scalar
-     */
-    protected $valueDefault;
-
-    protected string $name;
+    protected null|bool|string|int|float $valueDefault = null;
 
     protected string $opt = self::OPT_CREATE;
 
@@ -55,9 +50,8 @@ abstract class Field
 
     protected bool $isNullable = false;
 
-    public function __construct(string $name)
+    public function __construct(protected string $name)
     {
-        $this->name = $name;
     }
 
     /**
@@ -89,25 +83,21 @@ abstract class Field
      * Enregistre une valeur par défaut au champ précédent.
      * Lève une exception si la valeur par défaut ne correspond pas au type de valeur passée en paramètre.
      *
-     * @param null|scalar $value Valeur à tester.
-     *
      * @throws ColumnsValueException
-     *
-     * @return null|scalar
      */
-    abstract public function filterValue($value);
+    abstract public function filterValue(
+        null|bool|string|int|float $value
+    ): null|bool|string|int|float;
 
     /**
      * Enregistre une valeur par défaut au champ précédent.
      * Lève une exception si la valeur par défaut ne correspond pas au type de valeur passée en paramètre.
      *
-     * @param null|scalar $value Valeur à tester.
-     *
      * @throws TableBuilderException
      *
      * @return $this
      */
-    public function valueDefault($value)
+    public function valueDefault(null|bool|string|int|float $value)
     {
         $this->valueDefault = $this->filterValue($value);
 
@@ -118,10 +108,8 @@ abstract class Field
      * Retourne la valeur par defaut.
      *
      * @throws ColumnsValueException
-     *
-     * @return null|scalar Valeur par defaut.
      */
-    public function getValueDefault()
+    public function getValueDefault(): null|bool|string|int|float
     {
         if ($this->valueDefault !== null) {
             return $this->valueDefault;

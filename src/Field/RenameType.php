@@ -19,18 +19,15 @@ class RenameType extends Field
 {
     protected string $opt = self::OPT_RENAME;
 
-    protected string $to;
-
-    public function __construct(string $name, string $to)
+    public function __construct(string $name, protected string $to)
     {
         parent::__construct($name);
-        $this->to = $to;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function filterValue($value)
+    public function filterValue(null|bool|string|int|float $value): null|bool|string|int|float
     {
         return null;
     }

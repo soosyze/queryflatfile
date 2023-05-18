@@ -24,7 +24,7 @@ class IntType extends Field
     /**
      * {@inheritdoc}
      */
-    public function filterValue($value): int
+    public function filterValue(null|bool|string|int|float $value): int
     {
         if (!\is_int($value)) {
             throw new \InvalidArgumentException(

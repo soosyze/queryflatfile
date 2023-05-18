@@ -27,7 +27,7 @@ class DateTimeType extends Field
     /**
      * {@inheritdoc}
      */
-    public function filterValue($value): string
+    public function filterValue(null|bool|string|int|float $value): string
     {
         if (!\is_string($value)) {
             throw new \InvalidArgumentException(
@@ -49,7 +49,7 @@ class DateTimeType extends Field
     /**
      * {@inheritdoc}
      */
-    public function getValueDefault()
+    public function getValueDefault(): null|bool|string|int|float
     {
         if ($this->valueDefault !== null) {
             if ($this->valueDefault === static::CURRENT_DEFAULT) {

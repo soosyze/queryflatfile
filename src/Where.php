@@ -20,7 +20,7 @@ use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
  * @phpstan-import-type RowData from Schema
  * @phpstan-import-type Between from WhereHandler
  */
-class Where extends WhereHandler
+class Where extends WhereHandler implements \Stringable
 {
     use ValueToString;
 
@@ -83,7 +83,7 @@ class Where extends WhereHandler
             }
         }
         $output = trim($output, ' ');
-        $str    = strpos($output, 'AND ') === 0
+        $str    = str_starts_with($output, 'AND ')
             ? 'AND '
             : 'OR ';
 
@@ -195,8 +195,11 @@ class Where extends WhereHandler
      *
      * @throws \Exception
      */
-    protected static function predicate($column, string $operator, $value): bool
-    {
+    protected static function predicate(
+        null|bool|string|int|float $column,
+        string $operator,
+        array|null|bool|string|int|float $value
+    ): bool {
         switch ($operator) {
             case '==':
                 return $column == $value;

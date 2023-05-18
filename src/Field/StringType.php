@@ -31,9 +31,8 @@ class StringType extends TextType
     /**
      * {@inheritdoc}
      */
-    public function filterValue($value): string
+    public function filterValue(null|bool|string|int|float $value): string
     {
-        /** @var string $str */
         $str = parent::filterValue($value);
 
         if (strlen($str) > $this->length) {

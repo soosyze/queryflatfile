@@ -76,7 +76,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function leftJoin(string $tableName, $column, string $operator = '', string $value = '');
+    public function leftJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = '');
 
     /**
      * Enregistre une jointure droite.
@@ -89,7 +89,7 @@ interface RequestInterface
      *
      * @return $this
      */
-    public function rightJoin(string $tableName, $column, string $operator = '', string $value = '');
+    public function rightJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = '');
 
     /**
      * Enregistre une limitation et un décalage au retour de la requête.

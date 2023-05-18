@@ -131,13 +131,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param numeric $value
-     *
      * @dataProvider whereEqualsProvider
      */
     public function testWhereEquals(
         string $operator,
-        $value,
+        string|int|float $value,
         string $expectedQueryStr,
         ?array $expectedData
     ): void {
@@ -191,13 +189,11 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param numeric $value
-     *
      * @dataProvider whereNotEqualsProvider
      */
     public function testWhereNotEqualsNoType(
         string $operator,
-        $value,
+        string|int|float $value,
         string $expectedQueryStr
     ): void {
         $data = $this->request

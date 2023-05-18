@@ -12,10 +12,7 @@ namespace Soosyze\Queryflatfile;
 
 trait ValueToString
 {
-    /**
-     * @param array|null|scalar|Where $value
-     */
-    protected static function getValueToString($value): string
+    protected static function getValueToString(array|null|bool|string|int|float|Where $value): string
     {
         if (is_int($value)) {
             return (string) $value;
@@ -30,7 +27,9 @@ trait ValueToString
             return implode(
                 ', ',
                 array_map(
-                    static fn ($item): string => self::getValueToString($item),
+                    static fn (
+                        array|null|bool|string|int|float|Where $item
+                    ): string => self::getValueToString($item),
                     $value
                 )
             );

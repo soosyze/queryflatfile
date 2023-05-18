@@ -22,7 +22,7 @@ class BoolType extends Field
     /**
      * {@inheritdoc}
      */
-    public function filterValue($value): bool
+    public function filterValue(null|bool|string|int|float $value): bool
     {
         if (!\is_bool($value)) {
             throw new \InvalidArgumentException(

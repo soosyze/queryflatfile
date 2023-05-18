@@ -201,7 +201,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function leftJoin(string $tableName, $column, string $operator = '', string $value ='')
+    public function leftJoin(string $tableName, string|\Closure $column, string $operator = '', string $value ='')
     {
         if ($column instanceof \Closure) {
             $this->joinGroup(self::JOIN_LEFT, $tableName, $column);
@@ -238,7 +238,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function rightJoin(string $tableName, $column, string $operator = '', string $value = '')
+    public function rightJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = '')
     {
         if ($column instanceof \Closure) {
             $this->joinGroup(self::JOIN_RIGHT, $tableName, $column);

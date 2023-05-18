@@ -71,7 +71,7 @@ class WhereHandler
     public function where(
         string $columnName,
         string $operator,
-        $value,
+        null|bool|string|int|float $value,
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
@@ -86,7 +86,7 @@ class WhereHandler
                 $condition,
                 $value,
                 $bool,
-                strpos($condition, 'not') !== false
+                str_contains($condition, 'not')
             );
 
             return $this;
@@ -104,8 +104,11 @@ class WhereHandler
      *
      * @param null|scalar $value Valeur de teste.
      */
-    public function notWhere(string $columnName, string $operator, $value): self
-    {
+    public function notWhere(
+        string $columnName,
+        string $operator,
+        null|bool|string|int|float $value
+    ): self {
         $this->where($columnName, $operator, $value, self::EXP_AND, true);
 
         return $this;
@@ -116,8 +119,11 @@ class WhereHandler
      *
      * @param null|scalar $value Valeur de teste.
      */
-    public function orWhere(string $columnName, string $operator, $value): self
-    {
+    public function orWhere(
+        string $columnName,
+        string $operator,
+        null|bool|string|int|float $value
+    ): self {
         $this->where($columnName, $operator, $value, self::EXP_OR);
 
         return $this;
@@ -128,7 +134,7 @@ class WhereHandler
      *
      * @param null|scalar $value Valeur de teste.
      */
-    public function orNotWhere(string $columnName, string $operator, $value): self
+    public function orNotWhere(string $columnName, string $operator, null|bool|string|int|float $value): self
     {
         $this->where($columnName, $operator, $value, self::EXP_OR, true);
 
@@ -147,8 +153,8 @@ class WhereHandler
      */
     public function between(
         string $columnName,
-        $min,
-        $max,
+        string|int|float $min,
+        string|int|float $max,
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
@@ -167,8 +173,11 @@ class WhereHandler
      * @param numeric|string $min Valeur minimum ou égale.
      * @param numeric|string $max Valeur maximum ou égale.
      */
-    public function notBetween(string $columnName, $min, $max): self
-    {
+    public function notBetween(
+        string $columnName,
+        string|int|float $min,
+        string|int|float $max
+    ): self {
         $this->between($columnName, $min, $max, self::EXP_AND, true);
 
         return $this;
@@ -180,8 +189,11 @@ class WhereHandler
      * @param numeric|string $min Valeur minimum ou égale.
      * @param numeric|string $max Valeur maximum ou égale.
      */
-    public function orBetween(string $columnName, $min, $max): self
-    {
+    public function orBetween(
+        string $columnName,
+        string|int|float $min,
+        string|int|float $max
+    ): self {
         $this->between($columnName, $min, $max, self::EXP_OR);
 
         return $this;
@@ -193,8 +205,11 @@ class WhereHandler
      * @param numeric|string $min Valeur minimum ou égale.
      * @param numeric|string $max Valeur maximum ou égale.
      */
-    public function orNotBetween(string $columnName, $min, $max): self
-    {
+    public function orNotBetween(
+        string $columnName,
+        string|int|float $min,
+        string|int|float $max
+    ): self {
         $this->between($columnName, $min, $max, self::EXP_OR, true);
 
         return $this;
