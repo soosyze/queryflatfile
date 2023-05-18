@@ -465,7 +465,7 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
         $output = $this->bdd->dropTable('test');
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::DATA_DIR . 'test.json');
+        self::assertFileDoesNotExist(self::DATA_DIR . 'test.json');
     }
 
     public function testDropTableException(): void
@@ -487,6 +487,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
     public function testDropSchema(): void
     {
         $this->bdd->dropSchema();
-        self::assertFileNotExists(self::DATA_DIR . 'schema.json');
+        self::assertFileDoesNotExist(self::DATA_DIR . 'schema.json');
     }
 }

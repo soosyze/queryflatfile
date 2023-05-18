@@ -283,13 +283,13 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
     {
         $this->bdd->dropTable('user_role');
 
-        self::assertFileNotExists(self::ROOT . 'user_role.json');
+        self::assertFileDoesNotExist(self::ROOT . 'user_role.json');
     }
 
     public function testDropSchema(): void
     {
         $this->bdd->dropSchema();
 
-        self::assertFileNotExists(self::ROOT . 'schema.json');
+        self::assertFileDoesNotExist(self::ROOT . 'schema.json');
     }
 }

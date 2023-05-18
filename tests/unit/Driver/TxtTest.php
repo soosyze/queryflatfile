@@ -41,6 +41,6 @@ class TxtTest extends Driver
         $output = $this->driver->delete(self::getFixturesDir(), self::TEST_FILE_NAME);
 
         self::assertTrue($output);
-        self::assertFileNotExists(self::getFixturesDir($copyFilename));
+        self::assertFileDoesNotExist(self::getFixturesDir($copyFilename));
     }
 }
