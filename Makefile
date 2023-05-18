@@ -89,3 +89,8 @@ phpstan: ## Check if the data types are compliant
 test: ## Run unit tests
 	$(call printSection,TEST phpunit)
 	${BIN_DIR}/phpunit
+
+.PHONY: archi
+archi: ## Run unit tests
+	$(call printSection,TEST archi)
+	${BIN_DIR}/phparkitect check
