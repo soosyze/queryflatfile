@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/soosyze/queryflatfile/badge.svg?branch=master)](https://coveralls.io/github/soosyze/queryflatfile?branch=master "Coveralls")
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/soosyze/queryflatfile/blob/master/LICENSE "LICENSE")
 [![Packagist](https://img.shields.io/packagist/v/soosyze/queryflatfile.svg)](https://packagist.org/packages/soosyze/queryflatfile "Packagist")
-[![PHP from Packagist](https://img.shields.io/packagist/php-v/soosyze/queryflatfile.svg)](/README.md#version-php "PHP version 7.4 minimum")
+[![PHP from Packagist](https://img.shields.io/packagist/php-v/soosyze/queryflatfile.svg)](/README.md#version-php "PHP version 8.0 minimum")
 [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/soosyze/queryflatfile.svg)](https://github.com/soosyze/queryflatfile/archive/master.zip "Download")
 
 - :gb: [README in English](README.md)
@@ -31,8 +31,7 @@ Manipulez vos données avec un QueryBuilder similaire à la syntaxe SQL.
 
 | Version PHP     | QueryFlatFile 4.0.x |
 | --------------- | ------------------- |
-| <= 7.3          | ✗ Non supporté      |
-| 7.4             | ✓ Supporté          |
+| <= 7.4          | ✗ Non supporté      |
 | 8.0 / 8.1 / 8.2 | ✓ Supporté          |
 
 ### Extensions PHP
