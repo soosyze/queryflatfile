@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 use Arkitect\CLI\Config;
-use Soosyze\Queryflatfile\Tests\architecture\Extending\DriverExceptionExtending;
-use Soosyze\Queryflatfile\Tests\architecture\Extending\DriverExtending;
-use Soosyze\Queryflatfile\Tests\architecture\Extending\FieldExtending;
-use Soosyze\Queryflatfile\Tests\architecture\Extending\QueryExceptionExtending;
-use Soosyze\Queryflatfile\Tests\architecture\Extending\TableBuilderExceptionExtending;
-use Soosyze\Queryflatfile\Tests\architecture\Finalized\DriverFinalized;
-use Soosyze\Queryflatfile\Tests\architecture\Naming\DriverNaming;
-use Soosyze\Queryflatfile\Tests\architecture\Naming\ExceptionNaming;
-use Soosyze\Queryflatfile\Tests\architecture\Naming\FieldNaming;
+use Soosyze\Queryflatfile\Tests\Architecture\Extending\DriverExceptionExtending;
+use Soosyze\Queryflatfile\Tests\Architecture\Extending\DriverExtending;
+use Soosyze\Queryflatfile\Tests\Architecture\Extending\FieldExtending;
+use Soosyze\Queryflatfile\Tests\Architecture\Extending\QueryExceptionExtending;
+use Soosyze\Queryflatfile\Tests\Architecture\Extending\TableBuilderExceptionExtending;
+use Soosyze\Queryflatfile\Tests\Architecture\Finalized\DriverFinalized;
+use Soosyze\Queryflatfile\Tests\Architecture\Naming\DriverNaming;
+use Soosyze\Queryflatfile\Tests\Architecture\Naming\ExceptionNaming;
+use Soosyze\Queryflatfile\Tests\Architecture\Naming\FieldNaming;
 
 return static function (Config $config): void {
     $rules = [
