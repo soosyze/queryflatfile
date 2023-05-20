@@ -142,7 +142,7 @@ class Request extends RequestHandler implements \Stringable
     /**
      * {@inheritdoc}
      */
-    public function from(string $tableName): self
+    public function from(string $tableName): static
     {
         parent::from($tableName);
         $this->table     = $this->schema->getTableSchema($tableName);
@@ -298,7 +298,7 @@ class Request extends RequestHandler implements \Stringable
     /**
      * {@inheritdoc}
      */
-    public function init(): self
+    public function init(): static
     {
         parent::init();
         $this->allFieldsSchema = [];

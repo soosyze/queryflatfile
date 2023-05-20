@@ -159,10 +159,8 @@ abstract class RequestHandler implements RequestInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @return $this
      */
-    public function delete()
+    public function delete(): static
     {
         $this->execute = self::DELETE;
 
@@ -172,7 +170,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function from(string $tableName)
+    public function from(string $tableName): static
     {
         $this->from = $tableName;
 
@@ -190,7 +188,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function insertInto(string $tableName, array $columnNames)
+    public function insertInto(string $tableName, array $columnNames): static
     {
         $this->execute = self::INSERT;
         $this->from($tableName)->select(...$columnNames);
@@ -201,7 +199,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function leftJoin(string $tableName, string|\Closure $column, string $operator = '', string $value ='')
+    public function leftJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = ''): static
     {
         if ($column instanceof \Closure) {
             $this->joinGroup(self::JOIN_LEFT, $tableName, $column);
@@ -216,7 +214,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function limit(int $limit, int $offset = 0)
+    public function limit(int $limit, int $offset = 0): static
     {
         $this->limit    = $limit;
         $this->offset   = $offset;
@@ -228,7 +226,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function orderBy(string $columnName, int $order = SORT_ASC)
+    public function orderBy(string $columnName, int $order = SORT_ASC): static
     {
         $this->orderBy[ $columnName ] = $order;
 
@@ -238,7 +236,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function rightJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = '')
+    public function rightJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = ''): static
     {
         if ($column instanceof \Closure) {
             $this->joinGroup(self::JOIN_RIGHT, $tableName, $column);
@@ -253,7 +251,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function select(string ...$columnNames)
+    public function select(string ...$columnNames): static
     {
         $this->columnNames = $columnNames;
 
@@ -263,7 +261,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function union(RequestInterface $request)
+    public function union(RequestInterface $request): static
     {
         $this->unions[] = [ 'request' => $request, 'type' => self::UNION_SIMPLE ];
 
@@ -273,7 +271,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function unionAll(RequestInterface $request)
+    public function unionAll(RequestInterface $request): static
     {
         $this->unions[] = [ 'request' => $request, 'type' => self::UNION_ALL ];
 
@@ -283,7 +281,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function update(string $tableName, array $row)
+    public function update(string $tableName, array $row): static
     {
         $this->execute     = self::UPDATE;
         $this->from($tableName)->select(...array_keys($row));
@@ -295,7 +293,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function values(array $rowValues)
+    public function values(array $rowValues): static
     {
         $this->values[] = $rowValues;
 
@@ -307,7 +305,7 @@ abstract class RequestHandler implements RequestInterface
      *
      * @return $this
      */
-    protected function init()
+    protected function init(): static
     {
         $this->columnNames = [];
         $this->execute     = null;

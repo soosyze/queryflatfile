@@ -46,10 +46,8 @@ interface RequestInterface
      * En cas d'absence de selection, la requêtes retournera toutes les champs.
      *
      * @param string ...$columnNames Liste ou tableau des noms des colonnes.
-     *
-     * @return $this
      */
-    public function select(string ...$columnNames);
+    public function select(string ...$columnNames): self;
 
     /**
      * @return string[]
@@ -60,10 +58,8 @@ interface RequestInterface
      * Enregistre le nom de la source des données principale de la requête.
      *
      * @param string $tableName Nom de la table.
-     *
-     * @return $this
      */
-    public function from(string $tableName);
+    public function from(string $tableName): self;
 
     /**
      * Enregistre une jointure gauche.
@@ -73,10 +69,8 @@ interface RequestInterface
      *                                   ou une closure pour affiner les conditions.
      * @param string          $operator  Opérateur logique ou null pour une closure.
      * @param string          $value     Colonne de la table jointe (au format nom_table.colonne)
-     *
-     * @return $this
      */
-    public function leftJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = '');
+    public function leftJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = ''): self;
 
     /**
      * Enregistre une jointure droite.
@@ -86,30 +80,24 @@ interface RequestInterface
      *                                   ou une closure pour affiner les conditions.
      * @param string          $operator  Opérateur logique ou null pour une closure.
      * @param string          $value     Colonne de la table jointe (au format nom_table.colonne)
-     *
-     * @return $this
      */
-    public function rightJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = '');
+    public function rightJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = ''): self;
 
     /**
      * Enregistre une limitation et un décalage au retour de la requête.
      *
      * @param int $limit  Nombre de résultat maximum à retourner.
      * @param int $offset Décalage sur le jeu de résultat.
-     *
-     * @return $this
      */
-    public function limit(int $limit, int $offset = 0);
+    public function limit(int $limit, int $offset = 0): self;
 
     /**
      * Enregistre un trie des résultats de la requête.
      *
      * @param string $columnName Nom de la colonne à trier.
      * @param int    $order      Ordre du trie (SORT_ASC|SORT_DESC).
-     *
-     * @return $this
      */
-    public function orderBy(string $columnName, int $order = SORT_ASC);
+    public function orderBy(string $columnName, int $order = SORT_ASC): self;
 
     /**
      * Enregistre l'action d'insertion de données.
@@ -118,10 +106,8 @@ interface RequestInterface
      * @param string   $tableName   Nom de la table.
      * @param string[] $columnNames Liste des champs par ordre d'insertion dans
      *                              la fonction values().
-     *
-     * @return $this
      */
-    public function insertInto(string $tableName, array $columnNames);
+    public function insertInto(string $tableName, array $columnNames): self;
 
     /**
      * Cette fonction doit suivre la fonction insertInto().
@@ -130,10 +116,8 @@ interface RequestInterface
      * @param array $rowValues Valeurs des champs.
      *
      * @phpstan-param RowValues $rowValues
-     *
-     * @return $this
      */
-    public function values(array $rowValues);
+    public function values(array $rowValues): self;
 
     /**
      * Enregistre l'action de modification de données.
@@ -142,36 +126,27 @@ interface RequestInterface
      * @param array  $row       key=>value des données à modifier.
      *
      * @phpstan-param RowData $row
-     *
-     * @return $this
      */
-    public function update(string $tableName, array $row);
+    public function update(string $tableName, array $row): self;
 
     /**
      * Enregistre l'action de suppression des données.
-     *
-     * @return $this
      */
-    public function delete();
+    public function delete(): self;
 
     /**
      * Enregistre une union 'simple' entre 2 ensembles.
      * Le résultat de l'union ne possède pas de doublon de ligne.
      *
      * @param RequestInterface $request Seconde requête.
-     *
-     * @return $this
      */
-    public function union(RequestInterface $request);
+    public function union(RequestInterface $request): self;
 
     /**
      * Enregistre une union all entre 2 ensembles.
      * Les doublons de lignes figure dans le resultat de l'union.
-     *
-     *
-     * @return $this
      */
-    public function unionAll(RequestInterface $request);
+    public function unionAll(RequestInterface $request): self;
 
     /**
      * Retourne tous les résultats de la requête.
