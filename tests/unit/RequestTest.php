@@ -2,18 +2,19 @@
 
 namespace Soosyze\Queryflatfile\Tests\unit;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use Soosyze\Queryflatfile\DriverInterface;
 use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Request;
 use Soosyze\Queryflatfile\Schema;
+use Soosyze\Queryflatfile\Tests\unit\Helpers\DriverMock;
 use Soosyze\Queryflatfile\WhereHandler;
 
 class RequestTest extends \PHPUnit\Framework\TestCase
 {
+    use DriverMock;
+
     protected Schema $bdd;
 
     protected Request $request;
@@ -23,8 +24,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     protected function setUp(): void
     {
         $this->bdd = (new Schema)
-            ->setConfig('data', 'schema', $this->getDriverMock())
-            ->setPathRoot(__DIR__ . '/');
+            ->setConfig('request', 'schema', $this->getDriverMock())
+            ->setPathRoot(dirname(__DIR__) . '/fixtures/');
 
         $this->request  = new Request($this->bdd);
         $this->secondRequest = new Request($this->bdd);
@@ -1670,49 +1671,5 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ],
             $data->lists('name')
         );
-    }
-
-    /**
-     * @return DriverInterface&MockObject
-     */
-    private function getDriverMock()
-    {
-        $mock = $this->createMock(DriverInterface::class);
-        $mock->expects(self::any())
-            ->method('create')
-            ->willReturnCallback(
-                static fn (string $path, string $filename): bool => in_array($filename, [ 'schema', 'user', 'user_role', 'role' ])
-            );
-
-        $mock->expects(self::any())
-            ->method('has')
-            ->willReturnCallback(
-                static fn (string $path, string $filename): bool => in_array($filename, [ 'schema', 'user', 'user_role', 'role' ])
-            );
-
-        $mock->expects(self::any())
-            ->method('read')
-            ->willReturnCallback(
-                fn (string $path, string $filename): array => $this->loadFixtures($filename)
-            );
-
-        return $mock;
-    }
-
-    private function loadFixtures(string $filename): array
-    {
-        $filename = dirname(__DIR__) . "/fixtures/$filename.json";
-        if (!is_file($filename)) {
-            throw new \Exception("Table $filename not found");
-        }
-
-        $json = (string) file_get_contents($filename);
-
-        $data = json_decode($json, true);
-        if (!\is_array($data)) {
-            throw new \Exception('An error occurred in deserializing the data.');
-        }
-
-        return $data;
     }
 }
