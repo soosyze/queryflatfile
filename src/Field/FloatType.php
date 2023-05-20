@@ -22,7 +22,7 @@ class FloatType extends Field
     /**
      * {@inheritdoc}
      */
-    public function filterValue(null|bool|string|int|float $value): float
+    public function tryOrGetValue(null|bool|string|int|float $value): float
     {
         if (!\is_float($value)) {
             throw new \InvalidArgumentException(

@@ -23,7 +23,7 @@ class IncrementType extends Field
     /**
      * {@inheritdoc}
      */
-    public function filterValue(null|bool|string|int|float $value): int
+    public function tryOrGetValue(null|bool|string|int|float $value): int
     {
         if (!\is_int($value)) {
             throw new \InvalidArgumentException(

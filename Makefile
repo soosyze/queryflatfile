@@ -94,3 +94,6 @@ test: ## Run unit tests
 archi: ## Run unit tests
 	$(call printSection,TEST archi)
 	${BIN_DIR}/phparkitect check
+
+.PHONY: ci
+ci: archi test phpstan rector cs-fix

@@ -27,7 +27,7 @@ class RenameType extends Field
     /**
      * {@inheritdoc}
      */
-    public function filterValue(null|bool|string|int|float $value): null|bool|string|int|float
+    public function tryOrGetValue(null|bool|string|int|float $value): null|bool|string|int|float
     {
         return null;
     }

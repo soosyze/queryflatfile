@@ -75,7 +75,7 @@ class WhereHandler
         string $bool = self::EXP_AND,
         bool $not = false
     ): self {
-        $condition = $this->filterOperator($operator);
+        $condition = $this->tryOperator($operator);
 
         if (in_array($condition, [ 'like', 'ilike', 'not like', 'not ilike' ])) {
             if (!\is_string($value)) {
@@ -457,7 +457,7 @@ class WhereHandler
      *
      * @throws OperatorNotFoundException
      */
-    private function filterOperator(string $operator): string
+    private function tryOperator(string $operator): string
     {
         $condition = strtolower($operator);
 

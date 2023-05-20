@@ -85,7 +85,7 @@ abstract class Field
      *
      * @throws ColumnsValueException
      */
-    abstract public function filterValue(
+    abstract public function tryOrGetValue(
         null|bool|string|int|float $value
     ): null|bool|string|int|float;
 
@@ -99,7 +99,7 @@ abstract class Field
      */
     public function valueDefault(null|bool|string|int|float $value)
     {
-        $this->valueDefault = $this->filterValue($value);
+        $this->valueDefault = $this->tryOrGetValue($value);
 
         return $this;
     }

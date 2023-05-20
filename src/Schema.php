@@ -301,16 +301,16 @@ class Schema
 
         foreach ($tableBuilder->getFields() as $field) {
             if ($field->getOpt() === Field::OPT_CREATE) {
-                self::filterFieldAdd($tableSchema, $field);
+                self::tryFieldAdd($tableSchema, $field);
                 self::add($tableSchema, $field, $tableData);
             } elseif ($field->getOpt() === Field::OPT_RENAME) {
-                self::filterFieldRename($tableSchema, $field);
+                self::tryFieldRename($tableSchema, $field);
                 self::rename($tableSchema, $field, $tableData);
             } elseif ($field->getOpt() === Field::OPT_MODIFY) {
-                self::filterFieldModify($tableSchema, $field);
+                self::tryFieldModify($tableSchema, $field);
                 self::modify($tableSchema, $field, $tableData);
             } elseif ($field->getOpt() === Field::OPT_DROP) {
-                self::filterFieldDrop($tableSchema, $field);
+                self::tryFieldDrop($tableSchema, $field);
                 self::drop($tableSchema, $field, $tableData);
             }
         }
@@ -611,7 +611,7 @@ class Schema
      * @throws Exception
      * @throws ColumnsNotFoundException
      */
-    private static function filterFieldAdd(Table $tableSchema, Field $field): void
+    private static function tryFieldAdd(Table $tableSchema, Field $field): void
     {
         /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
         if ($tableSchema->hasField($field->getName())) {
@@ -643,7 +643,7 @@ class Schema
      * @throws ColumnsValueException
      * @throws Exception
      */
-    private static function filterFieldModify(Table $tableSchema, Field $field): void
+    private static function tryFieldModify(Table $tableSchema, Field $field): void
     {
         if (!$tableSchema->hasField($field->getName())) {
             throw new Exception(
@@ -694,7 +694,7 @@ class Schema
      * @throws ColumnsNotFoundException
      * @throws Exception
      */
-    private static function filterFieldRename(Table $table, RenameType $field): void
+    private static function tryFieldRename(Table $table, RenameType $field): void
     {
         if (!$table->hasField($field->getName())) {
             throw new ColumnsNotFoundException(
@@ -717,7 +717,7 @@ class Schema
      *
      * @throws ColumnsNotFoundException
      */
-    private static function filterFieldDrop(Table $table, DropType $field): void
+    private static function tryFieldDrop(Table $table, DropType $field): void
     {
         if (!$table->hasField($field->getName())) {
             throw new ColumnsNotFoundException(

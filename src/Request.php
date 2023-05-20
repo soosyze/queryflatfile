@@ -158,10 +158,10 @@ class Request extends RequestHandler implements \Stringable
      */
     public function execute(): void
     {
-        $this->filterFrom();
+        $this->tryFrom();
         $this->loadAllFieldsSchema();
-        $this->filterSelect();
-        $this->filterWhere();
+        $this->trySelect();
+        $this->tryWhere();
 
         if ($this->execute === self::INSERT) {
             $this->executeInsert();
@@ -186,13 +186,13 @@ class Request extends RequestHandler implements \Stringable
      */
     public function fetchAll(): array
     {
-        $this->filterFrom();
+        $this->tryFrom();
         $this->loadAllFieldsSchema();
-        $this->filterSelect();
-        $this->filterWhere();
-        $this->filterUnion();
-        $this->filterOrderBy();
-        $this->filterLimit();
+        $this->trySelect();
+        $this->tryWhere();
+        $this->tryUnion();
+        $this->tryOrderBy();
+        $this->tryLimitAndOffset();
 
         $return = [];
         /* Le pointeur en cas de limite de résultat. */
@@ -445,7 +445,7 @@ class Request extends RequestHandler implements \Stringable
             foreach ($fields as $fieldName => $field) {
                 /* Si mon champs existe dans le schema. */
                 if (isset($row[ $fieldName ])) {
-                    $data[ $fieldName ] = $field->filterValue($row[ $fieldName ]);
+                    $data[ $fieldName ] = $field->tryOrGetValue($row[ $fieldName ]);
                     /* Si le champ est de type incrémental et que sa valeur est supérieure à celui enregistrer dans le schéma. */
                     if ($field instanceof IncrementType && ($data[ $fieldName ] > $increment)) {
                         $increment = $data[ $fieldName ];
@@ -581,7 +581,7 @@ class Request extends RequestHandler implements \Stringable
      *
      * @throws TableNotFoundException
      */
-    private function filterFrom(): void
+    private function tryFrom(): void
     {
         if (empty($this->from)) {
             throw new TableNotFoundException();
@@ -591,10 +591,10 @@ class Request extends RequestHandler implements \Stringable
     /**
      * Vérifie pour tous les champs sélectionnées, leur l'existence à partir du schéma.
      */
-    private function filterSelect(): void
+    private function trySelect(): void
     {
         if ($this->columnNames) {
-            $this->diffColumnNames($this->columnNames);
+            $this->tryDiffColumnNames($this->columnNames);
         }
     }
 
@@ -603,7 +603,7 @@ class Request extends RequestHandler implements \Stringable
      *
      * @throws QueryException
      */
-    private function filterLimit(): void
+    private function tryLimitAndOffset(): void
     {
         if ($this->limit < self::ALL) {
             throw new QueryException('The limit must be a non-zero positive integer.');
@@ -617,7 +617,7 @@ class Request extends RequestHandler implements \Stringable
      * Vérifie pour toutes les jointures (LEFT JOIN, RIGHT JOIN) et les clauses conditionnées (WHERE),
      * l'existence des champs à partir du schéma.
      */
-    private function filterWhere(): void
+    private function tryWhere(): void
     {
         $columnNames = [];
         /* Merge les colonnes des conditions de la requête courante. */
@@ -631,7 +631,7 @@ class Request extends RequestHandler implements \Stringable
         }
 
         if ($columnNames !== []) {
-            $this->diffColumnNames($columnNames);
+            $this->tryDiffColumnNames($columnNames);
         }
     }
 
@@ -640,13 +640,13 @@ class Request extends RequestHandler implements \Stringable
      *
      * @throws OperatorNotFoundException
      */
-    private function filterOrderBy(): void
+    private function tryOrderBy(): void
     {
         if ($this->orderBy === []) {
             return;
         }
 
-        $this->diffColumnNames(array_keys($this->orderBy));
+        $this->tryDiffColumnNames(array_keys($this->orderBy));
 
         foreach ($this->orderBy as $field => $order) {
             if ($order !== SORT_ASC && $order !== SORT_DESC) {
@@ -662,7 +662,7 @@ class Request extends RequestHandler implements \Stringable
      *
      * @throws ColumnsNotFoundException
      */
-    private function filterUnion(): void
+    private function tryUnion(): void
     {
         $count = count($this->columnNames);
         foreach ($this->unions as $union) {
@@ -688,7 +688,7 @@ class Request extends RequestHandler implements \Stringable
      *
      * @throws ColumnsNotFoundException
      */
-    private function diffColumnNames(array $columnNames): void
+    private function tryDiffColumnNames(array $columnNames): void
     {
         $diff = array_diff_key(
             array_flip($columnNames),
