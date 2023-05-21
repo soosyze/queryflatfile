@@ -1,8 +1,6 @@
 <?php
 
 /**
- * Queryflatfile
- *
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 

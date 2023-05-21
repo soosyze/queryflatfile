@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 /**
- * Queryflatfile
- *
  * @package Queryflatfile
 
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
