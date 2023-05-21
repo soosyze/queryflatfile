@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
+use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\Field;
 
 /**
@@ -15,7 +16,7 @@ use Soosyze\Queryflatfile\Field;
  */
 class DropType extends Field
 {
-    protected string $opt = self::OPT_DROP;
+    protected TableExecutionType $opt = TableExecutionType::Drop;
 
     public function tryOrGetValue(null|bool|string|int|float $value): null|bool|string|int|float
     {

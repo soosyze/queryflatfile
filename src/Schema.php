@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile;
 
 use Soosyze\Queryflatfile\DriverInterface;
+use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\Exception\Exception;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
@@ -298,16 +299,16 @@ class Schema
         $tableData    = $this->read($tableName);
 
         foreach ($tableBuilder->getFields() as $field) {
-            if ($field->getOpt() === Field::OPT_CREATE) {
+            if ($field->getOpt() === TableExecutionType::Create) {
                 self::tryFieldAdd($tableSchema, $field);
                 self::add($tableSchema, $field, $tableData);
-            } elseif ($field->getOpt() === Field::OPT_RENAME) {
+            } elseif ($field->getOpt() === TableExecutionType::Rename) {
                 self::tryFieldRename($tableSchema, $field);
                 self::rename($tableSchema, $field, $tableData);
-            } elseif ($field->getOpt() === Field::OPT_MODIFY) {
+            } elseif ($field->getOpt() === TableExecutionType::Modify) {
                 self::tryFieldModify($tableSchema, $field);
                 self::modify($tableSchema, $field, $tableData);
-            } elseif ($field->getOpt() === Field::OPT_DROP) {
+            } elseif ($field->getOpt() === TableExecutionType::Drop) {
                 self::tryFieldDrop($tableSchema, $field);
                 self::drop($tableSchema, $field, $tableData);
             }

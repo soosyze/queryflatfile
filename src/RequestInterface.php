@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
+use Soosyze\Queryflatfile\Enum\SortType;
 use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
 
@@ -26,16 +27,6 @@ interface RequestInterface
      * La valeur par défaut de LIMIT.
      */
     public const ALL = 0;
-
-    /**
-     * Valeur pour un join gauche.
-     */
-    public const JOIN_LEFT = 'left';
-
-    /**
-     * Valeur pour un join droit.
-     */
-    public const JOIN_RIGHT = 'right';
 
     public function __toString(): string;
 
@@ -92,10 +83,10 @@ interface RequestInterface
     /**
      * Enregistre un trie des résultats de la requête.
      *
-     * @param string $columnName Nom de la colonne à trier.
-     * @param int    $order      Ordre du trie (SORT_ASC|SORT_DESC).
+     * @param string   $columnName Nom de la colonne à trier.
+     * @param SortType $order      Ordre du trie.
      */
-    public function orderBy(string $columnName, int $order = SORT_ASC): self;
+    public function orderBy(string $columnName, SortType $order = SortType::Asc): self;
 
     /**
      * Enregistre l'action d'insertion de données.

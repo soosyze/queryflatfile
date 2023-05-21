@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
+use Soosyze\Queryflatfile\Enum\ExpressionType;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 
 /**
@@ -29,7 +30,7 @@ class Where extends WhereHandler implements \Stringable
     {
         $output = '';
         foreach ($this->where as $where) {
-            $output .= $where[ 'bool' ] === self::EXP_AND
+            $output .= $where[ 'bool' ] === ExpressionType::And
                 ? 'AND '
                 : 'OR ';
 
@@ -140,7 +141,7 @@ class Where extends WhereHandler implements \Stringable
 
                 continue;
             }
-            $output = $value[ 'bool' ] === self::EXP_AND
+            $output = $value[ 'bool' ] === ExpressionType::And
                 ? $output && $predicate
                 : $output || $predicate;
         }
@@ -176,7 +177,7 @@ class Where extends WhereHandler implements \Stringable
 
                 continue;
             }
-            $output = $value[ 'bool' ] === self::EXP_AND
+            $output = $value[ 'bool' ] === ExpressionType::And
                 ? $output && $predicate
                 : $output || $predicate;
         }

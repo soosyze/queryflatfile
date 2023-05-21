@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
+use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
 use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
 
@@ -21,28 +22,20 @@ use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
  *      default?: null|scalar,
  *      length?: int,
  *      nullable?: bool,
- *      opt?: string,
+ *      opt?: TableExecutionType,
  *      type: string,
  *      unsigned?: bool,
  * }
  */
 abstract class Field
 {
-    public const OPT_CREATE = 'create';
-
-    public const OPT_DROP = 'drop';
-
-    public const OPT_MODIFY = 'modify';
-
-    public const OPT_RENAME = 'rename';
-
     public const TYPE = '';
 
     protected const INVALID_ARGUMENT_MESSAGE = 'The value of the %s field must be of type %s: %s given.';
 
     protected null|bool|string|int|float $valueDefault = null;
 
-    protected string $opt = self::OPT_CREATE;
+    protected TableExecutionType $opt = TableExecutionType::Create;
 
     protected ?string $comment = null;
 
@@ -126,13 +119,13 @@ abstract class Field
      */
     public function modify(): void
     {
-        $this->opt = self::OPT_MODIFY;
+        $this->opt = TableExecutionType::Modify;
     }
 
     /**
      * Retourne le nom de l'opération du champ.
      */
-    public function getOpt(): string
+    public function getOpt(): TableExecutionType
     {
         return $this->opt;
     }

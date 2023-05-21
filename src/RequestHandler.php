@@ -9,6 +9,10 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile;
 
 use BadMethodCallException;
+use Soosyze\Queryflatfile\Enum\JoinType;
+use Soosyze\Queryflatfile\Enum\QueryExecutionType;
+use Soosyze\Queryflatfile\Enum\SortType;
+use Soosyze\Queryflatfile\Enum\UnionType;
 
 /**
  * Met en forme et stock les données pour lancer une requête.
@@ -47,31 +51,15 @@ use BadMethodCallException;
  *
  * @phpstan-import-type TableData from Schema
  *
- * @phpstan-type Join array{type: string, table: string, where: Where}
- * @phpstan-type Union array{request: RequestInterface, type: string}
+ * @phpstan-type Join array{type: JoinType, table: string, where: Where}
+ * @phpstan-type Union array{request: RequestInterface, type: UnionType}
  */
 abstract class RequestHandler implements RequestInterface
 {
-    protected const INSERT = 'insert';
-
-    protected const UPDATE = 'update';
-
-    protected const DELETE = 'delete';
-
     /**
-     * La valeur pour une union simple.
+     * Le type d'exécution.
      */
-    protected const UNION_SIMPLE = 'simple';
-
-    /**
-     * La valeur pour une union totale.
-     */
-    protected const UNION_ALL = 'all';
-
-    /**
-     * Le type d'exécution (delete|update|insert).
-     */
-    protected ?string $execute = null;
+    protected ?QueryExecutionType $execute = null;
 
     /**
      * Le nom de la table courante.
@@ -95,7 +83,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Les colonnes à trier.
      *
-     * @var array<string, int>
+     * @var array<string, SortType>
      */
     protected array $orderBy = [];
 
@@ -160,7 +148,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function delete(): static
     {
-        $this->execute = self::DELETE;
+        $this->execute = QueryExecutionType::Delete;
 
         return $this;
     }
@@ -188,7 +176,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function insertInto(string $tableName, array $columnNames): static
     {
-        $this->execute = self::INSERT;
+        $this->execute = QueryExecutionType::Insert;
         $this->from($tableName)->select(...$columnNames);
 
         return $this;
@@ -200,11 +188,11 @@ abstract class RequestHandler implements RequestInterface
     public function leftJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = ''): static
     {
         if ($column instanceof \Closure) {
-            $this->joinGroup(self::JOIN_LEFT, $tableName, $column);
+            $this->joinGroup(JoinType::Left, $tableName, $column);
 
             return $this;
         }
-        $this->join(self::JOIN_LEFT, $tableName, $column, $operator, $value);
+        $this->join(JoinType::Left, $tableName, $column, $operator, $value);
 
         return $this;
     }
@@ -224,7 +212,7 @@ abstract class RequestHandler implements RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function orderBy(string $columnName, int $order = SORT_ASC): static
+    public function orderBy(string $columnName, SortType $order = SortType::Asc): static
     {
         $this->orderBy[ $columnName ] = $order;
 
@@ -237,11 +225,11 @@ abstract class RequestHandler implements RequestInterface
     public function rightJoin(string $tableName, string|\Closure $column, string $operator = '', string $value = ''): static
     {
         if ($column instanceof \Closure) {
-            $this->joinGroup(self::JOIN_RIGHT, $tableName, $column);
+            $this->joinGroup(JoinType::Right, $tableName, $column);
 
             return $this;
         }
-        $this->join(self::JOIN_RIGHT, $tableName, $column, $operator, $value);
+        $this->join(JoinType::Right, $tableName, $column, $operator, $value);
 
         return $this;
     }
@@ -261,7 +249,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function union(RequestInterface $request): static
     {
-        $this->unions[] = [ 'request' => $request, 'type' => self::UNION_SIMPLE ];
+        $this->unions[] = [ 'request' => $request, 'type' => UnionType::Simple ];
 
         return $this;
     }
@@ -271,7 +259,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function unionAll(RequestInterface $request): static
     {
-        $this->unions[] = [ 'request' => $request, 'type' => self::UNION_ALL ];
+        $this->unions[] = [ 'request' => $request, 'type' => UnionType::All ];
 
         return $this;
     }
@@ -281,7 +269,7 @@ abstract class RequestHandler implements RequestInterface
      */
     public function update(string $tableName, array $row): static
     {
-        $this->execute     = self::UPDATE;
+        $this->execute     = QueryExecutionType::Update;
         $this->from($tableName)->select(...array_keys($row));
         $this->values[ 0 ] = $row;
 
@@ -322,13 +310,13 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Enregistre une jointure.
      *
-     * @param string $type       Type de la jointure.
-     * @param string $tableName  Nom de la table à joindre
-     * @param string $columnName Nom de la colonne d'une des tables précédentes.
-     * @param string $operator   Opérateur logique ou null pour une closure.
-     * @param string $value      Valeur ou une colonne de la table jointe (au format nom_table.colonne)
+     * @param JoinType $type       Type de la jointure.
+     * @param string   $tableName  Nom de la table à joindre
+     * @param string   $columnName Nom de la colonne d'une des tables précédentes.
+     * @param string   $operator   Opérateur logique ou null pour une closure.
+     * @param string   $value      Valeur ou une colonne de la table jointe (au format nom_table.colonne)
      */
-    private function join(string $type, string $tableName, string $columnName, string $operator, string $value): void
+    private function join(JoinType $type, string $tableName, string $columnName, string $operator, string $value): void
     {
         $where = new Where();
         $where->where($columnName, $operator, $value);
@@ -339,11 +327,11 @@ abstract class RequestHandler implements RequestInterface
     /**
      * Enregistre une jointure avec une condition groupée.
      *
-     * @param string   $type      Type de la jointure.
+     * @param JoinType $type      Type de la jointure.
      * @param string   $tableName Nom de la table à joindre
      * @param \Closure $callable  Nom de la colonne d'une des tables précédentes.
      */
-    private function joinGroup(string $type, string $tableName, \Closure $callable): void
+    private function joinGroup(JoinType $type, string $tableName, \Closure $callable): void
     {
         $where = new Where();
         call_user_func_array($callable, [ &$where ]);

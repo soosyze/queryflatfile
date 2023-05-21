@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
+use Soosyze\Queryflatfile\Enum\ExpressionType;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
 
@@ -18,7 +19,7 @@ use Soosyze\Queryflatfile\Exception\Query\QueryException;
  *
  * @phpstan-type Between array{min: numeric|string, max: numeric|string}
  * @phpstan-type WhereToArray array{
- *      bool: string,
+ *      bool: ExpressionType,
  *      columnName: string,
  *      columnNames?: array,
  *      condition: string,
@@ -29,16 +30,6 @@ use Soosyze\Queryflatfile\Exception\Query\QueryException;
  */
 class WhereHandler
 {
-    /**
-     * Représente une expréssion AND.
-     */
-    public const EXP_AND = 'and';
-
-    /**
-     * Représente une expréssion OR.
-     */
-    public const EXP_OR = 'or';
-
     /**
      * Les conditions binaires autorisées.
      */
@@ -58,11 +49,11 @@ class WhereHandler
      * Ajoute une condition simple pour la requête.
      * Si la valeur du champ est égal (non égale, supérieur à, ...)  par rapport à une valeur.
      *
-     * @param string      $columnName Nom d'une colonne.
-     * @param string      $operator   Type de condition.
-     * @param null|scalar $value      Valeur de teste.
-     * @param string      $bool       Porte logique de la condition (and|or).
-     * @param bool        $not        Inverse la condition.
+     * @param string         $columnName Nom d'une colonne.
+     * @param string         $operator   Type de condition.
+     * @param null|scalar    $value      Valeur de teste.
+     * @param ExpressionType $bool       Porte logique de la condition (and|or).
+     * @param bool           $not        Inverse la condition.
      *
      * @throws OperatorNotFoundException The condition is not exist.
      */
@@ -70,7 +61,7 @@ class WhereHandler
         string $columnName,
         string $operator,
         null|bool|string|int|float $value,
-        string $bool = self::EXP_AND,
+        ExpressionType $bool = ExpressionType::And,
         bool $not = false
     ): self {
         $condition = $this->tryOperator($operator);
@@ -107,7 +98,7 @@ class WhereHandler
         string $operator,
         null|bool|string|int|float $value
     ): self {
-        $this->where($columnName, $operator, $value, self::EXP_AND, true);
+        $this->where($columnName, $operator, $value, ExpressionType::And, true);
 
         return $this;
     }
@@ -122,7 +113,7 @@ class WhereHandler
         string $operator,
         null|bool|string|int|float $value
     ): self {
-        $this->where($columnName, $operator, $value, self::EXP_OR);
+        $this->where($columnName, $operator, $value, ExpressionType::Or);
 
         return $this;
     }
@@ -134,7 +125,7 @@ class WhereHandler
      */
     public function orNotWhere(string $columnName, string $operator, null|bool|string|int|float $value): self
     {
-        $this->where($columnName, $operator, $value, self::EXP_OR, true);
+        $this->where($columnName, $operator, $value, ExpressionType::Or, true);
 
         return $this;
     }
@@ -146,14 +137,14 @@ class WhereHandler
      * @param string         $columnName Nom de la colonne.
      * @param numeric|string $min        Valeur minimum ou égale.
      * @param numeric|string $max        Valeur maximum ou égale.
-     * @param string         $bool       Porte logique de la condition (and|or).
+     * @param ExpressionType $bool       Porte logique de la condition (and|or).
      * @param bool           $not        Inverse la condition.
      */
     public function between(
         string $columnName,
         string|int|float $min,
         string|int|float $max,
-        string $bool = self::EXP_AND,
+        ExpressionType $bool = ExpressionType::And,
         bool $not = false
     ): self {
         $condition = 'between';
@@ -176,7 +167,7 @@ class WhereHandler
         string|int|float $min,
         string|int|float $max
     ): self {
-        $this->between($columnName, $min, $max, self::EXP_AND, true);
+        $this->between($columnName, $min, $max, ExpressionType::And, true);
 
         return $this;
     }
@@ -192,7 +183,7 @@ class WhereHandler
         string|int|float $min,
         string|int|float $max
     ): self {
-        $this->between($columnName, $min, $max, self::EXP_OR);
+        $this->between($columnName, $min, $max, ExpressionType::Or);
 
         return $this;
     }
@@ -208,7 +199,7 @@ class WhereHandler
         string|int|float $min,
         string|int|float $max
     ): self {
-        $this->between($columnName, $min, $max, self::EXP_OR, true);
+        $this->between($columnName, $min, $max, ExpressionType::Or, true);
 
         return $this;
     }
@@ -217,15 +208,15 @@ class WhereHandler
      * Ajoute une condition in à la requête.
      * Si la valeur du champs est contenu dans une liste.
      *
-     * @param string $columnName Nom de la colonne.
-     * @param array  $value      Valeurs à tester.
-     * @param string $bool       Porte logique de la condition (and|or).
-     * @param bool   $not        Inverse la condition.
+     * @param string         $columnName Nom de la colonne.
+     * @param array          $value      Valeurs à tester.
+     * @param ExpressionType $bool       Porte logique de la condition (and|or).
+     * @param bool           $not        Inverse la condition.
      */
     public function in(
         string $columnName,
         array $value,
-        string $bool = self::EXP_AND,
+        ExpressionType $bool = ExpressionType::And,
         bool $not = false
     ): self {
         $condition = 'in';
@@ -241,7 +232,7 @@ class WhereHandler
      */
     public function notIn(string $columnName, array $value): self
     {
-        $this->in($columnName, $value, self::EXP_AND, true);
+        $this->in($columnName, $value, ExpressionType::And, true);
 
         return $this;
     }
@@ -251,7 +242,7 @@ class WhereHandler
      */
     public function orIn(string $columnName, array $value): self
     {
-        $this->in($columnName, $value, self::EXP_OR);
+        $this->in($columnName, $value, ExpressionType::Or);
 
         return $this;
     }
@@ -261,7 +252,7 @@ class WhereHandler
      */
     public function orNotIn(string $columnName, array $value): self
     {
-        $this->in($columnName, $value, self::EXP_OR, true);
+        $this->in($columnName, $value, ExpressionType::Or, true);
 
         return $this;
     }
@@ -270,13 +261,13 @@ class WhereHandler
      * Ajoute une condition isNull à la requête.
      * Si la valeur du champ est strictement égale à null.
      *
-     * @param string $columnName Nom de la colonne.
-     * @param string $bool       Porte logique de la condition (and|or).
-     * @param bool   $not        Inverse la condition.
+     * @param string         $columnName Nom de la colonne.
+     * @param ExpressionType $bool       Porte logique de la condition (and|or).
+     * @param bool           $not        Inverse la condition.
      */
     public function isNull(
         string $columnName,
-        string $bool = self::EXP_AND,
+        ExpressionType $bool = ExpressionType::And,
         bool $not = false
     ): self {
         $condition = '===';
@@ -293,7 +284,7 @@ class WhereHandler
      */
     public function isNotNull(string $columnName): self
     {
-        $this->isNull($columnName, self::EXP_AND, true);
+        $this->isNull($columnName, ExpressionType::And, true);
 
         return $this;
     }
@@ -303,7 +294,7 @@ class WhereHandler
      */
     public function orIsNull(string $columnName): self
     {
-        $this->isNull($columnName, self::EXP_OR);
+        $this->isNull($columnName, ExpressionType::Or);
 
         return $this;
     }
@@ -313,7 +304,7 @@ class WhereHandler
      */
     public function orIsNotNull(string $columnName): self
     {
-        $this->isNull($columnName, self::EXP_OR, true);
+        $this->isNull($columnName, ExpressionType::Or, true);
 
         return $this;
     }
@@ -321,15 +312,15 @@ class WhereHandler
     /**
      * Ajoute une condition avec une expression régulière à la requête.
      *
-     * @param string $columnName Nom de la colonne.
-     * @param string $value      Expression régulière.
-     * @param string $bool       Porte logique de la condition (and|or).
-     * @param bool   $not        Inverse la condition.
+     * @param string         $columnName Nom de la colonne.
+     * @param string         $value      Expression régulière.
+     * @param ExpressionType $bool       Porte logique de la condition (and|or).
+     * @param bool           $not        Inverse la condition.
      */
     public function regex(
         string $columnName,
         string $value,
-        string $bool = self::EXP_AND,
+        ExpressionType $bool = ExpressionType::And,
         bool $not = false
     ): self {
         $condition = 'regex';
@@ -345,7 +336,7 @@ class WhereHandler
      */
     public function notRegex(string $columnName, string $pattern): self
     {
-        $this->regex($columnName, $pattern, self::EXP_AND, true);
+        $this->regex($columnName, $pattern, ExpressionType::And, true);
 
         return $this;
     }
@@ -355,7 +346,7 @@ class WhereHandler
      */
     public function orRegex(string $columnName, string $pattern): self
     {
-        $this->regex($columnName, $pattern, self::EXP_OR);
+        $this->regex($columnName, $pattern, ExpressionType::Or);
 
         return $this;
     }
@@ -365,7 +356,7 @@ class WhereHandler
      */
     public function orNotRegex(string $columnName, string $pattern): self
     {
-        $this->regex($columnName, $pattern, self::EXP_OR, true);
+        $this->regex($columnName, $pattern, ExpressionType::Or, true);
 
         return $this;
     }
@@ -375,7 +366,7 @@ class WhereHandler
      */
     public function whereGroup(
         \Closure $callable,
-        string $bool = self::EXP_AND,
+        ExpressionType $bool = ExpressionType::And,
         bool $not = false
     ): void {
         $where = new Where();
@@ -397,7 +388,7 @@ class WhereHandler
      */
     public function notWhereGroup(\Closure $callable): self
     {
-        $this->whereGroup($callable, self::EXP_AND, true);
+        $this->whereGroup($callable, ExpressionType::And, true);
 
         return $this;
     }
@@ -407,7 +398,7 @@ class WhereHandler
      */
     public function orWhereGroup(\Closure $callable): self
     {
-        $this->whereGroup($callable, self::EXP_OR);
+        $this->whereGroup($callable, ExpressionType::Or);
 
         return $this;
     }
@@ -417,7 +408,7 @@ class WhereHandler
      */
     public function orNotWhereGroup(\Closure $callable): self
     {
-        $this->whereGroup($callable, self::EXP_OR, true);
+        $this->whereGroup($callable, ExpressionType::Or, true);
 
         return $this;
     }
@@ -429,7 +420,7 @@ class WhereHandler
         string $columnName,
         string $operator,
         string $pattern,
-        string $bool = self::EXP_AND,
+        ExpressionType $bool = ExpressionType::And,
         bool $not = false
     ): void {
         /* Protection des caractères spéciaux des expressions rationnelles autre que celle imposée. */

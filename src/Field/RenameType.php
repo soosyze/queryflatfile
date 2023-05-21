@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
+use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\Field;
 
 /**
@@ -15,7 +16,7 @@ use Soosyze\Queryflatfile\Field;
  */
 class RenameType extends Field
 {
-    protected string $opt = self::OPT_RENAME;
+    protected TableExecutionType $opt = TableExecutionType::Rename;
 
     public function __construct(string $name, protected string $to)
     {

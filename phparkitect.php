@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Arkitect\CLI\Config;
+use Soosyze\Queryflatfile\Tests\Architecture\Enum\Enuming;
 use Soosyze\Queryflatfile\Tests\Architecture\Extending\DriverExceptionExtending;
 use Soosyze\Queryflatfile\Tests\Architecture\Extending\DriverExtending;
 use Soosyze\Queryflatfile\Tests\Architecture\Extending\FieldExtending;
@@ -15,6 +16,9 @@ use Soosyze\Queryflatfile\Tests\Architecture\Naming\FieldNaming;
 
 return static function (Config $config): void {
     $rules = [
+        'enum' => [
+            Enuming::class,
+        ],
         'finalized' => [
             DriverFinalized::class,
         ],

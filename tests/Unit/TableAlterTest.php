@@ -2,7 +2,7 @@
 
 namespace Soosyze\Queryflatfile\Tests\Unit;
 
-use Soosyze\Queryflatfile\Field;
+use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\TableAlter;
 
 class TableAlterTest extends \PHPUnit\Framework\TestCase
@@ -21,7 +21,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(
             [
                 'fields'     => [
-                    '0' => [ 'type' => '', 'opt' => Field::OPT_DROP ]
+                    '0' => [ 'type' => '', 'opt' => TableExecutionType::Drop ]
                 ],
                 'increments' => null
             ],
@@ -36,7 +36,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(
             [
                 'fields'     => [
-                    '0' => [ 'type' => '', 'opt' => Field::OPT_RENAME, 'to' => '1' ]
+                    '0' => [ 'type' => '', 'opt' => TableExecutionType::Rename, 'to' => '1' ]
                 ],
                 'increments' => null
             ],

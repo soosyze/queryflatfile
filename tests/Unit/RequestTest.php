@@ -2,6 +2,7 @@
 
 namespace Soosyze\Queryflatfile\Tests\Unit;
 
+use Soosyze\Queryflatfile\Enum\SortType;
 use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
@@ -1145,7 +1146,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request
             ->select('firstname')
             ->from('user')
-            ->orderBy('firstname', SORT_DESC);
+            ->orderBy('firstname', SortType::Desc);
 
         self::assertEquals(
             'SELECT firstname FROM user ORDER BY firstname DESC;',
@@ -1171,7 +1172,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->select('name')
             ->from('user')
             ->where('id', '>=', 4)
-            ->orderBy('name', SORT_DESC);
+            ->orderBy('name', SortType::Desc);
 
         self::assertEquals(
             'SELECT name FROM user WHERE id >= 4 ORDER BY name DESC;',
@@ -1189,7 +1190,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->select('name')
             ->from('user')
             ->where('id', '>=', 3)
-            ->orderBy('name', SORT_DESC)
+            ->orderBy('name', SortType::Desc)
             ->limit(2, 1);
 
         self::assertEquals(
@@ -1210,7 +1211,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request
             ->select('name', 'firstname')
             ->from('user')
-            ->orderBy('name', SORT_DESC)
+            ->orderBy('name', SortType::Desc)
             ->orderBy('firstname');
 
         self::assertEquals(
@@ -1236,8 +1237,8 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $data = $this->request
             ->select('name', 'firstname')
             ->from('user')
-            ->orderBy('name', SORT_DESC)
-            ->orderBy('firstname', SORT_DESC);
+            ->orderBy('name', SortType::Desc)
+            ->orderBy('firstname', SortType::Desc);
 
         self::assertEquals(
             'SELECT name, firstname FROM user ORDER BY name DESC, firstname DESC;',

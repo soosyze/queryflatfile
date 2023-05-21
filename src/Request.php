@@ -8,6 +8,10 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
+use Soosyze\Queryflatfile\Enum\JoinType;
+use Soosyze\Queryflatfile\Enum\QueryExecutionType;
+use Soosyze\Queryflatfile\Enum\SortType;
+use Soosyze\Queryflatfile\Enum\UnionType;
 use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
 use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
@@ -64,13 +68,13 @@ class Request extends RequestHandler implements \Stringable
      */
     public function __toString(): string
     {
-        if ($this->execute === self::INSERT) {
+        if ($this->execute === QueryExecutionType::Insert) {
             return $this->insertIntoToString();
         }
-        if ($this->execute === self::UPDATE) {
+        if ($this->execute === QueryExecutionType::Update) {
             return $this->updateToString();
         }
-        if ($this->execute === self::DELETE) {
+        if ($this->execute === QueryExecutionType::Delete) {
             return $this->deleteToString();
         }
 
@@ -81,15 +85,18 @@ class Request extends RequestHandler implements \Stringable
         foreach ($this->joins as $value) {
             $output .= sprintf(
                 '%s JOIN %s ON %s ',
-                strtoupper($value[ 'type' ]),
+                $value[ 'type' ]->toString(),
                 addslashes($value[ 'table' ]),
                 (string) $value[ 'where' ]
             );
         }
         $output .= $this->whereToString();
         foreach ($this->unions as $union) {
-            $type = $union[ 'type' ] === self::UNION_SIMPLE ? 'UNION' : 'UNION ALL';
-            $output .= sprintf('%s %s ', $type, trim((string) $union[ 'request' ], ';'));
+            $output .= sprintf(
+                '%s %s ',
+                $union[ 'type' ]->toString(),
+                trim((string) $union[ 'request' ], ';')
+            );
         }
         if ($this->orderBy) {
             $output .= 'ORDER BY ';
@@ -97,7 +104,7 @@ class Request extends RequestHandler implements \Stringable
                 $output .= sprintf(
                     '%s %s, ',
                     addslashes($field),
-                    $order === SORT_ASC ? 'ASC' : 'DESC'
+                    $order->toString()
                 );
             }
             $output = trim($output, ', ') . ' ';
@@ -161,11 +168,11 @@ class Request extends RequestHandler implements \Stringable
         $this->trySelect();
         $this->tryWhere();
 
-        if ($this->execute === self::INSERT) {
+        if ($this->execute === QueryExecutionType::Insert) {
             $this->executeInsert();
-        } elseif ($this->execute === self::UPDATE) {
+        } elseif ($this->execute === QueryExecutionType::Update) {
             $this->executeUpdate();
-        } elseif ($this->execute === self::DELETE) {
+        } elseif ($this->execute === QueryExecutionType::Delete) {
             $this->executeDelete();
         } else {
             throw new BadFunctionException('Only the insert, update and delete functions can be executed.');
@@ -239,7 +246,7 @@ class Request extends RequestHandler implements \Stringable
             $return = array_merge($return, $union[ 'request' ]->fetchAll());
 
             /* UNION */
-            if ($union[ 'type' ] === self::UNION_SIMPLE) {
+            if ($union[ 'type' ] === UnionType::Simple) {
                 self::arrayUniqueMultidimensional($return);
             }
         }
@@ -330,11 +337,11 @@ class Request extends RequestHandler implements \Stringable
     /**
      * Execute les jointures.
      */
-    protected function executeJoins(string $type, string $tableName, Where $where): void
+    protected function executeJoins(JoinType $type, string $tableName, Where $where): void
     {
         $result       = [];
         $rowTableNull = $this->getRowTableNull($tableName);
-        $isLeftJoin   = $type === self::JOIN_LEFT;
+        $isLeftJoin   = $type === JoinType::Left;
         $tableData    = $isLeftJoin
             ? $this->tableData
             : $this->getTableData($tableName);
@@ -374,18 +381,11 @@ class Request extends RequestHandler implements \Stringable
     /**
      * Trie le tableau en fonction des clés paramétrés.
      *
-     * @param array $data    Données à trier.
-     * @param array $orderBy Clés sur lesquelles le trie s'exécute.
+     * @param array                   $data    Données à trier.
+     * @param array<string, SortType> $orderBy Clés sur lesquelles le trie s'exécute.
      */
     protected function executeOrderBy(array &$data, array $orderBy): void
     {
-        foreach ($orderBy as &$order) {
-            $order = $order === SORT_DESC
-                ? -1
-                : 1;
-        }
-        unset($order);
-
         usort($data, static function ($a, $b) use ($orderBy): int {
             $sorted = 0;
 
@@ -395,8 +395,8 @@ class Request extends RequestHandler implements \Stringable
                 }
 
                 $sorted = $a[ $field ] > $b[ $field ]
-                    ? 1 * $order
-                    : -1 * $order;
+                    ? 1 * $order->value
+                    : -1 * $order->value;
 
                 if ($sorted !== 0) {
                     break;
@@ -645,14 +645,6 @@ class Request extends RequestHandler implements \Stringable
         }
 
         $this->tryDiffColumnNames(array_keys($this->orderBy));
-
-        foreach ($this->orderBy as $field => $order) {
-            if ($order !== SORT_ASC && $order !== SORT_DESC) {
-                throw new OperatorNotFoundException(
-                    sprintf('The sort type of the %s field is not valid.', $field)
-                );
-            }
-        }
     }
 
     /**
