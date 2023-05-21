@@ -68,55 +68,12 @@ class Request extends RequestHandler implements \Stringable
      */
     public function __toString(): string
     {
-        if ($this->execute === QueryExecutionType::Insert) {
-            return $this->insertIntoToString();
-        }
-        if ($this->execute === QueryExecutionType::Update) {
-            return $this->updateToString();
-        }
-        if ($this->execute === QueryExecutionType::Delete) {
-            return $this->deleteToString();
-        }
-
-        $output = sprintf('SELECT %s ', $this->columnNames ? addslashes(implode(', ', $this->columnNames)) : '*');
-        if ($this->from !== '') {
-            $output .= sprintf('FROM %s ', addslashes($this->from));
-        }
-        foreach ($this->joins as $value) {
-            $output .= sprintf(
-                '%s JOIN %s ON %s ',
-                $value[ 'type' ]->toString(),
-                addslashes($value[ 'table' ]),
-                (string) $value[ 'where' ]
-            );
-        }
-        $output .= $this->whereToString();
-        foreach ($this->unions as $union) {
-            $output .= sprintf(
-                '%s %s ',
-                $union[ 'type' ]->toString(),
-                trim((string) $union[ 'request' ], ';')
-            );
-        }
-        if ($this->orderBy) {
-            $output .= 'ORDER BY ';
-            foreach ($this->orderBy as $field => $order) {
-                $output .= sprintf(
-                    '%s %s, ',
-                    addslashes($field),
-                    $order->toString()
-                );
-            }
-            $output = trim($output, ', ') . ' ';
-        }
-        if ($this->limit !== 0) {
-            $output .= sprintf('LIMIT %d ', (string) $this->limit);
-        }
-        if ($this->offset !== 0) {
-            $output .= sprintf('OFFSET %d ', (string) $this->offset);
-        }
-
-        return trim($output) . ';';
+        return match($this->execute) {
+            QueryExecutionType::Insert => $this->insertIntoToString(),
+            QueryExecutionType::Update => $this->updateToString(),
+            QueryExecutionType::Delete => $this->deleteToString(),
+            default => $this->selectToString(),
+        };
     }
 
     /**
@@ -168,15 +125,12 @@ class Request extends RequestHandler implements \Stringable
         $this->trySelect();
         $this->tryWhere();
 
-        if ($this->execute === QueryExecutionType::Insert) {
-            $this->executeInsert();
-        } elseif ($this->execute === QueryExecutionType::Update) {
-            $this->executeUpdate();
-        } elseif ($this->execute === QueryExecutionType::Delete) {
-            $this->executeDelete();
-        } else {
-            throw new BadFunctionException('Only the insert, update and delete functions can be executed.');
-        }
+        match($this->execute) {
+            QueryExecutionType::Insert => $this->executeInsert(),
+            QueryExecutionType::Update => $this->executeUpdate(),
+            QueryExecutionType::Delete => $this->executeDelete(),
+            default => throw new BadFunctionException('Only the insert, update and delete functions can be executed.'),
+        };
 
         $this->schema->save($this->from, $this->tableData);
         $this->init();
@@ -519,6 +473,49 @@ class Request extends RequestHandler implements \Stringable
             $this->values
         );
         $output .= implode(',' . PHP_EOL, $data);
+
+        return trim($output) . ';';
+    }
+
+    private function selectToString(): string
+    {
+        $output = sprintf('SELECT %s ', $this->columnNames ? addslashes(implode(', ', $this->columnNames)) : '*');
+        if ($this->from !== '') {
+            $output .= sprintf('FROM %s ', addslashes($this->from));
+        }
+        foreach ($this->joins as $value) {
+            $output .= sprintf(
+                '%s JOIN %s ON %s ',
+                $value[ 'type' ]->toString(),
+                addslashes($value[ 'table' ]),
+                (string) $value[ 'where' ]
+            );
+        }
+        $output .= $this->whereToString();
+        foreach ($this->unions as $union) {
+            $output .= sprintf(
+                '%s %s ',
+                $union[ 'type' ]->toString(),
+                trim((string) $union[ 'request' ], ';')
+            );
+        }
+        if ($this->orderBy) {
+            $output .= 'ORDER BY ';
+            foreach ($this->orderBy as $field => $order) {
+                $output .= sprintf(
+                    '%s %s, ',
+                    addslashes($field),
+                    $order->toString()
+                );
+            }
+            $output = trim($output, ', ') . ' ';
+        }
+        if ($this->limit !== 0) {
+            $output .= sprintf('LIMIT %d ', (string) $this->limit);
+        }
+        if ($this->offset !== 0) {
+            $output .= sprintf('OFFSET %d ', (string) $this->offset);
+        }
 
         return trim($output) . ';';
     }
