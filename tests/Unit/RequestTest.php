@@ -149,7 +149,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         self::assertEquals($expectedData, $data->fetch());
     }
 
-    public function whereEqualsProvider(): \Generator
+    public static function whereEqualsProvider(): \Generator
     {
         yield [
             '=', '1',
@@ -217,7 +217,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function whereNotEqualsProvider(): \Generator
+    public static function whereNotEqualsProvider(): \Generator
     {
         yield [
             '<>', '1',
@@ -301,7 +301,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         self::assertEquals($expectedData, $data->fetchAll());
     }
 
-    public function whereOperatorProvider(): \Generator
+    public static function whereOperatorProvider(): \Generator
     {
         yield [
             '<', 1,
@@ -673,7 +673,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         self::assertEquals($data, [ 'id' => 1, 'name' => 'DUPOND' ]);
     }
 
-    public function whereLikeProvider(): \Generator
+    public static function whereLikeProvider(): \Generator
     {
         // LIKE
         yield [

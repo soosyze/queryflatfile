@@ -308,7 +308,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     /**
      * @param class-string<\Throwable> $exceptionClass
      *
-     * @dataProvider getValueDefaultException
+     * @dataProvider getValueDefaultExceptionProvider
      */
     public function testValueDefaulException(
         string $method,
@@ -323,7 +323,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $tableBuilder->$method('0')->valueDefault($valueDefault);
     }
 
-    public function getValueDefaultException(): \Generator
+    public static function getValueDefaultExceptionProvider(): \Generator
     {
         yield [
             'boolean', 1,
