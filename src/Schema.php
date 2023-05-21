@@ -202,11 +202,9 @@ class Schema
      */
     public function getTableSchema(string $tableName): Table
     {
-        if (!$this->hasTable($tableName)) {
-            throw new TableNotFoundException($tableName);
-        }
-
-        return $this->getSchema()[ $tableName ];
+        return $this->hasTable($tableName)
+            ? $this->getSchema()[ $tableName ]
+            : throw new TableNotFoundException($tableName);
     }
 
     /**
@@ -251,11 +249,9 @@ class Schema
      */
     public function createTable(string $tableName, ?callable $callback = null): self
     {
-        if ($this->hasTable($tableName)) {
-            throw new Exception(sprintf('Table %s exist.', $tableName));
-        }
-
-        $this->schema[ $tableName ] = self::tableBuilder($tableName, $callback)->getTable();
+        $this->schema[ $tableName ] = $this->hasTable($tableName)
+            ? throw new Exception(sprintf('Table %s exist.', $tableName))
+            : self::tableBuilder($tableName, $callback)->getTable();
 
         $this->save($this->name, $this->toArray());
         $this->create($tableName);

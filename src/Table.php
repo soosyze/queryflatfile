@@ -54,11 +54,9 @@ final class Table
 
     public function getField(string $name): Field
     {
-        if (!isset($this->fields[ $name ])) {
-            throw new \Exception();
-        }
-
-        return $this->fields[ $name ];
+        return isset($this->fields[ $name ])
+            ? $this->fields[ $name ]
+            : throw new \Exception();
     }
 
     /**

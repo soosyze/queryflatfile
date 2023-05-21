@@ -67,16 +67,15 @@ class WhereHandler
         $condition = $this->tryOperator($operator);
 
         if (in_array($condition, [ 'like', 'ilike', 'not like', 'not ilike' ])) {
-            if (!\is_string($value)) {
-                throw new QueryException();
-            }
-            $this->like(
-                $columnName,
-                $condition,
-                $value,
-                $bool,
-                str_contains($condition, 'not')
-            );
+            \is_string($value)
+                ? $this->like(
+                    $columnName,
+                    $condition,
+                    $value,
+                    $bool,
+                    str_contains($condition, 'not')
+                )
+                : throw new QueryException();
 
             return $this;
         }

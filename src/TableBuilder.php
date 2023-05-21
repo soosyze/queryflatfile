@@ -103,11 +103,9 @@ class TableBuilder
      */
     public function increments(string $name): Field
     {
-        if ($this->table->getIncrement() !== null) {
-            throw new TableBuilderException('Only one incremental column is allowed per table.');
-        }
-
-        return $this->table->getFieldOrPut(new IncrementType($name));
+        return $this->table->getIncrement() !== null
+            ? throw new TableBuilderException('Only one incremental column is allowed per table.')
+            : $this->table->getFieldOrPut(new IncrementType($name));
     }
 
     /**
