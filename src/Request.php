@@ -349,7 +349,7 @@ class Request extends RequestHandler implements \Stringable
                 }
 
                 $sorted = $a[ $field ] > $b[ $field ]
-                    ? 1 * $order->value
+                    ? $order->value
                     : -1 * $order->value;
 
                 if ($sorted !== 0) {
@@ -511,10 +511,10 @@ class Request extends RequestHandler implements \Stringable
             $output = trim($output, ', ') . ' ';
         }
         if ($this->limit !== 0) {
-            $output .= sprintf('LIMIT %d ', (string) $this->limit);
+            $output .= sprintf('LIMIT %d ', $this->limit);
         }
         if ($this->offset !== 0) {
-            $output .= sprintf('OFFSET %d ', (string) $this->offset);
+            $output .= sprintf('OFFSET %d ', $this->offset);
         }
 
         return trim($output) . ';';
@@ -578,7 +578,7 @@ class Request extends RequestHandler implements \Stringable
      */
     private function tryFrom(): void
     {
-        if (empty($this->from)) {
+        if ($this->from === '') {
             throw new TableNotFoundException();
         }
     }

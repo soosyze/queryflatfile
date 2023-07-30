@@ -298,19 +298,19 @@ class Schema
 
         foreach ($tableBuilder->getFields() as $field) {
             if ($field->getExecutionType() === TableExecutionType::Create) {
-                self::tryFieldAdd($tableSchema, $field);
+                $this->tryFieldAdd($tableSchema, $field);
                 self::add($tableSchema, $field, $tableData);
             } elseif ($field->getExecutionType() === TableExecutionType::Modify) {
-                self::tryFieldModify($tableSchema, $field);
+                $this->tryFieldModify($tableSchema, $field);
                 self::modify($tableSchema, $field, $tableData);
             }
         }
         foreach($tableBuilder->getCommands() as $command) {
             if ($command instanceof RenameCommand) {
-                self::tryFieldRename($tableSchema, $command);
+                $this->tryFieldRename($tableSchema, $command);
                 self::rename($tableSchema, $command, $tableData);
             } elseif ($command instanceof DropCommand) {
-                self::tryFieldDrop($tableSchema, $command);
+                $this->tryFieldDrop($tableSchema, $command);
                 self::drop($tableSchema, $command, $tableData);
             }
         }
@@ -611,7 +611,7 @@ class Schema
      * @throws Exception
      * @throws ColumnsNotFoundException
      */
-    private static function tryFieldAdd(Table $tableSchema, Field $field): void
+    private function tryFieldAdd(Table $tableSchema, Field $field): void
     {
         /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
         if ($tableSchema->hasField($field->name)) {
@@ -643,7 +643,7 @@ class Schema
      * @throws ColumnsValueException
      * @throws Exception
      */
-    private static function tryFieldModify(Table $tableSchema, Field $field): void
+    private function tryFieldModify(Table $tableSchema, Field $field): void
     {
         if (!$tableSchema->hasField($field->name)) {
             throw new Exception(
@@ -689,7 +689,7 @@ class Schema
      * @throws ColumnsNotFoundException
      * @throws Exception
      */
-    private static function tryFieldRename(Table $table, RenameCommand $command): void
+    private function tryFieldRename(Table $table, RenameCommand $command): void
     {
         if (!$table->hasField($command->name)) {
             throw new ColumnsNotFoundException(
@@ -712,7 +712,7 @@ class Schema
      *
      * @throws ColumnsNotFoundException
      */
-    private static function tryFieldDrop(Table $table, DropCommand $command): void
+    private function tryFieldDrop(Table $table, DropCommand $command): void
     {
         if (!$table->hasField($command->name)) {
             throw new ColumnsNotFoundException(

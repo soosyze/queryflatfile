@@ -20,7 +20,7 @@ use Soosyze\Queryflatfile\Exception\Driver\FileNotWritableException;
  */
 abstract class Driver implements DriverInterface
 {
-    const DS = DIRECTORY_SEPARATOR;
+    public final const DS = DIRECTORY_SEPARATOR;
 
     /**
      * Déclenche une exception si l'extension du fichier n'est pas chargée.
