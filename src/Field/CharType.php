@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
-use Soosyze\Queryflatfile\Concern\Field\TryOrGetString;
+use Soosyze\Queryflatfile\Concerns\Field\TryOrGetString;
 use Soosyze\Queryflatfile\Enum\FieldType;
 use Soosyze\Queryflatfile\Field;
 

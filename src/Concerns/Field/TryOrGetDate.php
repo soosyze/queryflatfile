@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Concern\Field;
+namespace Soosyze\Queryflatfile\Concerns\Field;
 
 use Soosyze\Queryflatfile\Enum\CurentDefaultType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
