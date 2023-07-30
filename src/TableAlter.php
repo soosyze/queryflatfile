@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Command\DropCommand;
-use Soosyze\Queryflatfile\Command\RenameCommand;
+use Soosyze\Queryflatfile\Commands\DropCommand;
+use Soosyze\Queryflatfile\Commands\RenameCommand;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.

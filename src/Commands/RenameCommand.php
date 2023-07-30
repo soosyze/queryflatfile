@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Command;
+namespace Soosyze\Queryflatfile\Commands;
 
 use Soosyze\Queryflatfile\Command;
 use Soosyze\Queryflatfile\Enum\TableExecutionType;

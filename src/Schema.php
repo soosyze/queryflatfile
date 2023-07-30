@@ -10,8 +10,8 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Command\DropCommand;
-use Soosyze\Queryflatfile\Command\RenameCommand;
+use Soosyze\Queryflatfile\Commands\DropCommand;
+use Soosyze\Queryflatfile\Commands\RenameCommand;
 use Soosyze\Queryflatfile\DriverInterface;
 use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\Exception\Exception;
