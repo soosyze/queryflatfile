@@ -1296,8 +1296,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->leftJoin('role', 'id_role', '=', 'role.id_role');
 
         self::assertEquals(
-            'SELECT id, name, firstname, labelle FROM user '
-            . 'LEFT JOIN user_role ON id = \'user_role.id_user\' '
+            'SELECT id, name, firstname, labelle FROM user LEFT JOIN user_role ON id = \'user_role.id_user\' '
             . 'LEFT JOIN role ON id_role = \'role.id_role\';',
             (string) $data
         );
@@ -1326,8 +1325,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('labelle', '=', 'Admin');
 
         self::assertEquals(
-            'SELECT id, name, firstname FROM user '
-            . 'LEFT JOIN user_role ON id = \'user_role.id_user\' '
+            'SELECT id, name, firstname FROM user LEFT JOIN user_role ON id = \'user_role.id_user\' '
             . 'LEFT JOIN role ON id_role = \'role.id_role\' '
             . 'WHERE labelle = \'Admin\';',
             (string) $data
@@ -1353,8 +1351,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('labelle', '=', 'Admin');
 
         self::assertEquals(
-            'SELECT id, name, firstname FROM user '
-            . 'LEFT JOIN user_role ON id = \'user_role.id_user\' '
+            'SELECT id, name, firstname FROM user LEFT JOIN user_role ON id = \'user_role.id_user\' '
             . 'LEFT JOIN role ON id_role = \'role.id_role\' '
             . 'WHERE labelle = \'Admin\';',
             (string) $data
@@ -1382,8 +1379,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->where('labelle', '=', 'Admin');
 
         self::assertEquals(
-            'SELECT id, name, firstname, labelle FROM user '
-            . 'LEFT JOIN user_role ON id = \'user_role.id_user\' '
+            'SELECT id, name, firstname, labelle FROM user LEFT JOIN user_role ON id = \'user_role.id_user\' '
             . 'LEFT JOIN role ON (id_role = \'role.id_role\') '
             . 'WHERE labelle = \'Admin\';',
             (string) $data
@@ -1433,8 +1429,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->expectException(ColumnsNotFoundException::class);
         $this->expectExceptionMessage(
             'Column foo is absent: '
-            . 'SELECT id, name, firstname FROM user '
-            . 'LEFT JOIN user_role ON foo == \'user_role.id_user\' '
+            . 'SELECT id, name, firstname FROM user LEFT JOIN user_role ON foo == \'user_role.id_user\' '
             . 'LEFT JOIN role ON id_role == \'role.id\' '
             . 'WHERE labelle = \'Admin\' '
             . 'LIMIT 1;'
@@ -1573,8 +1568,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
             ->unionAll($union);
 
         self::assertEquals(
-            'SELECT name, firstname FROM user '
-            . 'UNION ALL '
+            'SELECT name, firstname FROM user UNION ALL '
             . 'SELECT name, firstname FROM user WHERE id BETWEEN 1 AND 5;',
             (string) $data
         );

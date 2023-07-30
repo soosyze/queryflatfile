@@ -28,6 +28,7 @@ trait TryOrGetDate
             $this->throwInvalidType($value);
         }
 
+        /** @var string $value */
         if (strtolower($value) === $this->currentDefault->value) {
             return $this->currentDefault->value;
         }

@@ -27,6 +27,7 @@ trait TryOrGetString
             $this->throwInvalidType($value);
         }
 
+        /** @var string $value */
         if (strlen($value) > $this->length) {
             throw new \LengthException(
                 sprintf(
