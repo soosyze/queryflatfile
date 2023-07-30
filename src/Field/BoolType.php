@@ -8,24 +8,32 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
+use Soosyze\Queryflatfile\Concern\Field\ThrowInvalidType;
+use Soosyze\Queryflatfile\Enum\FieldType;
 use Soosyze\Queryflatfile\Field;
 
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class BoolType extends Field
+final class BoolType extends Field
 {
-    public const TYPE = 'boolean';
+    use ThrowInvalidType;
 
     /**
      * {@inheritdoc}
      */
-    public function tryOrGetValue(null|bool|string|int|float $value): bool
+    public function getType(): FieldType
+    {
+        return FieldType::Boolean;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function tryOrGetValue(mixed $value): bool
     {
         if (!\is_bool($value)) {
-            throw new \InvalidArgumentException(
-                sprintf(self::INVALID_ARGUMENT_MESSAGE, $this->name, self::TYPE, gettype($value))
-            );
+            $this->throwInvalidType($value);
         }
 
         return $value;

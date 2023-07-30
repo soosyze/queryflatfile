@@ -8,25 +8,33 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
+use Soosyze\Queryflatfile\Concern\Field\ThrowInvalidType;
+use Soosyze\Queryflatfile\Enum\FieldType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
 use Soosyze\Queryflatfile\Field;
 
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class IncrementType extends Field
+final class IncrementType extends Field
 {
-    public const TYPE = 'increments';
+    use ThrowInvalidType;
 
     /**
      * {@inheritdoc}
      */
-    public function tryOrGetValue(null|bool|string|int|float $value): int
+    public function getType(): FieldType
+    {
+        return FieldType::Increment;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function tryOrGetValue(mixed $value): int
     {
         if (!\is_int($value)) {
-            throw new \InvalidArgumentException(
-                sprintf(self::INVALID_ARGUMENT_MESSAGE, $this->name, 'integer', gettype($value))
-            );
+            $this->throwInvalidType($value);
         }
 
         return $value;
@@ -34,20 +42,16 @@ class IncrementType extends Field
 
     /**
      * @throws ColumnsValueException
-     *
-     * @return never
      */
-    public function getValueDefault(): null|bool|string|int|float
+    public function getValueDefault(): never
     {
         throw new ColumnsValueException('An incremental type column can not have a default value.');
     }
 
     /**
      * @throws ColumnsValueException
-     *
-     * @return never
      */
-    public function valueDefault(null|bool|string|int|float $value): null|bool|string|int|float
+    public function valueDefault(mixed $value): never
     {
         throw new ColumnsValueException('An incremental type column can not have a default value.');
     }

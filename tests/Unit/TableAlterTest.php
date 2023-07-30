@@ -2,7 +2,6 @@
 
 namespace Soosyze\Queryflatfile\Tests\Unit;
 
-use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\TableAlter;
 
 class TableAlterTest extends \PHPUnit\Framework\TestCase
@@ -19,12 +18,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
         $this->object->dropColumn('0');
 
         self::assertEquals(
-            [
-                'fields'     => [
-                    '0' => [ 'type' => '', 'opt' => TableExecutionType::Drop ]
-                ],
-                'increments' => null
-            ],
+            ['fields' => []],
             $this->object->getTable()->toArray()
         );
     }
@@ -34,12 +28,7 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
         $this->object->renameColumn('0', '1');
 
         self::assertEquals(
-            [
-                'fields'     => [
-                    '0' => [ 'type' => '', 'opt' => TableExecutionType::Rename, 'to' => '1' ]
-                ],
-                'increments' => null
-            ],
+            ['fields' => []],
             $this->object->getTable()->toArray()
         );
     }
@@ -50,10 +39,9 @@ class TableAlterTest extends \PHPUnit\Framework\TestCase
 
         self::assertEquals(
             [
-                'fields'     => [
-                    '0' => [ 'type' => 'char', 'length' => 1 ]
+                'fields' => [
+                    '0' => [ 'type' => 'char' ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );

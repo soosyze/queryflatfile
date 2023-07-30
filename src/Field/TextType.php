@@ -8,24 +8,32 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
+use Soosyze\Queryflatfile\Concern\Field\ThrowInvalidType;
+use Soosyze\Queryflatfile\Enum\FieldType;
 use Soosyze\Queryflatfile\Field;
 
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class TextType extends Field
+final class TextType extends Field
 {
-    public const TYPE = 'text';
+    use ThrowInvalidType;
 
     /**
      * {@inheritdoc}
      */
-    public function tryOrGetValue(null|bool|string|int|float $value): string
+    public function getType(): FieldType
+    {
+        return FieldType::Text;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function tryOrGetValue(mixed $value): string
     {
         if (!\is_string($value)) {
-            throw new \InvalidArgumentException(
-                sprintf(self::INVALID_ARGUMENT_MESSAGE, $this->name, 'string', gettype($value))
-            );
+            $this->throwInvalidType($value);
         }
 
         return $value;
