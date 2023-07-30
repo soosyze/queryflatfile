@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
+use Soosyze\Queryflatfile\Enum\FieldType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
 use Soosyze\Queryflatfile\Field\BoolType;
 use Soosyze\Queryflatfile\Field\CharType;
@@ -50,14 +51,13 @@ class TableBuilder
      * Enregistre un champ de type `char` avec une limite de taille par défaut de un caractère.
      * http://php.net/language.types.string
      *
-     * @param string $name   Nom du champ
-     * @param int    $length longueur maximum de la chaine.
+     * @param string $name Nom du champ
      *
      * @throws TableBuilderException
      */
-    public function char(string $name, int $length = 1): Field
+    public function char(string $name): Field
     {
-        return $this->table->getFieldOrPut(new CharType($name, $length));
+        return $this->table->getFieldOrPut(new CharType($name));
     }
 
     /**
@@ -98,14 +98,10 @@ class TableBuilder
      * http://php.net/manual/fr/language.types.integer.php
      *
      * @param string $name nom du champ
-     *
-     * @throws TableBuilderException
      */
     public function increments(string $name): Field
     {
-        return $this->table->getIncrement() !== null
-            ? throw new TableBuilderException('Only one incremental column is allowed per table.')
-            : $this->table->getFieldOrPut(new IncrementType($name));
+        return $this->table->getFieldOrPut(new IncrementType($name));
     }
 
     /**
@@ -160,7 +156,7 @@ class TableBuilder
      * Créer une table à partir d'un tableau de données.
      *
      * @param string $table Nom de la table.
-     * @param array  $data  Donnaées pour créer une table.
+     * @param array  $data  Données pour créer une table.
      *
      * @phpstan-param TableToArray $data
      *
@@ -169,34 +165,23 @@ class TableBuilder
     public static function createTableFromArray(string $table, array $data): Table
     {
         $tableBuilder = new self($table);
-        foreach ($data[ 'fields' ] as $name => $value) {
-            switch ($value[ 'type' ]) {
-                case BoolType::TYPE:
-                case DateType::TYPE:
-                case DateTimeType::TYPE:
-                case FloatType::TYPE:
-                case IncrementType::TYPE:
-                case TextType::TYPE:
-                    $field = $tableBuilder->{$value[ 'type' ]}($name);
+        foreach ($data['fields'] as $name => $value) {
+            $field = match (FieldType::tryFrom($value['type'])) {
+                FieldType::Boolean => new BoolType($name),
+                FieldType::Char => new CharType($name),
+                FieldType::Date => new DateType($name),
+                FieldType::DateTime => new DateTimeType($name),
+                FieldType::Float => new FloatType($name),
+                FieldType::Increment => new IncrementType($name),
+                FieldType::Int => new IntType($name),
+                FieldType::String => new StringType($name, $value['length'] ?? 255),
+                FieldType::Text => new TextType($name),
+                default => throw new TableBuilderException("Type {$value['type']} not supported.")
+            };
 
-                    break;
-                case CharType::TYPE:
-                case StringType::TYPE:
-                    $field = $tableBuilder->{$value[ 'type' ]}($name, $value[ 'length' ] ?? 0);
-
-                    break;
-                case IntType::TYPE:
-                    $field = $tableBuilder->{$value[ 'type' ]}($name);
-
-                    if (isset($value[ 'unsigned' ])) {
-                        $field->unsigned();
-                    }
-
-                    break;
-                default:
-                    throw new TableBuilderException(sprintf('Type %s not supported.', $value[ 'type' ]));
+            if (isset($value['unsigned']) && $field instanceof IntType) {
+                $field->unsigned();
             }
-
             if (isset($value[ 'nullable' ])) {
                 $field->nullable();
             }
@@ -206,6 +191,7 @@ class TableBuilder
             if (isset($value[ '_comment' ])) {
                 $field->comment($value[ '_comment' ]);
             }
+            $tableBuilder->table->addField($field);
         }
         $tableBuilder->table->setIncrement($data[ 'increments' ] ?? null);
 

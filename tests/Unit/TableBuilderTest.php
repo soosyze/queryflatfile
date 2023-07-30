@@ -2,7 +2,9 @@
 
 namespace Soosyze\Queryflatfile\Tests\Unit;
 
+use Soosyze\Queryflatfile\Enum\FieldType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Soosyze\Queryflatfile\Field;
 use Soosyze\Queryflatfile\TableBuilder;
 
 class TableBuilderTest extends \PHPUnit\Framework\TestCase
@@ -42,27 +44,17 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
     public function testChar(): void
     {
         $this->object->char('id');
-        $this->object->char('id2', 2);
+        $this->object->char('id2');
 
         self::assertEquals(
             [
                 'fields'     => [
-                    'id'  => [ 'type' => 'char', 'length' => 1 ],
-                    'id2' => [ 'type' => 'char', 'length' => 2 ]
+                    'id'  => [ 'type' => 'char' ],
+                    'id2' => [ 'type' => 'char' ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
-    }
-
-    public function testCharException(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'The length passed in parameter is not of numeric type.'
-        );
-        $this->object->char('id2', -1);
     }
 
     public function testText(): void
@@ -74,7 +66,6 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'id' => [ 'type' => 'text' ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
@@ -91,7 +82,6 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                     'id'  => [ 'type' => 'string', 'length' => 255 ],
                     'id2' => [ 'type' => 'string', 'length' => 256 ],
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
@@ -115,7 +105,6 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'id' => [ 'type' => 'integer' ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
@@ -130,7 +119,6 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'id' => [ 'type' => 'float' ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
@@ -145,7 +133,6 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'id' => [ 'type' => 'boolean' ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
@@ -160,7 +147,6 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'id' => [ 'type' => 'date' ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
@@ -175,7 +161,6 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'id' => [ 'type' => 'datetime' ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
@@ -197,7 +182,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
             [
                 'fields'     => [
                     '0' => [ 'type' => 'increments', 'nullable' => true ],
-                    '1' => [ 'type' => 'char', 'length' => 1, 'nullable' => true ],
+                    '1' => [ 'type' => 'char', 'nullable' => true ],
                     '2' => [ 'type' => 'text', 'nullable' => true ],
                     '3' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ],
                     '4' => [ 'type' => 'integer', 'nullable' => true ],
@@ -245,7 +230,6 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'id' => [ 'type' => 'integer', 'unsigned' => true ]
                 ],
-                'increments' => null
             ],
             $this->object->getTable()->toArray()
         );
@@ -260,7 +244,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'id' => [ 'type' => 'increments', '_comment' => 'identifiant' ]
                 ],
-                'increments' => null
+                'increments' => 0
             ],
             $this->object->getTable()->toArray()
         );
@@ -284,7 +268,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
             [
                 'fields'     => [
                     '0'   => [ 'type' => 'increments' ],
-                    '1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
+                    '1'   => [ 'type' => 'char', 'default' => 'a' ],
                     '2'   => [ 'type' => 'text', 'default' => 'test' ],
                     '3'   => [ 'type' => 'string', 'length' => 255, 'default' => 'test' ],
                     '4'   => [ 'type' => 'integer', 'default' => 1 ],
@@ -311,7 +295,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
      * @dataProvider getValueDefaultExceptionProvider
      */
     public function testValueDefaulException(
-        string $method,
+        FieldType $fieldType,
         mixed $valueDefault,
         string $exceptionClass,
         string $exceptionMessage
@@ -320,61 +304,61 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
 
         $this->expectException($exceptionClass);
         $this->expectExceptionMessage($exceptionMessage);
-        $tableBuilder->$method('0')->valueDefault($valueDefault);
+        $tableBuilder->{$fieldType->value}('0')->valueDefault($valueDefault);
     }
 
     public static function getValueDefaultExceptionProvider(): \Generator
     {
         yield [
-            'boolean', 1,
+            FieldType::Boolean, 1,
             \InvalidArgumentException::class, 'The value of the 0 field must be of type boolean: integer given.'
         ];
         yield [
-            'char', 1,
+            FieldType::Char, 1,
             \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
         ];
         yield [
-            'char', 'error',
+            FieldType::Char, 'error',
             \LengthException::class, 'The value of the 0 field must be less than or equal to 1 characters: 5 given'
         ];
         yield [
-            'date', 1,
+            FieldType::Date, 1,
             \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
         ];
         yield [
-            'date', '1',
+            FieldType::Date, '1',
             ColumnsValueException::class, 'The value of the 0 field must be a valid date: 1 given'
         ];
         yield [
-            'datetime', 1,
+            FieldType::DateTime, 1,
             \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
         ];
         yield [
-            'datetime', '1',
+            FieldType::DateTime, '1',
             ColumnsValueException::class, 'The value of the 0 field must be a valid date: 1 given'
         ];
         yield [
-            'float', '1',
+            FieldType::Float, '1',
             \InvalidArgumentException::class, 'The value of the 0 field must be of type float: string given.'
         ];
         yield [
-            'increments', 2,
+            FieldType::Increment, 2,
             \Exception::class, 'An incremental type column can not have a default value.'
         ];
         yield [
-            'integer', '1',
+            FieldType::Int, '1',
             \InvalidArgumentException::class, 'The value of the 0 field must be of type integer: string given.'
         ];
         yield [
-            'string', 1,
+            FieldType::String, 1,
             \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
         ];
         yield [
-            'string', str_repeat('0', 256),
+            FieldType::String, str_repeat('0', 256),
             \LengthException::class, 'The value of the 0 field must be less than or equal to 255 characters: 256 given'
         ];
         yield [
-            'text', 1,
+            FieldType::Text, 1,
             \InvalidArgumentException::class, 'The value of the 0 field must be of type string: integer given.'
         ];
     }
@@ -385,7 +369,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
         $this->object->char('field_1')->valueDefault('a');
         $this->object->text('field_2')->valueDefault('test');
         $this->object->string('field_3')->valueDefault('test');
-        $this->object->integer('field_4')->valueDefault(1)->unsigned();
+        $this->object->integer('field_4')->unsigned()->valueDefault(1);
         $this->object->float('field_5')->valueDefault(1.1);
         $this->object->boolean('field_6')->valueDefault(true);
         $this->object->date('field_7')->valueDefault('2017-11-26');
@@ -397,7 +381,7 @@ class TableBuilderTest extends \PHPUnit\Framework\TestCase
             'test' => [
                 'fields'     => [
                     'field_0'   => [ 'type' => 'increments' ],
-                    'field_1'   => [ 'type' => 'char', 'length' => 1, 'default' => 'a' ],
+                    'field_1'   => [ 'type' => 'char', 'default' => 'a' ],
                     'field_2'   => [ 'type' => 'text', 'default' => 'test' ],
                     'field_3'   => [ 'type' => 'string', 'length' => 255, 'default' => 'test' ],
                     'field_4'   => [ 'type' => 'integer', 'default' => 1, 'unsigned' => true ],

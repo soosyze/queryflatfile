@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
+use Soosyze\Queryflatfile\Command\DropCommand;
+use Soosyze\Queryflatfile\Command\RenameCommand;
 use Soosyze\Queryflatfile\DriverInterface;
 use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\Exception\Exception;
@@ -295,18 +297,21 @@ class Schema
         $tableData    = $this->read($tableName);
 
         foreach ($tableBuilder->getFields() as $field) {
-            if ($field->getOpt() === TableExecutionType::Create) {
+            if ($field->getExecutionType() === TableExecutionType::Create) {
                 self::tryFieldAdd($tableSchema, $field);
                 self::add($tableSchema, $field, $tableData);
-            } elseif ($field->getOpt() === TableExecutionType::Rename) {
-                self::tryFieldRename($tableSchema, $field);
-                self::rename($tableSchema, $field, $tableData);
-            } elseif ($field->getOpt() === TableExecutionType::Modify) {
+            } elseif ($field->getExecutionType() === TableExecutionType::Modify) {
                 self::tryFieldModify($tableSchema, $field);
                 self::modify($tableSchema, $field, $tableData);
-            } elseif ($field->getOpt() === TableExecutionType::Drop) {
-                self::tryFieldDrop($tableSchema, $field);
-                self::drop($tableSchema, $field, $tableData);
+            }
+        }
+        foreach($tableBuilder->getCommands() as $command) {
+            if ($command instanceof RenameCommand) {
+                self::tryFieldRename($tableSchema, $command);
+                self::rename($tableSchema, $command, $tableData);
+            } elseif ($command instanceof DropCommand) {
+                self::tryFieldDrop($tableSchema, $command);
+                self::drop($tableSchema, $command, $tableData);
             }
         }
 
@@ -474,7 +479,7 @@ class Schema
         }
 
         foreach ($tableData as &$data) {
-            $data[ $field->getName() ] = $increment === null
+            $data[ $field->name ] = $increment === null
                 ? $valueDefault
                 : ++$increment;
         }
@@ -496,7 +501,7 @@ class Schema
         Field $field,
         array &$tableData
     ): void {
-        $oldField = $table->getField($field->getName());
+        $oldField = $table->getField($field->name);
 
         $table->addField($field);
 
@@ -504,7 +509,7 @@ class Schema
          * Si la modification ne concerne pas le type, la mise à jour des données ne se fait pas.
          * Exemple: rendre un champ nullable ne doit écraser les données présentent en table.
          */
-        if ($oldField::TYPE === $field::TYPE) {
+        if ($oldField->getType() === $field->getType()) {
             return;
         }
 
@@ -515,7 +520,7 @@ class Schema
         try {
             $valueDefault = $field->getValueDefault();
             foreach ($tableData as &$data) {
-                $data[ $field->getName() ] = $valueDefault;
+                $data[ $field->name ] = $valueDefault;
             }
         } catch (ColumnsValueException | \InvalidArgumentException) {
         }
@@ -528,43 +533,43 @@ class Schema
     /**
      * Renomme un champ dans les paramètre de la table et ses données.
      *
-     * @param Table      $table       Schéma de la table.
-     * @param RenameType $fieldRename champ à renommer
-     * @param array      $tableData   Les données de la table.
+     * @param Table         $table     Schéma de la table.
+     * @param RenameCommand $command   champ à renommer
+     * @param array         $tableData Les données de la table.
      */
     protected static function rename(
         Table &$table,
-        RenameType $fieldRename,
+        RenameCommand $command,
         array &$tableData
     ): void {
-        $table->renameField($fieldRename->getName(), $fieldRename->getTo());
+        $table->renameField($command->name, $command->to);
 
         foreach ($tableData as &$data) {
-            $data[ $fieldRename->getTo() ] = $data[ $fieldRename->getName() ];
-            unset($data[ $fieldRename->getName() ]);
+            $data[ $command->to ] = $data[ $command->name ];
+            unset($data[ $command->name ]);
         }
     }
 
     /**
      * Supprime un champ dans les paramètre de la table et ses données.
      *
-     * @param Table    $table     Schéma de la table.
-     * @param DropType $fieldDrop Champ à supprimer
-     * @param array    $tableData Les données de la table.
+     * @param Table       $table     Schéma de la table.
+     * @param DropCommand $command   Champ à supprimer
+     * @param array       $tableData Les données de la table.
      */
     protected static function drop(
         Table &$table,
-        DropType $fieldDrop,
+        DropCommand $command,
         array &$tableData
     ): void {
         foreach (array_keys($tableData) as $key) {
-            unset($tableData[ $key ][ $fieldDrop->getName() ]);
+            unset($tableData[ $key ][ $command->name ]);
         }
 
-        if ($table->getField($fieldDrop->getName()) instanceof IncrementType) {
+        if ($table->getField($command->name) instanceof IncrementType) {
             $table->setIncrement(null);
         }
-        $table->unsetField($fieldDrop->getName());
+        $table->unsetField($command->name);
     }
 
     /**
@@ -609,12 +614,12 @@ class Schema
     private static function tryFieldAdd(Table $tableSchema, Field $field): void
     {
         /* Si un champ est ajouté il ne doit pas exister dans le schéma. */
-        if ($tableSchema->hasField($field->getName())) {
+        if ($tableSchema->hasField($field->name)) {
             throw new Exception(
                 sprintf(
                     '%s field does not exists in %s table.',
-                    $field->getName(),
-                    $tableSchema->getName()
+                    $field->name,
+                    $tableSchema->name
                 )
             );
         }
@@ -622,7 +627,7 @@ class Schema
             throw new ColumnsValueException(
                 sprintf(
                     'The %s table can not have multiple incremental values.',
-                    $tableSchema->getName()
+                    $tableSchema->name
                 )
             );
         }
@@ -640,12 +645,12 @@ class Schema
      */
     private static function tryFieldModify(Table $tableSchema, Field $field): void
     {
-        if (!$tableSchema->hasField($field->getName())) {
+        if (!$tableSchema->hasField($field->name)) {
             throw new Exception(
                 sprintf(
                     '%s field does not exists in %s table.',
-                    $field->getName(),
-                    $tableSchema->getName()
+                    $field->name,
+                    $tableSchema->name
                 )
             );
         }
@@ -653,28 +658,23 @@ class Schema
             throw new ColumnsValueException(
                 sprintf(
                     'The %s table can not have multiple incremental values.',
-                    $tableSchema->getName()
+                    $tableSchema->name
                 )
             );
         }
 
-        $fieldOld = $tableSchema->getField($field->getName());
+        $fieldOld = $tableSchema->getField($field->name);
+        $typeFieldOld = $fieldOld->getType();
+        $typeField = $field->getType();
 
         /* Si le type change, les données présents doivent être d'un type équivalent. */
-        $modifyNumber = in_array($field::TYPE, [ 'integer', 'float', 'increments' ]) &&
-            !in_array($fieldOld::TYPE, [ 'integer', 'float', 'increments' ]);
-        $modifyString = in_array($field::TYPE, [ 'text', 'string', 'char' ]) &&
-            !in_array($fieldOld::TYPE, [ 'text', 'string', 'char' ]);
-        $modifyDate   = in_array($field::TYPE, [ 'date', 'datetime' ]) &&
-            !in_array($fieldOld::TYPE, [ 'date', 'datetime', 'string', 'text' ]);
-
-        if ($modifyString || $modifyNumber || $modifyDate) {
+        if (!$typeFieldOld->isModify($typeField)) {
             throw new Exception(
                 sprintf(
                     'The %s column type %s can not be changed with the %s type.',
-                    $field->getName(),
-                    $fieldOld::TYPE,
-                    $field::TYPE
+                    $field->name,
+                    $typeFieldOld->value,
+                    $typeField->value
                 )
             );
         }
@@ -683,23 +683,23 @@ class Schema
     /**
      * Vérifie si les opérations de renommage du champ sont conformes.
      *
-     * @param Table      $table Le schéma de la table.
-     * @param RenameType $field Champ à renommer.
+     * @param Table         $table   Le schéma de la table.
+     * @param RenameCommand $command Champ à renommer.
      *
      * @throws ColumnsNotFoundException
      * @throws Exception
      */
-    private static function tryFieldRename(Table $table, RenameType $field): void
+    private static function tryFieldRename(Table $table, RenameCommand $command): void
     {
-        if (!$table->hasField($field->getName())) {
+        if (!$table->hasField($command->name)) {
             throw new ColumnsNotFoundException(
-                sprintf('%s field does not exists in %s table.', $field->getName(), $table->getName())
+                sprintf('%s field does not exists in %s table.', $command->name, $table->name)
             );
         }
         /* Si le champ à renommer existe dans le schema. */
-        if ($table->hasField($field->getTo())) {
+        if ($table->hasField($command->to)) {
             throw new Exception(
-                sprintf('%s field does exists in %s table.', $field->getName(), $table->getName())
+                sprintf('%s field does exists in %s table.', $command->name, $table->name)
             );
         }
     }
@@ -707,16 +707,16 @@ class Schema
     /**
      * Vérifie si les opérations de suppression du champ sont conformes.
      *
-     * @param Table    $table Le schéma de la table.
-     * @param DropType $field Champ à supprimer
+     * @param Table       $table   Le schéma de la table.
+     * @param DropCommand $command Champ à supprimer
      *
      * @throws ColumnsNotFoundException
      */
-    private static function tryFieldDrop(Table $table, DropType $field): void
+    private static function tryFieldDrop(Table $table, DropCommand $command): void
     {
-        if (!$table->hasField($field->getName())) {
+        if (!$table->hasField($command->name)) {
             throw new ColumnsNotFoundException(
-                sprintf('%s field does not exists in %s table.', $field->getName(), $table->getName())
+                sprintf('%s field does not exists in %s table.', $command->name, $table->name)
             );
         }
     }

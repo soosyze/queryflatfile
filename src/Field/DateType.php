@@ -8,14 +8,28 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
+use Soosyze\Queryflatfile\Concern\Field\TryOrGetDate;
+use Soosyze\Queryflatfile\Enum\CurentDefaultType;
+use Soosyze\Queryflatfile\Enum\FieldType;
+use Soosyze\Queryflatfile\Field;
+
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class DateType extends DateTimeType
+final class DateType extends Field
 {
-    public const CURRENT_DEFAULT = 'current_date';
+    use TryOrGetDate;
 
-    public const TYPE = 'date';
+    public function __construct(readonly public string $name)
+    {
+        $this->currentDefault = CurentDefaultType::Date;
+    }
 
-    protected const FORMAT = 'Y-m-d';
+    /**
+     * {@inheritdoc}
+     */
+    public function getType(): FieldType
+    {
+        return FieldType::Date;
+    }
 }

@@ -8,12 +8,24 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
+use Soosyze\Queryflatfile\Concern\Field\TryOrGetString;
+use Soosyze\Queryflatfile\Enum\FieldType;
+use Soosyze\Queryflatfile\Field;
+
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class CharType extends StringType
+final class CharType extends Field
 {
-    public const TYPE = 'char';
+    use TryOrGetString;
 
     protected int $length = 1;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getType(): FieldType
+    {
+        return FieldType::Char;
+    }
 }

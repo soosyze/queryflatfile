@@ -13,10 +13,8 @@ use Soosyze\Queryflatfile\Field\IncrementType;
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  *
- * @phpstan-import-type FieldToArray from Field
- *
  * @phpstan-type TableToArray array{
- *      fields: array<string, FieldToArray>,
+ *      fields: array<string, array>,
  *      increments?: int|null
  * }
  */
@@ -30,33 +28,52 @@ final class Table
     protected array $fields = [];
 
     /**
-     * La valeur des champs incrémentaux.
+     * Les champs et leurs paramètres.
+     *
+     * @var array<string, Command>
+     */
+    private array $commands = [];
+
+    /**
+     * La valeur du champ incrémentaux.
      */
     private ?int $increment = null;
 
-    public function __construct(protected string $name)
+    public function __construct(public readonly string $name)
     {
+    }
+
+    public function addCommand(Command $command): void
+    {
+        $this->commands[$command->name] = $command;
+    }
+
+    /**
+     * @return array<string, Command>
+     */
+    public function getCommands(): array
+    {
+        return $this->commands;
     }
 
     /**
      * Ajoute un nouveau champ.
-     *
-     * @param Field $field Champ.
      */
     public function addField(Field $field): void
     {
         if ($field instanceof IncrementType) {
-            $this->increment = 0;
+            $this->increment = is_int($this->increment)
+                ? throw new \InvalidArgumentException('Only one incremental column is allowed per table.')
+                : 0;
         }
 
-        $this->fields[ $field->getName() ] = $field;
+        $this->fields[$field->name] = $field;
     }
 
     public function getField(string $name): Field
     {
-        return isset($this->fields[ $name ])
-            ? $this->fields[ $name ]
-            : throw new \Exception();
+        return $this->fields[$name]
+            ?? throw new \InvalidArgumentException('Field does not exist');
     }
 
     /**
@@ -64,28 +81,29 @@ final class Table
      */
     public function getFieldOrPut(Field $field): Field
     {
-        if (isset($this->fields[$field->getName()])) {
-            return $this->fields[$field->getName()];
+        if (isset($this->fields[$field->name])) {
+            return $this->fields[$field->name];
         }
 
         $this->addField($field);
 
-        return $this->fields[$field->getName()];
+        return $this->fields[$field->name];
     }
 
+    /**
+     * @return array<string, Field>
+     */
     public function getFields(): array
     {
         return $this->fields;
     }
 
+    /**
+     * @return string[]
+     */
     public function getFieldsName(): array
     {
         return array_keys($this->fields);
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
     }
 
     public function getIncrement(): ?int
@@ -105,9 +123,8 @@ final class Table
 
     public function renameField(string $from, string $to): void
     {
-        $this->fields[ $to ] = $this->fields[ $from ];
+        $this->fields[ $to ] = $this->getField($from);
         unset($this->fields[ $from ]);
-        $this->fields[ $to ]->setName($to);
     }
 
     public function setIncrement(?int $increment): void
@@ -122,15 +139,15 @@ final class Table
      */
     public function toArray(): array
     {
-        $fields = [];
+        $table['fields'] = [];
         foreach ($this->fields as $name => $field) {
-            $fields[ $name ] = $field->toArray();
+            $table['fields'][$name] = $field->toArray();
+        }
+        if ($this->increment !== null) {
+            $table['increments'] = $this->increment;
         }
 
-        return [
-            'fields'     => $fields,
-            'increments' => $this->increment
-        ];
+        return $table;
     }
 
     public function unsetField(string $name): void

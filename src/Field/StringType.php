@@ -8,43 +8,30 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Field;
 
+use Soosyze\Queryflatfile\Concern\Field\TryOrGetString;
+use Soosyze\Queryflatfile\Enum\FieldType;
+use Soosyze\Queryflatfile\Field;
+
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class StringType extends TextType
+final class StringType extends Field
 {
-    public const TYPE = 'string';
+    use TryOrGetString;
 
-    protected int $length;
-
-    public function __construct(string $name, int $length)
+    public function __construct(readonly public string $name, protected int $length)
     {
-        if ($length < 0) {
+        if ($length <= 0) {
             throw new \InvalidArgumentException('The length passed in parameter is not of numeric type.');
         }
-        parent::__construct($name);
-        $this->length = $length;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function tryOrGetValue(null|bool|string|int|float $value): string
+    public function getType(): FieldType
     {
-        $str = parent::tryOrGetValue($value);
-
-        if (strlen($str) > $this->length) {
-            throw new \LengthException(
-                sprintf(
-                    'The value of the %s field must be less than or equal to %s characters: %s given',
-                    $this->name,
-                    $this->length,
-                    strlen($str)
-                )
-            );
-        }
-
-        return $str;
+        return FieldType::String;
     }
 
     /**

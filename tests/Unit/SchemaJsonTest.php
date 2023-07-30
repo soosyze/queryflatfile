@@ -87,7 +87,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
                         'value_i' => [ 'type' => 'integer' ],
                         'value_s' => [ 'type' => 'string', 'length' => 255 ]
                     ],
-                    'increments' => null
                 ]
             ],
             $schema
@@ -279,7 +278,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
                     'value_i' => [ 'type' => 'float', 'default' => 1.0 ],
                     'value_s' => [ 'type' => 'string', 'length' => 255, 'nullable' => true ]
                 ],
-                'increments' => null
             ],
             $this->bdd->getTableSchema('test_second')->toArray()
         );
@@ -331,7 +329,6 @@ class SchemaJsonTest extends \PHPUnit\Framework\TestCase
                 'fields'     => [
                     'name' => [ 'type' => 'string', 'length' => 255 ]
                 ],
-                'increments' => null
             ],
             $this->bdd->getTableSchema('test')->toArray()
         );

@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Field\DropType;
-use Soosyze\Queryflatfile\Field\RenameType;
+use Soosyze\Queryflatfile\Command\DropCommand;
+use Soosyze\Queryflatfile\Command\RenameCommand;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.
@@ -25,7 +25,7 @@ class TableAlter extends TableBuilder
      */
     public function dropColumn(string $name): void
     {
-        $this->table->addField(new DropType($name));
+        $this->table->addCommand(new DropCommand($name));
     }
 
     /**
@@ -36,6 +36,6 @@ class TableAlter extends TableBuilder
      */
     public function renameColumn(string $from, string $to): void
     {
-        $this->table->addField(new RenameType($from, $to));
+        $this->table->addCommand(new RenameCommand($from, $to));
     }
 }
