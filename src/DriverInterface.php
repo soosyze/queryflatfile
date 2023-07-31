@@ -23,7 +23,7 @@ interface DriverInterface
      * @param string $fileName Nom du fichier SANS l'extension.
      * @param array  $data     Tableau associatif à enregistrer.
      *
-     * @throws Exception\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
+     * @throws Exceptions\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
      *
      * @return bool TRUE si tous ce passe bien sinon FALSE.
      */
@@ -36,9 +36,9 @@ interface DriverInterface
      * @param string $path     Chemin du fichier.
      * @param string $fileName Nom du fichier SANS l'extension.
      *
-     * @throws Exception\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
-     * @throws Exception\Driver\FileNotFoundException       Si le fichier est introuvable.
-     * @throws Exception\Driver\FileNotReadableException    Si le fichier n'a pas les droits suffisant pour être lu.
+     * @throws Exceptions\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
+     * @throws Exceptions\Driver\FileNotFoundException       Si le fichier est introuvable.
+     * @throws Exceptions\Driver\FileNotReadableException    Si le fichier n'a pas les droits suffisant pour être lu.
      *
      * @return array les données du fichier
      */
@@ -52,9 +52,9 @@ interface DriverInterface
      * @param string $fileName Nom du fichier SANS l'extension.
      * @param array  $data     Tableau associatif à enregistrer.
      *
-     * @throws Exception\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
-     * @throws Exception\Driver\FileNotFoundException       Si le fichier est introuvable.
-     * @throws Exception\Driver\FileNotWritableException    Si le fichier n'a pas les droits suffisant pour être écrit.
+     * @throws Exceptions\Driver\ExtensionNotLoadedException Si l'extension n'est pas chargée.
+     * @throws Exceptions\Driver\FileNotFoundException       Si le fichier est introuvable.
+     * @throws Exceptions\Driver\FileNotWritableException    Si le fichier n'a pas les droits suffisant pour être écrit.
      *
      * @return bool TRUE si tous ce passe bien sinon FALSE.
      */

@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile\Concerns\Field;
 
 use Soosyze\Queryflatfile\Enums\CurentDefaultType;
-use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Soosyze\Queryflatfile\Exceptions\TableBuilder\ColumnsValueException;
 
 /**
  * @property string $name

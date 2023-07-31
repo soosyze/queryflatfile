@@ -9,8 +9,8 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile;
 
 use Soosyze\Queryflatfile\Enums\SortType;
-use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
-use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
+use Soosyze\Queryflatfile\Exceptions\Query\BadFunctionException;
+use Soosyze\Queryflatfile\Exceptions\TableBuilder\ColumnsNotFoundException;
 
 /**
  * Ensemble des fonctions nécessaires à une requête.

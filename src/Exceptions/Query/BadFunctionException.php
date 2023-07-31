@@ -4,7 +4,7 @@
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Exception\Query;
+namespace Soosyze\Queryflatfile\Exceptions\Query;
 
 /**
  * Exception levée lorsqu'une méthode attendue est absente.

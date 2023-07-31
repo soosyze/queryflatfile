@@ -3,7 +3,7 @@
 namespace Soosyze\Queryflatfile\Tests\Unit\Drivers;
 
 use Soosyze\Queryflatfile\DriverInterface;
-use Soosyze\Queryflatfile\Exception\Driver\FileNotFoundException;
+use Soosyze\Queryflatfile\Exceptions\Driver\FileNotFoundException;
 
 class Driver extends \PHPUnit\Framework\TestCase
 {

@@ -3,7 +3,7 @@
 namespace Soosyze\Queryflatfile\Tests\Unit;
 
 use Soosyze\Queryflatfile\Enums\FieldType;
-use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
+use Soosyze\Queryflatfile\Exceptions\TableBuilder\ColumnsValueException;
 use Soosyze\Queryflatfile\Field;
 use Soosyze\Queryflatfile\TableBuilder;
 

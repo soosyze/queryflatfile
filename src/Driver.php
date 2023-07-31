@@ -8,10 +8,10 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Exception\Driver\DriverException;
-use Soosyze\Queryflatfile\Exception\Driver\FileNotFoundException;
-use Soosyze\Queryflatfile\Exception\Driver\FileNotReadableException;
-use Soosyze\Queryflatfile\Exception\Driver\FileNotWritableException;
+use Soosyze\Queryflatfile\Exceptions\Driver\DriverException;
+use Soosyze\Queryflatfile\Exceptions\Driver\FileNotFoundException;
+use Soosyze\Queryflatfile\Exceptions\Driver\FileNotReadableException;
+use Soosyze\Queryflatfile\Exceptions\Driver\FileNotWritableException;
 
 /**
  * Implementation partiel Queryflatfile\DriverInterface.
@@ -27,7 +27,7 @@ abstract class Driver implements DriverInterface
      *
      * @codeCoverageIgnore has
      *
-     * @throws Exception\Driver\ExtensionNotLoadedException
+     * @throws Exceptions\Driver\ExtensionNotLoadedException
      */
     abstract public function checkExtension(): void;
 

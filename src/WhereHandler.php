@@ -9,8 +9,8 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile;
 
 use Soosyze\Queryflatfile\Enums\ExpressionType;
-use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
-use Soosyze\Queryflatfile\Exception\Query\QueryException;
+use Soosyze\Queryflatfile\Exceptions\Query\OperatorNotFoundException;
+use Soosyze\Queryflatfile\Exceptions\Query\QueryException;
 
 /**
  * Pattern fluent pour la création des clauses (conditions) de manipulation des données.

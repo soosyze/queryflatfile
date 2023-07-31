@@ -12,11 +12,11 @@ use Soosyze\Queryflatfile\Enums\JoinType;
 use Soosyze\Queryflatfile\Enums\QueryExecutionType;
 use Soosyze\Queryflatfile\Enums\SortType;
 use Soosyze\Queryflatfile\Enums\UnionType;
-use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
-use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
-use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
-use Soosyze\Queryflatfile\Exception\Query\QueryException;
-use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
+use Soosyze\Queryflatfile\Exceptions\Query\BadFunctionException;
+use Soosyze\Queryflatfile\Exceptions\Query\ColumnsNotFoundException;
+use Soosyze\Queryflatfile\Exceptions\Query\OperatorNotFoundException;
+use Soosyze\Queryflatfile\Exceptions\Query\QueryException;
+use Soosyze\Queryflatfile\Exceptions\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Field;
 use Soosyze\Queryflatfile\Fields\IncrementType;
 

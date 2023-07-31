@@ -4,13 +4,13 @@
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Exception\Query;
+namespace Soosyze\Queryflatfile\Exceptions\TableBuilder;
 
 /**
  * Exception levée lors d'un mauvais type valeur pour le champ sélectionné.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class ColumnsValueException extends QueryException
+class ColumnsValueException extends TableBuilderException
 {
 }

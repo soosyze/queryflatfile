@@ -1104,13 +1104,13 @@ Exception
 try{
     $req->select(...$fields)->from('user')->fetch();
 }
-catch(\Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException $e) {
+catch(\Soosyze\Queryflatfile\Exceptions\Query\ColumnsNotFoundException $e) {
     // Exception levée si une des valeurs contenues dans $fields ne correspond à aucun champ
 }
-catch(\Soosyze\Queryflatfile\Exception\Query\TableNotFoundException $e) {
+catch(\Soosyze\Queryflatfile\Exceptions\Query\TableNotFoundException $e) {
     // Exception levée si $table user n'existe pas
 }
-catch(\Soosyze\Queryflatfile\Exception\Query\QueryException $e) {
+catch(\Soosyze\Queryflatfile\Exceptions\Query\QueryException $e) {
      // Exception levée dans les 2 cas grâce à l'héritage
 }
 ```

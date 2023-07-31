@@ -1,18 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Exception;
+namespace Soosyze\Queryflatfile\Exceptions\Query;
 
 /**
- * Exception générale.
+ * Exception levée lorsqu'un opérateur WHERE n'existe pas.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-class Exception extends \Exception
+class OperatorNotFoundException extends QueryException
 {
 }

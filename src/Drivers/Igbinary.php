@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Drivers;
 
-use Soosyze\Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
+use Soosyze\Queryflatfile\Exceptions\Driver\ExtensionNotLoadedException;
 
 /**
  * Manipule des données sérialisées avec l'extension igbinary

@@ -10,8 +10,8 @@ namespace Soosyze\Queryflatfile;
 
 use Soosyze\Queryflatfile\Enums\FieldType;
 use Soosyze\Queryflatfile\Enums\TableExecutionType;
-use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
-use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
+use Soosyze\Queryflatfile\Exceptions\TableBuilder\ColumnsValueException;
+use Soosyze\Queryflatfile\Exceptions\TableBuilder\TableBuilderException;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.

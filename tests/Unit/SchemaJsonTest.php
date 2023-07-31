@@ -3,7 +3,7 @@
 namespace Soosyze\Queryflatfile\Tests\Unit;
 
 use Soosyze\Queryflatfile\Drivers\Json;
-use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
+use Soosyze\Queryflatfile\Exceptions\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Request;
 use Soosyze\Queryflatfile\Schema;
 use Soosyze\Queryflatfile\TableAlter;

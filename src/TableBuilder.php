@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile;
 
 use Soosyze\Queryflatfile\Enums\FieldType;
-use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
+use Soosyze\Queryflatfile\Exceptions\TableBuilder\TableBuilderException;
 use Soosyze\Queryflatfile\Fields\BoolType;
 use Soosyze\Queryflatfile\Fields\CharType;
 use Soosyze\Queryflatfile\Fields\DateTimeType;
