@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Field;
+namespace Soosyze\Queryflatfile\Fields;
 
 use Soosyze\Queryflatfile\Concerns\Field\ThrowInvalidType;
 use Soosyze\Queryflatfile\Enums\FieldType;
@@ -15,7 +15,7 @@ use Soosyze\Queryflatfile\Field;
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-final class TextType extends Field
+final class FloatType extends Field
 {
     use ThrowInvalidType;
 
@@ -24,15 +24,15 @@ final class TextType extends Field
      */
     public function getType(): FieldType
     {
-        return FieldType::Text;
+        return FieldType::Float;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function tryOrGetValue(mixed $value): string
+    public function tryOrGetValue(mixed $value): float
     {
-        if (!\is_string($value)) {
+        if (!\is_float($value)) {
             $this->throwInvalidType($value);
         }
 

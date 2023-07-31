@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Field\IncrementType;
+use Soosyze\Queryflatfile\Fields\IncrementType;
 
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>

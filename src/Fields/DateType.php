@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Field;
+namespace Soosyze\Queryflatfile\Fields;
 
 use Soosyze\Queryflatfile\Concerns\Field\TryOrGetDate;
 use Soosyze\Queryflatfile\Enums\CurentDefaultType;
@@ -16,13 +16,13 @@ use Soosyze\Queryflatfile\Field;
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-final class DateTimeType extends Field
+final class DateType extends Field
 {
     use TryOrGetDate;
 
     public function __construct(readonly public string $name)
     {
-        $this->currentDefault = CurentDefaultType::DateTime;
+        $this->currentDefault = CurentDefaultType::Date;
     }
 
     /**
@@ -30,6 +30,6 @@ final class DateTimeType extends Field
      */
     public function getType(): FieldType
     {
-        return FieldType::DateTime;
+        return FieldType::Date;
     }
 }

@@ -18,7 +18,7 @@ use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Field;
-use Soosyze\Queryflatfile\Field\IncrementType;
+use Soosyze\Queryflatfile\Fields\IncrementType;
 
 /**
  * Réalise des requêtes à partir d'un schéma de données passé en paramètre.

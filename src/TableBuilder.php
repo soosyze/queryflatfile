@@ -10,15 +10,15 @@ namespace Soosyze\Queryflatfile;
 
 use Soosyze\Queryflatfile\Enums\FieldType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
-use Soosyze\Queryflatfile\Field\BoolType;
-use Soosyze\Queryflatfile\Field\CharType;
-use Soosyze\Queryflatfile\Field\DateTimeType;
-use Soosyze\Queryflatfile\Field\DateType;
-use Soosyze\Queryflatfile\Field\FloatType;
-use Soosyze\Queryflatfile\Field\IncrementType;
-use Soosyze\Queryflatfile\Field\IntType;
-use Soosyze\Queryflatfile\Field\StringType;
-use Soosyze\Queryflatfile\Field\TextType;
+use Soosyze\Queryflatfile\Fields\BoolType;
+use Soosyze\Queryflatfile\Fields\CharType;
+use Soosyze\Queryflatfile\Fields\DateTimeType;
+use Soosyze\Queryflatfile\Fields\DateType;
+use Soosyze\Queryflatfile\Fields\FloatType;
+use Soosyze\Queryflatfile\Fields\IncrementType;
+use Soosyze\Queryflatfile\Fields\IntType;
+use Soosyze\Queryflatfile\Fields\StringType;
+use Soosyze\Queryflatfile\Fields\TextType;
 
 /**
  * Pattern fluent pour la création et configuration des types de données.

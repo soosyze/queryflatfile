@@ -19,9 +19,9 @@ use Soosyze\Queryflatfile\Exception\Exception;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
-use Soosyze\Queryflatfile\Field\DropType;
-use Soosyze\Queryflatfile\Field\IncrementType;
-use Soosyze\Queryflatfile\Field\RenameType;
+use Soosyze\Queryflatfile\Fields\DropType;
+use Soosyze\Queryflatfile\Fields\IncrementType;
+use Soosyze\Queryflatfile\Fields\RenameType;
 
 /**
  * Pattern fluent pour la gestion d'un schéma de données.
