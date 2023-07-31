@@ -6,24 +6,26 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Driver;
+namespace Soosyze\Queryflatfile\Drivers;
 
 use Soosyze\Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
 
 /**
- * Manipule des données dans des fichiers de type JSON
+ * Manipule des données sérialisées avec l'extension msgpack
+ *
+ * @see https://msgpack.org/
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-final class Json extends \Soosyze\Queryflatfile\Driver
+final class MsgPack extends \Soosyze\Queryflatfile\Driver
 {
     /**
      * {@inheritDoc}
      */
     public function checkExtension(): void
     {
-        if (!extension_loaded('json')) {
-            throw new ExtensionNotLoadedException('The json extension is not loaded.');
+        if (!extension_loaded('msgpack')) {
+            throw new ExtensionNotLoadedException('The msgpack extension is not loaded.');
         }
     }
 
@@ -32,7 +34,7 @@ final class Json extends \Soosyze\Queryflatfile\Driver
      */
     public function getExtension(): string
     {
-        return 'json';
+        return 'msg';
     }
 
     /**
@@ -40,12 +42,7 @@ final class Json extends \Soosyze\Queryflatfile\Driver
      */
     public function serializeData(array $data): string
     {
-        $serializeData = json_encode($data, JSON_UNESCAPED_UNICODE);
-        if (!is_string($serializeData)) {
-            throw new \Exception('An error occurred in serializing the data.');
-        }
-
-        return $serializeData;
+        return msgpack_pack($data);
     }
 
     /**
@@ -53,7 +50,7 @@ final class Json extends \Soosyze\Queryflatfile\Driver
      */
     public function unserializeData(string $data): array
     {
-        $dataUnserialize = json_decode($data, true, 512, JSON_UNESCAPED_UNICODE);
+        $dataUnserialize = msgpack_unpack($data);
         if (!is_array($dataUnserialize)) {
             throw new \Exception('An error occurred in deserializing the data.');
         }

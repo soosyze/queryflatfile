@@ -76,7 +76,7 @@ require __DIR__ . '/vendor/autoload.php';
 use Soosyze\Queryflatfile\Schema;
 use Soosyze\Queryflatfile\Request;
 use Soosyze\Queryflatfile\TableBuilder;
-use Soosyze\Queryflatfile\Driver\Json;
+use Soosyze\Queryflatfile\Drivers\Json;
 
 $sch = new Schema('data', 'schema', new Json());
 $req = new Request($sch);

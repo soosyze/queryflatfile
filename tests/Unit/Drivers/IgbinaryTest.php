@@ -1,8 +1,8 @@
 <?php
 
-namespace Soosyze\Queryflatfile\Tests\Unit\Driver;
+namespace Soosyze\Queryflatfile\Tests\Unit\Drivers;
 
-use Soosyze\Queryflatfile\Driver\Igbinary;
+use Soosyze\Queryflatfile\Drivers\Igbinary;
 
 class IgbinaryTest extends Driver
 {

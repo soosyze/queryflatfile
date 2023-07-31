@@ -1,8 +1,8 @@
 <?php
 
-namespace Soosyze\Queryflatfile\Tests\Unit\Driver;
+namespace Soosyze\Queryflatfile\Tests\Unit\Drivers;
 
-use Soosyze\Queryflatfile\Driver\Txt;
+use Soosyze\Queryflatfile\Drivers\Txt;
 
 class TxtTest extends Driver
 {

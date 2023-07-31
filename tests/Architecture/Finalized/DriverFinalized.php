@@ -13,13 +13,13 @@ class DriverFinalized extends BaseRule
 {
     public static function classSet(): ClassSet
     {
-        return ClassSet::fromDir(self::$path . '/src/Driver');
+        return ClassSet::fromDir(self::$path . '/src/Drivers');
     }
 
     public static function rule(): ArchRule
     {
         return Rule::allClasses()
-            ->that(new ResideInOneOfTheseNamespaces('Soosyze\Queryflatfile\Field\*'))
+            ->that(new ResideInOneOfTheseNamespaces('Soosyze\Queryflatfile\Drivers\*'))
             ->should(new IsFinal())
             ->because('we want uniform naming');
     }

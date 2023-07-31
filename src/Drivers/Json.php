@@ -6,20 +6,25 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Driver;
+namespace Soosyze\Queryflatfile\Drivers;
+
+use Soosyze\Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
 
 /**
- * Manipule des données sérialisées dans des fichiers texte.
+ * Manipule des données dans des fichiers de type JSON
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-final class Txt extends \Soosyze\Queryflatfile\Driver
+final class Json extends \Soosyze\Queryflatfile\Driver
 {
     /**
      * {@inheritDoc}
      */
     public function checkExtension(): void
     {
+        if (!extension_loaded('json')) {
+            throw new ExtensionNotLoadedException('The json extension is not loaded.');
+        }
     }
 
     /**
@@ -27,7 +32,7 @@ final class Txt extends \Soosyze\Queryflatfile\Driver
      */
     public function getExtension(): string
     {
-        return 'txt';
+        return 'json';
     }
 
     /**
@@ -35,7 +40,12 @@ final class Txt extends \Soosyze\Queryflatfile\Driver
      */
     public function serializeData(array $data): string
     {
-        return serialize($data);
+        $serializeData = json_encode($data, JSON_UNESCAPED_UNICODE);
+        if (!is_string($serializeData)) {
+            throw new \Exception('An error occurred in serializing the data.');
+        }
+
+        return $serializeData;
     }
 
     /**
@@ -43,7 +53,7 @@ final class Txt extends \Soosyze\Queryflatfile\Driver
      */
     public function unserializeData(string $data): array
     {
-        $dataUnserialize = unserialize($data);
+        $dataUnserialize = json_decode($data, true, 512, JSON_UNESCAPED_UNICODE);
         if (!is_array($dataUnserialize)) {
             throw new \Exception('An error occurred in deserializing the data.');
         }

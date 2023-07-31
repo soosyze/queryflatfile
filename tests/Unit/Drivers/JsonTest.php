@@ -1,8 +1,8 @@
 <?php
 
-namespace Soosyze\Queryflatfile\Tests\Unit\Driver;
+namespace Soosyze\Queryflatfile\Tests\Unit\Drivers;
 
-use Soosyze\Queryflatfile\Driver\Json;
+use Soosyze\Queryflatfile\Drivers\Json;
 
 class JsonTest extends Driver
 {

@@ -14,13 +14,13 @@ class DriverExtending extends BaseRule
 {
     public static function classSet(): ClassSet
     {
-        return ClassSet::fromDir(self::$path . '/src/Driver');
+        return ClassSet::fromDir(self::$path . '/src/Drivers');
     }
 
     public static function rule(): ArchRule
     {
         return Rule::allClasses()
-            ->that(new ResideInOneOfTheseNamespaces('Soosyze\Queryflatfile\Driver\*'))
+            ->that(new ResideInOneOfTheseNamespaces('Soosyze\Queryflatfile\Drivers\*'))
             ->should(new Extend(Driver::class))
             ->because('we want protect our domain');
     }

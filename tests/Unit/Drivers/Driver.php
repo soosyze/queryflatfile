@@ -1,6 +1,6 @@
 <?php
 
-namespace Soosyze\Queryflatfile\Tests\Unit\Driver;
+namespace Soosyze\Queryflatfile\Tests\Unit\Drivers;
 
 use Soosyze\Queryflatfile\DriverInterface;
 use Soosyze\Queryflatfile\Exception\Driver\FileNotFoundException;

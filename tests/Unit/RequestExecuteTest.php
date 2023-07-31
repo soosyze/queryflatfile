@@ -2,6 +2,7 @@
 
 namespace Soosyze\Queryflatfile\Tests\Unit;
 
+use Soosyze\Queryflatfile\Drivers\Json;
 use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Request;
@@ -41,7 +42,7 @@ class RequestExecuteTest extends \PHPUnit\Framework\TestCase
     protected function setUp(): void
     {
         $this->bdd = (new Schema)
-            ->setConfig('data', 'schema', new \Soosyze\Queryflatfile\Driver\Json())
+            ->setConfig('data', 'schema', new Json())
             ->setPathRoot(__DIR__ . '/');
 
         $this->request = new Request($this->bdd);

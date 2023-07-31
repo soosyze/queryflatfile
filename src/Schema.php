@@ -13,6 +13,7 @@ namespace Soosyze\Queryflatfile;
 use Soosyze\Queryflatfile\Commands\DropCommand;
 use Soosyze\Queryflatfile\Commands\RenameCommand;
 use Soosyze\Queryflatfile\DriverInterface;
+use Soosyze\Queryflatfile\Drivers\Json;
 use Soosyze\Queryflatfile\Enum\TableExecutionType;
 use Soosyze\Queryflatfile\Exception\Exception;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
@@ -93,7 +94,7 @@ class Schema
         string $name = 'schema',
         DriverInterface $driver = null
     ): self {
-        $this->driver = $driver ?? new Driver\Json();
+        $this->driver = $driver ?? new Drivers\Json();
         $this->path   = $host;
         $this->name   = $name;
 

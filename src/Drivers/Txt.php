@@ -6,27 +6,20 @@ declare(strict_types=1);
  * @license https://github.com/soosyze/queryflatfile/blob/master/LICENSE (MIT License)
  */
 
-namespace Soosyze\Queryflatfile\Driver;
-
-use Soosyze\Queryflatfile\Exception\Driver\ExtensionNotLoadedException;
+namespace Soosyze\Queryflatfile\Drivers;
 
 /**
- * Manipule des données sérialisées avec l'extension msgpack
- *
- * @see https://msgpack.org/
+ * Manipule des données sérialisées dans des fichiers texte.
  *
  * @author Mathieu NOËL <mathieu@soosyze.com>
  */
-final class MsgPack extends \Soosyze\Queryflatfile\Driver
+final class Txt extends \Soosyze\Queryflatfile\Driver
 {
     /**
      * {@inheritDoc}
      */
     public function checkExtension(): void
     {
-        if (!extension_loaded('msgpack')) {
-            throw new ExtensionNotLoadedException('The msgpack extension is not loaded.');
-        }
     }
 
     /**
@@ -34,7 +27,7 @@ final class MsgPack extends \Soosyze\Queryflatfile\Driver
      */
     public function getExtension(): string
     {
-        return 'msg';
+        return 'txt';
     }
 
     /**
@@ -42,7 +35,7 @@ final class MsgPack extends \Soosyze\Queryflatfile\Driver
      */
     public function serializeData(array $data): string
     {
-        return msgpack_pack($data);
+        return serialize($data);
     }
 
     /**
@@ -50,7 +43,7 @@ final class MsgPack extends \Soosyze\Queryflatfile\Driver
      */
     public function unserializeData(string $data): array
     {
-        $dataUnserialize = msgpack_unpack($data);
+        $dataUnserialize = unserialize($data);
         if (!is_array($dataUnserialize)) {
             throw new \Exception('An error occurred in deserializing the data.');
         }

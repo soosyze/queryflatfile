@@ -1,8 +1,8 @@
 <?php
 
-namespace Soosyze\Queryflatfile\Tests\Unit\Driver;
+namespace Soosyze\Queryflatfile\Tests\Unit\Drivers;
 
-use Soosyze\Queryflatfile\Driver\MsgPack;
+use Soosyze\Queryflatfile\Drivers\MsgPack;
 
 class MsgPackTest extends Driver
 {
