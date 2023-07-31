@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile\Commands;
 
 use Soosyze\Queryflatfile\Command;
-use Soosyze\Queryflatfile\Enum\TableExecutionType;
+use Soosyze\Queryflatfile\Enums\TableExecutionType;
 
 /**
  * @author Mathieu NOËL <mathieu@soosyze.com>

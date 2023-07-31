@@ -8,10 +8,10 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Enum\JoinType;
-use Soosyze\Queryflatfile\Enum\QueryExecutionType;
-use Soosyze\Queryflatfile\Enum\SortType;
-use Soosyze\Queryflatfile\Enum\UnionType;
+use Soosyze\Queryflatfile\Enums\JoinType;
+use Soosyze\Queryflatfile\Enums\QueryExecutionType;
+use Soosyze\Queryflatfile\Enums\SortType;
+use Soosyze\Queryflatfile\Enums\UnionType;
 use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
 use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;

@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Enum\SortType;
+use Soosyze\Queryflatfile\Enums\SortType;
 use Soosyze\Queryflatfile\Exception\Query\BadFunctionException;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;
 

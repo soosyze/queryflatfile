@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile\Field;
 
 use Soosyze\Queryflatfile\Concerns\Field\ThrowInvalidType;
-use Soosyze\Queryflatfile\Enum\FieldType;
+use Soosyze\Queryflatfile\Enums\FieldType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
 use Soosyze\Queryflatfile\Field;
 

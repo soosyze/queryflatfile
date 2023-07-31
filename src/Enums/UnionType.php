@@ -1,6 +1,6 @@
 <?php
 
-namespace Soosyze\Queryflatfile\Enum;
+namespace Soosyze\Queryflatfile\Enums;
 
 enum UnionType
 {

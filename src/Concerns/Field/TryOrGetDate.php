@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile\Concerns\Field;
 
-use Soosyze\Queryflatfile\Enum\CurentDefaultType;
+use Soosyze\Queryflatfile\Enums\CurentDefaultType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
 
 /**

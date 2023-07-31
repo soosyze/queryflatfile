@@ -14,7 +14,7 @@ use Soosyze\Queryflatfile\Commands\DropCommand;
 use Soosyze\Queryflatfile\Commands\RenameCommand;
 use Soosyze\Queryflatfile\DriverInterface;
 use Soosyze\Queryflatfile\Drivers\Json;
-use Soosyze\Queryflatfile\Enum\TableExecutionType;
+use Soosyze\Queryflatfile\Enums\TableExecutionType;
 use Soosyze\Queryflatfile\Exception\Exception;
 use Soosyze\Queryflatfile\Exception\Query\TableNotFoundException;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsNotFoundException;

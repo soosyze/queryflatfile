@@ -9,10 +9,10 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile;
 
 use BadMethodCallException;
-use Soosyze\Queryflatfile\Enum\JoinType;
-use Soosyze\Queryflatfile\Enum\QueryExecutionType;
-use Soosyze\Queryflatfile\Enum\SortType;
-use Soosyze\Queryflatfile\Enum\UnionType;
+use Soosyze\Queryflatfile\Enums\JoinType;
+use Soosyze\Queryflatfile\Enums\QueryExecutionType;
+use Soosyze\Queryflatfile\Enums\SortType;
+use Soosyze\Queryflatfile\Enums\UnionType;
 
 /**
  * Met en forme et stock les données pour lancer une requête.

@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Enum\FieldType;
-use Soosyze\Queryflatfile\Enum\TableExecutionType;
+use Soosyze\Queryflatfile\Enums\FieldType;
+use Soosyze\Queryflatfile\Enums\TableExecutionType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\ColumnsValueException;
 use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
 

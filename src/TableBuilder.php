@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Enum\FieldType;
+use Soosyze\Queryflatfile\Enums\FieldType;
 use Soosyze\Queryflatfile\Exception\TableBuilder\TableBuilderException;
 use Soosyze\Queryflatfile\Field\BoolType;
 use Soosyze\Queryflatfile\Field\CharType;

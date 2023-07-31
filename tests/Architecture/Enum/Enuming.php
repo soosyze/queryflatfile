@@ -13,13 +13,13 @@ class Enuming extends BaseRule
 {
     public static function classSet(): ClassSet
     {
-        return ClassSet::fromDir(self::$path . '/src/Enum');
+        return ClassSet::fromDir(self::$path . '/src/Enums');
     }
 
     public static function rule(): ArchRule
     {
         return Rule::allClasses()
-            ->that(new ResideInOneOfTheseNamespaces('Soosyze\Queryflatfile\Enum\*'))
+            ->that(new ResideInOneOfTheseNamespaces('Soosyze\Queryflatfile\Enums\*'))
             ->should(new IsEnum())
             ->because('we want to be sure that all classes are enum');
     }

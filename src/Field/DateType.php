@@ -9,8 +9,8 @@ declare(strict_types=1);
 namespace Soosyze\Queryflatfile\Field;
 
 use Soosyze\Queryflatfile\Concerns\Field\TryOrGetDate;
-use Soosyze\Queryflatfile\Enum\CurentDefaultType;
-use Soosyze\Queryflatfile\Enum\FieldType;
+use Soosyze\Queryflatfile\Enums\CurentDefaultType;
+use Soosyze\Queryflatfile\Enums\FieldType;
 use Soosyze\Queryflatfile\Field;
 
 /**

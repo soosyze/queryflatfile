@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Soosyze\Queryflatfile;
 
-use Soosyze\Queryflatfile\Enum\ExpressionType;
+use Soosyze\Queryflatfile\Enums\ExpressionType;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
 

@@ -2,7 +2,7 @@
 
 namespace Soosyze\Queryflatfile\Tests\Unit;
 
-use Soosyze\Queryflatfile\Enum\SortType;
+use Soosyze\Queryflatfile\Enums\SortType;
 use Soosyze\Queryflatfile\Exception\Query\ColumnsNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\OperatorNotFoundException;
 use Soosyze\Queryflatfile\Exception\Query\QueryException;
